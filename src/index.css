@@ -2,31 +2,73 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom Basketball Animation */
-@keyframes dribble {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-10px) rotate(180deg); }
+/* 引入移动端专用样式（通过 PostCSS） */
+@import "./styles/mobile.css";
+
+/* 性能优化的动画 - 只在非移动设备上启用复杂动画 */
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  /* Custom Basketball Animation */
+  @keyframes dribble {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(180deg); }
+  }
+
+  @keyframes shoot {
+    0% { transform: translateY(0) scale(1); opacity: 1; }
+    100% { transform: translateY(-50px) scale(0.5); opacity: 0; }
+  }
+
+  .animate-dribble {
+    animation: dribble 1s ease-in-out infinite;
+  }
+
+  .animate-shoot {
+    animation: shoot 2s ease-out infinite;
+  }
+
+  /* Player Silhouette Animations */
+  @keyframes player-move {
+    0%, 100% { transform: translateX(0) rotate(0deg); }
+    50% { transform: translateX(5px) rotate(2deg); }
+  }
+
+  .animate-player-move {
+    animation: player-move 3s ease-in-out infinite;
+  }
 }
 
-@keyframes shoot {
-  0% { transform: translateY(0) scale(1); opacity: 1; }
-  100% { transform: translateY(-50px) scale(0.5); opacity: 0; }
+/* 移动端简化动画 */
+@media (max-width: 767px) {
+  .animate-pulse,
+  .animate-bounce,
+  .animate-spin {
+    animation: none !important;
+  }
+  
+  /* 简化的脉冲效果 */
+  .mobile-pulse {
+    animation: mobile-pulse 2s ease-in-out infinite;
+  }
+  
+  @keyframes mobile-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+  }
 }
 
-.animate-dribble {
-  animation: dribble 1s ease-in-out infinite;
+/* 性能优化 */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.animate-shoot {
-  animation: shoot 2s ease-out infinite;
+/* 减少重绘 */
+.gpu-accelerated {
+  transform: translateZ(0);
+  will-change: transform;
 }
 
-/* Player Silhouette Animations */
-@keyframes player-move {
-  0%, 100% { transform: translateX(0) rotate(0deg); }
-  50% { transform: translateX(5px) rotate(2deg); }
-}
-
-.animate-player-move {
-  animation: player-move 3s ease-in-out infinite;
+/* 优化渐变性能 */
+.optimized-gradient {
+  background-attachment: fixed;
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 export interface GameData {
   id: string;
@@ -40,7 +40,7 @@ export interface LiveStatus {
 }
 
 // 模拟实时数据API
-const mockApiCall = <T>(data: T, delay: number = 1000): Promise<T> => {
+const mockApiCall = <T>(data: T, delay: number = 200): Promise<T> => {
   return new Promise((resolve) => {
     setTimeout(() => resolve(data), delay);
   });
@@ -213,8 +213,8 @@ export const useRealTimeData = () => {
     }
   };
 
-  // 实时更新数据
-  const updateRealTimeData = async () => {
+  // 实时更新数据 - 使用 useCallback 优化
+  const updateRealTimeData = useCallback(async () => {
     try {
       const [todayGameData, playerStatsData, videosData, liveStatusData] = await Promise.all([
         fetchTodayGame(),
@@ -231,17 +231,35 @@ export const useRealTimeData = () => {
     } catch (error) {
       console.error('Error updating real-time data:', error);
     }
-  };
+  }, []);
 
-  // 初始化和设置定时更新
+  // 初始化和设置定时更新 - 优化更新频率
   useEffect(() => {
     loadInitialData();
 
-    // 每30秒更新一次实时数据
-    const interval = setInterval(updateRealTimeData, 30000);
+    // 根据页面可见性调整更新频率
+    let interval: NodeJS.Timeout;
+    
+    const handleVisibilityChange = () => {
+      clearInterval(interval);
+      if (!document.hidden) {
+        // 页面可见时每60秒更新一次（降低频率）
+        interval = setInterval(updateRealTimeData, 60000);
+      }
+    };
 
-    return () => clearInterval(interval);
-  }, []);
+    // 初始设置
+    if (!document.hidden) {
+      interval = setInterval(updateRealTimeData, 60000);
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [updateRealTimeData]);
 
   return {
     todayGame,
