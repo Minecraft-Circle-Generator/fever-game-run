@@ -25,7 +25,7 @@ jobs:
 
       - name: Update sitemap (domain + lastmod)
         env:
-          DEPLOY_DOMAIN: https://fever-game-run.vercel.app
+          DEPLOY_DOMAIN: https://fever-game.run
         run: npm run update:sitemap
 
       - name: Build
