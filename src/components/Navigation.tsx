@@ -22,7 +22,6 @@ const Navigation = () => {
           <div className="w-3 h-5 bg-red-400 mx-auto mb-1"></div>
           <div className="w-2 h-3 bg-red-400 mx-auto"></div>
         </div>
-      )}
         <div className="absolute top-1 right-1/3 w-8 h-12 bg-gradient-to-b from-orange-400 to-transparent transform -rotate-8 animate-bounce">
           <div className="w-2 h-2 bg-orange-300 rounded-full mx-auto mb-1"></div>
           <div className="w-4 h-6 bg-orange-400 mx-auto mb-1"></div>
@@ -38,6 +37,7 @@ const Navigation = () => {
         <div className="absolute top-4 left-1/2 w-16 h-px bg-gradient-to-r from-transparent via-red-400 to-transparent transform rotate-12 animate-pulse"></div>
         <div className="absolute bottom-2 right-1/4 w-12 h-px bg-gradient-to-r from-transparent via-yellow-400 to-transparent transform -rotate-6 animate-bounce"></div>
       </div>
+      )}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 md:h-20">
           <div className="flex items-center">

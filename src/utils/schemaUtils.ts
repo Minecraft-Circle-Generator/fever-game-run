@@ -60,7 +60,8 @@ export const generateSportsEventSchema = (game: GameData): StructuredDataSchema 
   if (game.platform) {
     schema.broadcastOfEvent = {
       "@type": "BroadcastEvent",
-      "broadcastOfEvent": schema,
+      "isLiveBroadcast": game.status === 'live',
+      "name": `${game.platform} broadcast`,
       "broadcaster": {
         "@type": "Organization",
         "name": game.platform

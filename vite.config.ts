@@ -29,6 +29,14 @@ export default defineConfig({
   server: {
     hmr: {
       overlay: false
+    },
+    proxy: {
+      '/api/piped': {
+        target: 'https://piped.video',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/api\/piped/, '')
+      }
     }
   }
 });

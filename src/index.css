@@ -1,9 +1,7 @@
+@import "./styles/mobile.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* 引入移动端专用样式（通过 PostCSS） */
-@import "./styles/mobile.css";
 
 /* 性能优化的动画 - 只在非移动设备上启用复杂动画 */
 @media (min-width: 768px) and (prefers-reduced-motion: no-preference) {

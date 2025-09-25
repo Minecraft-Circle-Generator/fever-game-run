@@ -33,8 +33,30 @@ const OptimizedHome = () => {
     refreshData 
   } = useRealTimeData();
 
-  const isMobile = useIsMobile();
+  const forceMobile = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('mobile') === '1';
+  const isMobile = forceMobile || useIsMobile();
   const reducedMotion = useReducedMotion();
+
+  // 点击跳转并高亮目标区块
+  const handleJump = (sectionId: string) => {
+    // 更新 URL hash，便于分享与刷新后定位
+    if (typeof window !== 'undefined') {
+      window.location.hash = sectionId;
+    }
+    // 等待懒加载组件渲染后再滚动
+    setTimeout(() => {
+      const el = document.getElementById(sectionId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // 临时高亮
+        el.classList.add('ring-4', 'ring-yellow-400');
+        setTimeout(() => el.classList.remove('ring-4', 'ring-yellow-400'), 1500);
+        // 将焦点移至区块，提升可访问性
+        (el as HTMLElement).setAttribute('tabindex', '-1');
+        (el as HTMLElement).focus({ preventScroll: true });
+      }
+    }, 100);
+  };
 
   // 动画类名优化
   const getAnimationClass = (defaultClass: string, mobileClass: string = '') => {
@@ -61,8 +83,8 @@ const OptimizedHome = () => {
       {/* SEO 优化 */}
       <SEOHead todayGame={todayGame} playerStats={playerStats} />
       
-      {/* 结构化数据 */}
-      <StructuredData todayGame={todayGame} playerStats={playerStats} />
+      {/* 结构化数据（包含最新视频的 VideoObject） */}
+      <StructuredData todayGame={todayGame} playerStats={playerStats} videos={videos} />
       
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-yellow-50">
       {/* 优化的Hero Section - 移动端简化 */}
@@ -93,10 +115,7 @@ const OptimizedHome = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-3 md:gap-6 justify-center px-4">
               <button 
-                onClick={() => {
-                  const gameSection = document.getElementById('todays-game');
-                  gameSection?.scrollIntoView({ behavior: 'smooth' });
-                }}
+                onClick={() => handleJump('todays-game')}
                 className={`bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-6 md:px-10 py-3 md:py-4 rounded-full font-bold text-base md:text-xl shadow-lg transition-all duration-300 border-2 border-yellow-300 ${getAnimationClass('transform hover:scale-105')}`}
               >
                 🏀 TODAY'S GAME
