@@ -4,8 +4,8 @@ import react from '@vitejs/plugin-react';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  // GitHub Pages 路径前缀
-  base: '/fever-game-run/',
+  // 根据环境自动切换 base：Vercel 用 '/', GitHub Pages 用 '/fever-game-run/'
+  base: process.env.VERCEL ? '/' : '/fever-game-run/',
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
