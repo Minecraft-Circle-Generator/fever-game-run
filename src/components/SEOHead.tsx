@@ -71,6 +71,16 @@ const SEOHead: React.FC<SEOHeadProps> = ({
       
       // 添加移动端特定的meta标签
       updateMobileMeta();
+
+      // 注入 Google AdSense 脚本（每页一次）
+      if (!document.querySelector('script[data-adsbygoogle]')) {
+        const script = document.createElement('script');
+        script.async = true;
+        script.setAttribute('data-adsbygoogle', 'true');
+        script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1766207958063879';
+        script.crossOrigin = 'anonymous';
+        document.head.appendChild(script);
+      }
     };
 
     updateMetaTags();
