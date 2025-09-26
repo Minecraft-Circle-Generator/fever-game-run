@@ -4,6 +4,7 @@ import { useRealTimeData } from '../hooks/useRealTimeData';
 import { useIsMobile, useReducedMotion } from '../hooks/useMediaQuery';
 import LazyImage from '../components/LazyImage';
 import PerformanceOptimizer from '../components/PerformanceOptimizer';
+import { Helmet } from 'react-helmet-async';
 
 // 懒加载组件 - 进一步优化
 const GameCard = lazy(() => import('../components/GameCard'));
@@ -115,11 +116,66 @@ const FastHome = () => {
 
   return (
     <PerformanceOptimizer>
+      {/* SEO / AEO 结构化数据 */}
+      <Helmet>
+        <title>Indiana Fever Game Today: Live WNBA Scores & Updates</title>
+        <meta name="description" content="WNBA Fever score today | Real-time Indiana Fever updates: opponent, live score, schedule time." />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "SportsEvent",
+            "name": `Indiana Fever vs ${((typeof todayGame?.opponent === 'string' && todayGame?.opponent) || (todayGame?.awayTeam?.name)) || 'TBD'}`,
+            "startDate": todayGame?.startIso ?? new Date().toISOString(),
+            "eventStatus": todayGame?.status === 'live' ? "https://schema.org/EventInProgress" : (todayGame?.status === 'final' ? "https://schema.org/EventCompleted" : "https://schema.org/EventScheduled"),
+            "location": {
+              "@type": "Place",
+              "name": todayGame?.venue ?? "Gainbridge Fieldhouse",
+              "address": { "@type": "PostalAddress", "addressLocality": "Indianapolis", "addressRegion": "IN", "addressCountry": "US" }
+            },
+            "homeTeam": { "@type": "SportsTeam", "name": "Indiana Fever" },
+            "awayTeam": { "@type": "SportsTeam", "name": ((typeof todayGame?.opponent === 'string' && todayGame?.opponent) || (todayGame?.awayTeam?.name)) || "Opponent TBD" },
+            "url": "http://fever-game.run/"
+          })}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+              { "@type": "Question", "name": "What is the Indiana Fever score today?",
+                "acceptedAnswer": { "@type": "Answer", "text": `Fever score today vs ${((typeof todayGame?.opponent === 'string' && todayGame?.opponent) || (todayGame?.awayTeam?.name)) || 'TBD'}: ${todayGame?.homeScore ?? '-'} - ${todayGame?.awayScore ?? '-'}` } },
+              { "@type": "Question", "name": "Who are the top players in today’s Fever game?",
+                "acceptedAnswer": { "@type": "Answer", "text": `Top scorers: Caitlin Clark ${playerStats?.points ? '('+playerStats.points+' pts)' : ''}, Assists ${playerStats?.assists ?? '-'}, 3P ${playerStats?.threePointers ?? '-'}` } },
+              { "@type": "Question", "name": "What time is the Fever game tonight?",
+                "acceptedAnswer": { "@type": "Answer", "text": `${todayGame?.startTime ?? 'Tonight'} (${todayGame?.timezone ?? 'EST'}) — ${todayGame?.venue ?? 'Gainbridge Fieldhouse'}` } }
+            ]
+          })}
+        </script>
+      </Helmet>
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-yellow-50">
         {/* 响应式 Hero Section */}
         {isMobile ? <MobileHero /> : <DesktopHero />}
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-12">
+          {/* H1/H2 + TL;DR（中英双语） */}
+          <header className="mb-6">
+            <h1 className="text-2xl md:text-3xl font-black text-gray-900">
+              Indiana Fever Game Today: Live WNBA Scores & Updates
+            </h1>
+            <h2 className="text-lg md:text-xl font-bold text-gray-700 mt-2">
+              WNBA Fever Score Tonight | Real-Time Indiana Fever Updates
+            </h2>
+            <p className="mt-3 text-sm md:text-base text-gray-700">
+              TL;DR：Indiana Fever 今日对阵
+              <span className="font-semibold"> {((typeof todayGame?.opponent === 'string' && todayGame?.opponent) || (todayGame?.awayTeam?.name)) || 'TBD'}</span>，比分实时更新为
+              <span className="font-semibold"> {todayGame?.homeScore ?? '-'} - {todayGame?.awayScore ?? '-'}</span>，开赛时间
+              <span className="font-semibold"> {todayGame?.startTime ?? 'Tonight'}</span>（{todayGame?.timezone ?? 'EST'}）。
+            </p>
+            <p className="mt-1 text-xs md:text-sm text-gray-600">
+              TL;DR (EN): Indiana Fever vs <span className="font-semibold">{((typeof todayGame?.opponent === 'string' && todayGame?.opponent) || (todayGame?.awayTeam?.name)) || 'TBD'}</span> — live score
+              <span className="font-semibold"> {todayGame?.homeScore ?? '-'} - {todayGame?.awayScore ?? '-'}</span>, tip-off at <span className="font-semibold">{todayGame?.startTime ?? 'Tonight'}</span> ({todayGame?.timezone ?? 'EST'}).
+            </p>
+          </header>
           {/* 简化的更新信息 */}
           <div className="mb-4 flex items-center justify-between text-xs md:text-sm">
             <div className="flex items-center text-gray-600">
@@ -153,7 +209,7 @@ const FastHome = () => {
             <div className="flex items-center mb-6">
               <Trophy className={`h-6 w-6 md:h-8 md:w-8 text-orange-500 mr-3 ${getAnimationClass('animate-bounce')}`} />
               <h2 className="text-xl md:text-3xl font-black text-gray-800">
-                TODAY'S BATTLE! 🔥
+                Fever Score Today vs {((typeof todayGame?.opponent === 'string' && todayGame?.opponent) || (todayGame?.awayTeam?.name)) || 'TBD'}
               </h2>
             </div>
             
@@ -236,7 +292,7 @@ const FastHome = () => {
               <div className="flex items-center mb-6">
                 <Flame className={`h-6 w-6 md:h-8 md:w-8 text-red-500 mr-3 ${getAnimationClass('animate-pulse')}`} />
                 <h2 className="text-xl md:text-3xl font-black text-gray-800">
-                  YESTERDAY'S GAME! 💥
+                  WNBA Fever Score Tonight — Schedule & Results
                 </h2>
               </div>
               <Suspense fallback={<QuickLoader />}>
@@ -254,7 +310,7 @@ const FastHome = () => {
             <div className="flex items-center mb-6">
               <Video className={`h-6 w-6 md:h-8 md:w-8 text-red-500 mr-3 ${getAnimationClass('animate-bounce')}`} />
               <h2 className="text-xl md:text-3xl font-black text-gray-800">
-                HIGHLIGHTS! 🎬
+                Highlights — WNBA Fever Score Today
               </h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
@@ -278,6 +334,28 @@ const FastHome = () => {
                   <QuickLoader />
                 </div>
               )}
+            </div>
+          </section>
+
+          {/* FAQ 文本区块（与结构化数据对应，双语） */}
+          <section className="mt-8 bg-white rounded-xl shadow-lg p-4 md:p-6 border border-gray-200">
+            <h2 className="text-xl md:text-2xl font-black text-gray-800 mb-4">FAQ — Fever Game Today</h2>
+            <div className="space-y-4 text-sm md:text-base text-gray-800">
+              <div>
+                <div className="font-semibold">Q: What is the Indiana Fever score today?</div>
+                <div>A: {todayGame?.homeScore ?? '-'} - {todayGame?.awayScore ?? '-'} vs {((typeof todayGame?.opponent === 'string' && todayGame?.opponent) || (todayGame?.awayTeam?.name)) || 'TBD'}.</div>
+                <div className="text-xs text-gray-500">问：今天印第安纳狂热队比分是多少？答：{todayGame?.homeScore ?? '-'} - {todayGame?.awayScore ?? '-'}，对手 {((typeof todayGame?.opponent === 'string' && todayGame?.opponent) || (todayGame?.awayTeam?.name)) || '待定'}。</div>
+              </div>
+              <div>
+                <div className="font-semibold">Q: Who are the top players in today’s Fever game?</div>
+                <div>A: Caitlin Clark {playerStats?.points ? `(${playerStats.points} pts)` : ''}, Assists {playerStats?.assists ?? '-'}, 3P {playerStats?.threePointers ?? '-'}.</div>
+                <div className="text-xs text-gray-500">问：今天的狂热队比赛中谁表现最佳？答：凯特琳·克拉克 {playerStats?.points ? `（${playerStats.points} 分）` : ''}，助攻 {playerStats?.assists ?? '-'}，三分 {playerStats?.threePointers ?? '-' }。</div>
+              </div>
+              <div>
+                <div className="font-semibold">Q: What time is the Fever game tonight?</div>
+                <div>A: {todayGame?.startTime ?? 'Tonight'} ({todayGame?.timezone ?? 'EST'}) at {todayGame?.venue ?? 'Gainbridge Fieldhouse'}.</div>
+                <div className="text-xs text-gray-500">问：今晚狂热队什么时候比赛？答：{todayGame?.startTime ?? '今晚'}（{todayGame?.timezone ?? '美东时间'}）地点 {todayGame?.venue ?? 'Gainbridge Fieldhouse'}。</div>
+              </div>
             </div>
           </section>
         </div>
