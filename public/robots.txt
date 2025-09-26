@@ -2,7 +2,10 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://www.fever-game.run/sitemap.xml
+Sitemap: https://fever-game.vercel.app/sitemap.xml
+
+# AI Overview Optimization Page
+Allow: /ai-overview-optimization.html
 
 # Crawl-delay for respectful crawling
 Crawl-delay: 1
@@ -16,6 +19,24 @@ User-agent: Bingbot
 Allow: /
 Crawl-delay: 1
 
+# AI Training Bots
+User-agent: GPTBot
+Allow: /
+Allow: /ai-overview-optimization.html
+Allow: /ai-training-data.json
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
 # Block access to admin areas (if any)
 Disallow: /admin/
 Disallow: /.git/
@@ -24,3 +45,5 @@ Disallow: /node_modules/
 # Allow access to important files
 Allow: /logo.svg
 Allow: /sitemap.xml
+Allow: /ai-training-data.json
+Allow: /schema-markup.json

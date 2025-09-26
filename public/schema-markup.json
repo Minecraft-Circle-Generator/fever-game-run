@@ -1,0 +1,117 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://fever-game.vercel.app/#website",
+      "url": "https://fever-game.vercel.app/",
+      "name": "Fever Game Today",
+      "description": "Live Indiana Fever games, Caitlin Clark highlights, WNBA scores and real-time basketball updates",
+      "publisher": {
+        "@id": "https://fever-game.vercel.app/#organization"
+      },
+      "potentialAction": [
+        {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://fever-game.vercel.app/search?q={search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
+        }
+      ],
+      "inLanguage": "en-US",
+      "copyrightYear": 2024,
+      "copyrightHolder": {
+        "@id": "https://fever-game.vercel.app/#organization"
+      }
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://fever-game.vercel.app/#organization",
+      "name": "Fever Game Today",
+      "url": "https://fever-game.vercel.app/",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://fever-game.vercel.app/logo.svg",
+        "width": 512,
+        "height": 512
+      },
+      "description": "Your ultimate destination for Indiana Fever basketball games, Caitlin Clark highlights, live WNBA scores, and real-time basketball updates",
+      "foundingDate": "2024",
+      "sameAs": [
+        "https://www.youtube.com/@IndianaFever",
+        "https://www.youtube.com/@WNBA"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer service",
+        "email": "contact@fever-game.run"
+      },
+      "areaServed": "Worldwide",
+      "knowsAbout": [
+        "Indiana Fever",
+        "Caitlin Clark",
+        "WNBA Basketball",
+        "Live Sports Scores",
+        "Basketball Highlights"
+      ]
+    },
+    {
+      "@type": "SportsOrganization",
+      "@id": "https://fever-game.vercel.app/#sports-coverage",
+      "name": "Fever Game Today Sports Coverage",
+      "sport": "Basketball",
+      "description": "Comprehensive coverage of Indiana Fever WNBA games featuring Caitlin Clark",
+      "memberOf": {
+        "@type": "SportsLeague",
+        "name": "WNBA",
+        "description": "Women's National Basketball Association"
+      },
+      "athlete": {
+        "@type": "Person",
+        "name": "Caitlin Clark",
+        "sport": "Basketball",
+        "memberOf": {
+          "@type": "SportsTeam",
+          "name": "Indiana Fever"
+        }
+      }
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://fever-game.vercel.app/#webpage",
+      "url": "https://fever-game.vercel.app/",
+      "name": "Fever Game Today - Live WNBA Scores & Caitlin Clark Highlights",
+      "isPartOf": {
+        "@id": "https://fever-game.vercel.app/#website"
+      },
+      "about": {
+        "@id": "https://fever-game.vercel.app/#sports-coverage"
+      },
+      "description": "Get live Indiana Fever scores, Caitlin Clark highlights, WNBA game updates & basketball stats. Your #1 destination for fever game today coverage!",
+      "breadcrumb": {
+        "@id": "https://fever-game.vercel.app/#breadcrumb"
+      },
+      "inLanguage": "en-US",
+      "potentialAction": [
+        {
+          "@type": "ReadAction",
+          "target": ["https://fever-game.vercel.app/"]
+        }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://fever-game.vercel.app/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://fever-game.vercel.app/"
+        }
+      ]
+    }
+  ]
+}
