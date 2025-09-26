@@ -1,8 +1,54 @@
 import React from 'react';
+import { useParams, Navigate } from 'react-router-dom';
 import { Trophy, Star, TrendingUp, Video, Calendar, MapPin } from 'lucide-react';
 import VideoCard from '../components/VideoCard';
 
 const GameRecap = () => {
+  const { gameId } = useParams<{ gameId: string }>();
+
+  // 简易数据源：可维护的比赛回顾字典；后续可接入真实API
+  const games: Record<string, {
+    status: 'FINAL' | 'LIVE' | 'SCHEDULED';
+    title: string;
+    date: string;
+    venue: string;
+    away: { name: string; score?: number };
+    home: { name: string; score?: number };
+  }> = {
+    'fever-vs-aces-2024': {
+      status: 'FINAL',
+      title: 'Indiana Fever vs Las Vegas Aces',
+      date: 'June 15, 2024',
+      venue: 'Michelob Ultra Arena',
+      away: { name: 'Las Vegas Aces', score: 82 },
+      home: { name: 'Indiana Fever', score: 88 },
+    },
+    'fever-vs-mercury-2025': {
+      status: 'FINAL',
+      title: 'Indiana Fever vs Phoenix Mercury',
+      date: 'January 14, 2025',
+      venue: 'Gainbridge Fieldhouse',
+      away: { name: 'Phoenix Mercury', score: 76 },
+      home: { name: 'Indiana Fever', score: 89 },
+    },
+    // 特殊：latest 显示“今天比赛”占位信息（后续接入真实赛程）
+    'latest': {
+      status: 'SCHEDULED',
+      title: 'Indiana Fever — Next Game',
+      date: 'Today, 7:00 PM EST',
+      venue: 'Gainbridge Fieldhouse',
+      away: { name: 'TBD' },
+      home: { name: 'Indiana Fever' },
+    },
+  };
+
+  const data = games[gameId || 'latest'];
+
+  // 如果传入未知 slug，跳到 latest
+  if (!data) {
+    return <Navigate to="/recap/latest" replace />;
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Game Header */}
@@ -10,21 +56,21 @@ const GameRecap = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-4">
-              <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-                FINAL
+              <span className={`${data.status === 'FINAL' ? 'bg-green-100 text-green-800' : data.status === 'LIVE' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'} px-3 py-1 rounded-full text-sm font-medium`}>
+                {data.status}
               </span>
             </div>
             <h1 className="text-3xl font-bold text-gray-800 mb-2">
-              Indiana Fever vs Phoenix Mercury
+              {data.title}
             </h1>
             <div className="flex items-center justify-center text-gray-600 space-x-4">
               <div className="flex items-center">
                 <Calendar className="h-4 w-4 mr-1" />
-                <span>January 14, 2025</span>
+                <span>{data.date}</span>
               </div>
               <div className="flex items-center">
                 <MapPin className="h-4 w-4 mr-1" />
-                <span>Gainbridge Fieldhouse</span>
+                <span>{data.venue}</span>
               </div>
             </div>
           </div>
@@ -33,17 +79,17 @@ const GameRecap = () => {
           <div className="bg-gray-50 rounded-lg p-8 mb-8">
             <div className="flex items-center justify-between">
               <div className="text-center flex-1">
-                <div className="text-2xl font-bold text-gray-800 mb-2">Phoenix Mercury</div>
-                <div className="text-5xl font-bold text-gray-800">76</div>
+                <div className="text-2xl font-bold text-gray-800 mb-2">{data.away.name}</div>
+                <div className="text-5xl font-bold text-gray-800">{data.away.score ?? '-'}</div>
               </div>
               
               <div className="mx-8 text-gray-400">
-                <div className="text-lg font-semibold">FINAL</div>
+                <div className="text-lg font-semibold">{data.status}</div>
               </div>
               
               <div className="text-center flex-1">
-                <div className="text-2xl font-bold text-gray-800 mb-2">Indiana Fever</div>
-                <div className="text-5xl font-bold text-amber-600">89</div>
+                <div className="text-2xl font-bold text-gray-800 mb-2">{data.home.name}</div>
+                <div className="text-5xl font-bold text-amber-600">{data.home.score ?? '-'}</div>
               </div>
             </div>
           </div>

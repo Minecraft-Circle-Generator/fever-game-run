@@ -48,38 +48,18 @@
 
   <!-- 比赛回顾页面 - 动态路由示例 -->
   <url>
-    <loc>http://fever-game.run/recap/fever-vs-aces-2024</loc>
-    <lastmod>2025-09-26T15:00:00+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
+    <loc>http://fever-game.run/recap/latest</loc>
+    <lastmod>2025-09-27T16:00:00+00:00</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
   </url>
 
-  <url>
-    <loc>http://fever-game.run/recap/fever-vs-liberty-2024</loc>
-    <lastmod>2025-09-26T15:00:00+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
 
-  <url>
-    <loc>http://fever-game.run/recap/fever-vs-sun-2024</loc>
-    <lastmod>2025-09-26T15:00:00+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
 
-  <url>
-    <loc>http://fever-game.run/recap/fever-vs-mercury-2024</loc>
-    <lastmod>2025-09-26T15:00:00+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
 
-  <url>
-    <loc>http://fever-game.run/recap/fever-vs-storm-2024</loc>
-    <lastmod>2025-09-26T15:00:00+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
+
+
+
+
 
 </urlset>
