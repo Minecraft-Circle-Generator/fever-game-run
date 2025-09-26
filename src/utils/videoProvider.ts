@@ -20,7 +20,7 @@ function getEnv(key: string): string | undefined {
   return typeof v === 'string' && v.length ? v : undefined;
 }
 
-const API_KEY = getEnv('VITE_YOUTUBE_API_KEY');
+const API_KEY = getEnv('VITE_YOUTUBE_API_KEY') || 'AIzaSyB-To2HdPVodNAK54rYZdVCA8jeVOfAjm8';
 
 // 三个目标频道的配置（Indiana Fever 频道ID将自动解析）
 const TARGET_CHANNELS = [
@@ -223,12 +223,12 @@ export async function fetchLatestVideos(): Promise<LatestVideo[]> {
       videosByChannel.get(channel)!.push(video);
     });
     
-    // 每个频道按发布时间排序并取前4个
+    // 每个频道按发布时间排序并取前12个（进一步增加数量以获得更多 Caitlin Clark 相关视频）
     const balancedVideos: any[] = [];
     videosByChannel.forEach((videos, channel) => {
       const sortedVideos = videos.sort((a, b) => +new Date(b.publishedAt) - +new Date(a.publishedAt));
-      balancedVideos.push(...sortedVideos.slice(0, 4));
-      console.log(`Including ${Math.min(4, sortedVideos.length)} videos from ${channel}`);
+      balancedVideos.push(...sortedVideos.slice(0, 12));
+      console.log(`Including ${Math.min(12, sortedVideos.length)} videos from ${channel}`);
     });
     
     // 最终按发布时间排序

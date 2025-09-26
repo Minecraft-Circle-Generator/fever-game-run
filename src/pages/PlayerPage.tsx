@@ -5,6 +5,21 @@ import VideoCard from '../components/VideoCard';
 import { fetchLatestVideos, LatestVideo } from '../utils/videoProvider';
 
 const PlayerPage = () => {
+  // 添加 Google AdSense 脚本
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1766207958063879';
+    script.async = true;
+    script.crossOrigin = 'anonymous';
+    document.head.appendChild(script);
+
+    return () => {
+      // 清理脚本
+      if (document.head.contains(script)) {
+        document.head.removeChild(script);
+      }
+    };
+  }, []);
   const [videos, setVideos] = useState<LatestVideo[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -14,14 +29,47 @@ const PlayerPage = () => {
     try {
       const allVideos = await fetchLatestVideos();
       
-      // 过滤Caitlin Clark相关视频，不限频道，按热度和新鲜度综合排序
+      // 严格筛选真正与 Caitlin Clark 相关的高质量视频
       const clarkVideos = allVideos.filter(video => {
         const title = video.title.toLowerCase();
-        return title.includes('caitlin clark') || 
-               title.includes('clark') || 
-               title.includes('fever') ||
-               title.includes('indiana fever');
+        const description = video.description?.toLowerCase() || '';
+        
+        // 高优先级关键词 - 直接提到 Caitlin Clark
+        if (title.includes('caitlin clark') || description.includes('caitlin clark')) {
+          return true;
+        }
+        
+        // 中优先级 - Indiana Fever 相关的比赛和重要内容
+        if (title.includes('indiana fever') && (
+          title.includes('game') || 
+          title.includes('vs') || 
+          title.includes('highlights') ||
+          title.includes('press conference') ||
+          title.includes('post-game') ||
+          title.includes('playoff') ||
+          title.includes('aces') ||
+          title.includes('liberty') ||
+          title.includes('sun') ||
+          title.includes('mercury')
+        )) {
+          return true;
+        }
+        
+        // 低优先级 - 仅包含 fever 但有比赛相关内容
+        if (title.includes('fever') && (
+          title.includes('highlights') ||
+          title.includes('vs') ||
+          title.includes('game')
+        )) {
+          return true;
+        }
+        
+        return false;
       });
+
+      console.log(`Total videos fetched: ${allVideos.length}`);
+      console.log(`Caitlin Clark related videos found: ${clarkVideos.length}`);
+      console.log('Clark videos:', clarkVideos.map(v => `${v.title} (${v.channelTitle})`));
 
       // 综合排序：新鲜度40% + 热度60%（球员页面更注重热度）
       const parseViews = (viewCount?: number): number => {
@@ -50,7 +98,17 @@ const PlayerPage = () => {
       };
 
       clarkVideos.sort((a, b) => combinedScore(b) - combinedScore(a));
-      setVideos(clarkVideos.slice(0, 6)); // 显示前6个视频
+      
+      // 如果找到的视频少于3个，就重复显示现有视频以确保至少有3个
+      let finalVideos = clarkVideos.slice(0, 6);
+      if (finalVideos.length > 0 && finalVideos.length < 3) {
+        const videosToAdd = 3 - finalVideos.length;
+        for (let i = 0; i < videosToAdd; i++) {
+          finalVideos.push(finalVideos[i % finalVideos.length]);
+        }
+      }
+      
+      setVideos(finalVideos);
     } catch (error) {
       console.error('Failed to fetch Clark videos:', error);
       // 使用备用数据
@@ -62,6 +120,17 @@ const PlayerPage = () => {
 
   useEffect(() => {
     fetchClarkVideos();
+  }, []);
+
+  // 初始化 AdSense 广告
+  useEffect(() => {
+    try {
+      if (window.adsbygoogle) {
+        window.adsbygoogle.push({});
+      }
+    } catch (e) {
+      console.log('AdSense error:', e);
+    }
   }, []);
 
   return (
@@ -185,6 +254,18 @@ const PlayerPage = () => {
                 </table>
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* Google AdSense 广告位 */}
+        <section className="mb-12">
+          <div className="bg-white rounded-lg shadow-md p-6 text-center">
+            <ins className="adsbygoogle"
+                 style={{display: 'block'}}
+                 data-ad-client="ca-pub-1766207958063879"
+                 data-ad-slot="auto"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
           </div>
         </section>
 
