@@ -4,6 +4,7 @@ import Navigation from './components/Navigation';
 const FastHome = lazy(() => import('./pages/FastHome'));
 const PlayerPage = lazy(() => import('./pages/PlayerPage'));
 const VideosPage = lazy(() => import('./pages/VideosPage'));
+const DebugPage = lazy(() => import('./pages/DebugPage'));
 const GameRecap = lazy(() => import('./pages/GameRecap'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
@@ -20,6 +21,7 @@ function App() {
             <Route path="/videos" element={<VideosPage />} />
             <Route path="/recap/:gameId" element={<GameRecap />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/debug" element={<DebugPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
