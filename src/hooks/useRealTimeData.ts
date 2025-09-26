@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { fetchLatestVideos, LatestVideo } from '../utils/videoProvider';
+import { fetchFeverTodayFromESPN } from '../utils/espnProvider';
 
 export interface GameData {
   id: string;
@@ -64,21 +65,53 @@ export const useRealTimeData = () => {
   const [loading, setLoading] = useState(true);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
 
-  // 获取今日比赛数据
+  // 获取今日比赛数据（优先 ESPN，无密钥）
   const fetchTodayGame = async (): Promise<GameData> => {
+    // 先尝试从 ESPN 获取当天的 Fever 比赛
+    const espn = await fetchFeverTodayFromESPN().catch(() => null);
+
+    if (espn) {
+      const isFinal = espn.status === 'final';
+      const statusMapped: 'upcoming' | 'live' | 'finished' =
+        espn.status === 'live' ? 'live' : isFinal ? 'finished' : 'upcoming';
+
+      const homeTeamName = espn.isFeverHome ? 'Indiana Fever' : espn.opponent;
+      const awayTeamName = espn.isFeverHome ? espn.opponent : 'Indiana Fever';
+
+      const dateStr = new Date(espn.startIso || Date.now()).toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+      });
+
+      return {
+        id: espn.startIso || 'today-game',
+        homeTeam: homeTeamName,
+        awayTeam: awayTeamName,
+        homeScore: espn.homeScore,
+        awayScore: espn.awayScore,
+        date: dateStr,
+        time: `${espn.startTime || '7:00 PM'} ${espn.timezone || 'EST'}`,
+        venue: espn.venue || 'Gainbridge Fieldhouse',
+        status: statusMapped,
+        platform: 'ESPN'
+      };
+    }
+
+    // 回退到原有本地模拟
     const currentHour = new Date().getHours();
     const isGameTime = currentHour >= 19 && currentHour <= 22; // 7PM-10PM
-    
+
     return mockApiCall({
       id: 'today-game',
       homeTeam: 'Indiana Fever',
       awayTeam: 'Las Vegas Aces',
       homeScore: isGameTime ? Math.floor(Math.random() * 20) + 70 : undefined,
       awayScore: isGameTime ? Math.floor(Math.random() * 20) + 65 : undefined,
-      date: new Date().toLocaleDateString('en-US', { 
-        month: 'long', 
-        day: 'numeric', 
-        year: 'numeric' 
+      date: new Date().toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
       }),
       time: '7:00 PM EST',
       venue: 'Gainbridge Fieldhouse',
