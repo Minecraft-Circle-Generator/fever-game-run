@@ -1,0 +1,45 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#dc2626;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#ea580c;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#gradient)"/>
+  
+  <!-- Basketball court lines -->
+  <line x1="600" y1="0" x2="600" y2="630" stroke="white" stroke-width="2" opacity="0.3"/>
+  <line x1="0" y1="315" x2="1200" y2="315" stroke="white" stroke-width="2" opacity="0.3"/>
+  <circle cx="600" cy="315" r="100" stroke="white" stroke-width="3" fill="none" opacity="0.3"/>
+  
+  <!-- Main Title -->
+  <text x="600" y="200" font-family="Arial, sans-serif" font-size="80" font-weight="900" fill="white" text-anchor="middle">
+    FEVER GAME TODAY
+  </text>
+  
+  <!-- Subtitle -->
+  <text x="600" y="280" font-family="Arial, sans-serif" font-size="36" font-weight="700" fill="#fef3c7" text-anchor="middle">
+    🔥 CAITLIN CLARK IS ON FIRE! 🔥
+  </text>
+  
+  <!-- Live indicator -->
+  <circle cx="200" cy="400" r="15" fill="#fbbf24" opacity="0.8">
+    <animate attributeName="opacity" values="0.8;0.3;0.8" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <text x="230" y="410" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="white">
+    LIVE WNBA COVERAGE
+  </text>
+  
+  <!-- Basketball icon -->
+  <circle cx="1000" cy="400" r="40" stroke="white" stroke-width="4" fill="none"/>
+  <path d="M960 400 L1040 400 M1000 360 L1000 440" stroke="white" stroke-width="3"/>
+  <path d="M975 375 Q1000 350 1025 375 M975 425 Q1000 450 1025 425" stroke="white" stroke-width="2" fill="none"/>
+  
+  <!-- Bottom text -->
+  <text x="600" y="550" font-family="Arial, sans-serif" font-size="32" font-weight="600" fill="white" text-anchor="middle">
+    Live Scores • Highlights • Stats • Real-time Updates
+  </text>
+</svg>

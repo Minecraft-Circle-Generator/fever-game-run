@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://fevergametoday.com/sitemap.xml
+Sitemap: https://www.fever-game.run/sitemap.xml
 
 # Crawl-delay for respectful crawling
 Crawl-delay: 1

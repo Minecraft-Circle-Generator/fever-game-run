@@ -1,7 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navigation from './components/Navigation';
-const OptimizedHome = lazy(() => import('./pages/OptimizedHome'));
+const FastHome = lazy(() => import('./pages/FastHome'));
 const PlayerPage = lazy(() => import('./pages/PlayerPage'));
 const VideosPage = lazy(() => import('./pages/VideosPage'));
 const GameRecap = lazy(() => import('./pages/GameRecap'));
@@ -15,7 +15,7 @@ function App() {
         <Navigation />
         <Suspense fallback={<div className="p-6 text-center text-gray-600">Loading...</div>}>
           <Routes>
-            <Route path="/" element={<OptimizedHome />} />
+            <Route path="/" element={<FastHome />} />
             <Route path="/player/caitlin-clark" element={<PlayerPage />} />
             <Route path="/videos" element={<VideosPage />} />
             <Route path="/recap/:gameId" element={<GameRecap />} />
