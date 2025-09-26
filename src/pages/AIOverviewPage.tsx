@@ -6,20 +6,20 @@ const AIOverviewPage: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>Indiana Fever AI Overview | Caitlin Clark 数据与球队表现分析</title>
-        <meta name="description" content="Comprehensive AI-powered analysis of Indiana Fever basketball team performance, Caitlin Clark statistics, game predictions, and WNBA insights. Real-time data and advanced analytics." />
-        <meta name="keywords" content="Indiana Fever, Caitlin Clark, WNBA analytics, basketball AI analysis, performance stats, game predictions, player analysis" />
-        <meta property="og:title" content="Indiana Fever AI Analysis & Performance Overview" />
-        <meta property="og:description" content="Advanced AI analysis of Indiana Fever team performance, featuring Caitlin Clark statistics and WNBA insights" />
-        <meta property="og:type" content="article" />
+        <title>Fever Game Today — Indiana Fever Next Game, Live Updates & AI Analysis</title>
+        <meta name="description" content="Fever Game Today: Indiana Fever next game time, live updates, Caitlin Clark stats, schedule, and AI-powered analysis with real-time insights and predictions." />
+        <meta name="keywords" content="Fever Game Today, Indiana Fever next game, Caitlin Clark stats, WNBA schedule, live updates, AI analysis, predictions" />
+        <meta property="og:title" content="Fever Game Today — Indiana Fever Next Game & AI Analysis" />
+        <meta property="og:description" content="Instant next game info for Indiana Fever with live updates and AI analysis. Caitlin Clark stats, schedule, and predictions." />
+        <meta property="og:type" content="website" />
         <meta property="og:url" content="http://fever-game.run/ai-overview" />
         <link rel="canonical" href="http://fever-game.run/ai-overview" />
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Article",
-            "headline": "Indiana Fever AI Analysis & Performance Overview",
-            "description": "Comprehensive AI-powered analysis of Indiana Fever basketball team performance and statistics",
+            "headline": "Fever Game Today — AI Analysis & Live Updates",
+            "description": "Instant next game info for Indiana Fever with AI analysis, Caitlin Clark stats, schedule and predictions.",
             "author": {
               "@type": "Organization",
               "name": "Fever Game Analytics"
@@ -32,8 +32,8 @@ const AIOverviewPage: React.FC = () => {
                 "url": "http://fever-game.run/logo.png"
               }
             },
-            "datePublished": "2025-09-26",
-            "dateModified": "2025-09-26",
+            "datePublished": "2025-09-27",
+            "dateModified": "2025-09-27",
             "mainEntityOfPage": {
               "@type": "WebPage",
               "@id": "http://fever-game.run/ai-overview"
@@ -43,13 +43,27 @@ const AIOverviewPage: React.FC = () => {
       </Helmet>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Next Game Today Banner */}
+        <div className="flex items-center justify-between mb-3 text-sm text-gray-600">
+          <span>• Updated: {new Date().toLocaleString()}</span>
+          <button className="flex items-center gap-1 text-gray-500 hover:text-gray-800" onClick={() => window.location.reload()}>
+            <span>↻ Refresh</span>
+          </button>
+        </div>
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg p-4 md:p-6 mb-8 shadow-lg">
+          <div className="flex items-center gap-3">
+            <span role="img" aria-label="basketball">🏀</span>
+            <span className="text-lg md:text-2xl font-extrabold tracking-wide">NEXT GAME: TODAY AT 7:00 PM EST!</span>
+          </div>
+        </div>
+
         {/* Hero Section */}
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg p-8 mb-8">
           <div className="flex items-center gap-4 mb-4">
             <Brain className="w-12 h-12" />
             <div>
-              <h1 className="text-4xl font-bold mb-2">Indiana Fever AI Analytics Hub</h1>
-              <p className="text-xl opacity-90">Advanced Performance Analysis & Predictive Insights</p>
+              <h1 className="text-4xl font-bold mb-2">Fever Game Today — AI Insights</h1>
+              <p className="text-xl opacity-90">Live updates, next game time, and predictive analysis</p>
             </div>
           </div>
         </div>
