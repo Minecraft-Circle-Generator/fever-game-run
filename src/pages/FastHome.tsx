@@ -160,25 +160,7 @@ const FastHome = () => {
         {isMobile ? <MobileHero /> : <DesktopHero />}
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-12">
-          {/* H1/H2 + TL;DR（中英双语） */}
-          <header className="mb-6">
-            <h1 className="text-2xl md:text-3xl font-black text-gray-900">
-              Indiana Fever Game Today: Live WNBA Scores & Updates
-            </h1>
-            <h2 className="text-lg md:text-xl font-bold text-gray-700 mt-2">
-              WNBA Fever Score Tonight | Real-Time Indiana Fever Updates
-            </h2>
-            <p className="mt-3 text-sm md:text-base text-gray-700">
-              TL;DR：Indiana Fever 今日对阵
-              <span className="font-semibold"> {((typeof todayGame?.opponent === 'string' && todayGame?.opponent) || (todayGame?.awayTeam?.name)) || 'TBD'}</span>，比分实时更新为
-              <span className="font-semibold"> {todayGame?.homeScore ?? '-'} - {todayGame?.awayScore ?? '-'}</span>，开赛时间
-              <span className="font-semibold"> {todayGame?.startTime ?? 'Tonight'}</span>（{todayGame?.timezone ?? 'EST'}）。
-            </p>
-            <p className="mt-1 text-xs md:text-sm text-gray-600">
-              TL;DR (EN): Indiana Fever vs <span className="font-semibold">{((typeof todayGame?.opponent === 'string' && todayGame?.opponent) || (todayGame?.awayTeam?.name)) || 'TBD'}</span> — live score
-              <span className="font-semibold"> {todayGame?.homeScore ?? '-'} - {todayGame?.awayScore ?? '-'}</span>, tip-off at <span className="font-semibold">{todayGame?.startTime ?? 'Tonight'}</span> ({todayGame?.timezone ?? 'EST'}).
-            </p>
-          </header>
+
           {/* 简化的更新信息 */}
           <div className="mb-4 flex items-center justify-between text-xs md:text-sm">
             <div className="flex items-center text-gray-600">
