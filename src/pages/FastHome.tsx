@@ -1,5 +1,7 @@
 import React, { Suspense, lazy, useMemo } from 'react';
 import { Star, Video, Flame, Zap, Trophy, Target, RefreshCw } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { Helmet } from 'react-helmet-async';
 import { useRealTimeData } from '../hooks/useRealTimeData';
 import { useIsMobile, useReducedMotion } from '../hooks/useMediaQuery';
 import LazyImage from '../components/LazyImage';
@@ -19,7 +21,7 @@ const QuickLoader = () => (
 );
 
 // 移动端优化的 Hero 组件
-const MobileHero = React.memo(() => (
+const MobileHero = React.memo(({ t }: { t: any }) => (
   <div className="bg-gradient-to-r from-red-900 to-black text-white py-8">
     <div className="max-w-7xl mx-auto px-4 text-center">
       <div className="flex items-center justify-center mb-4">
@@ -28,14 +30,14 @@ const MobileHero = React.memo(() => (
         <Flame className="h-6 w-6 text-yellow-300 ml-2" />
       </div>
       <p className="text-base text-yellow-100 mb-6 font-bold">
-        🔥 CAITLIN CLARK IS ON FIRE! 🔥
+        🔥 {t('home.subtitle')} 🔥
       </p>
       <div className="flex flex-col gap-3 px-4">
         <button className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-6 py-3 rounded-full font-bold text-base">
-          🏀 TODAY'S GAME
+          🏀 {t('home.watchHighlights')}
         </button>
         <button className="bg-transparent border-2 border-yellow-300 text-yellow-300 px-6 py-3 rounded-full font-bold text-base">
-          ⚡ HIGHLIGHTS
+          ⚡ {t('home.latestNews')}
         </button>
       </div>
     </div>
@@ -43,7 +45,7 @@ const MobileHero = React.memo(() => (
 ));
 
 // 桌面端 Hero 组件
-const DesktopHero = React.memo(() => (
+const DesktopHero = React.memo(({ t }: { t: any }) => (
   <div className="relative bg-gradient-to-r from-black via-red-900 to-black text-white overflow-hidden">
     <div className="absolute inset-0 opacity-20">
       <div className="absolute inset-0">
@@ -63,14 +65,14 @@ const DesktopHero = React.memo(() => (
           <Flame className="h-12 w-12 text-yellow-300 ml-4 animate-pulse" />
         </div>
         <p className="text-2xl text-yellow-100 mb-8 font-bold">
-          🔥 CAITLIN CLARK IS ON FIRE! 🔥
+          🔥 {t('home.subtitle')} 🔥
         </p>
         <div className="flex flex-col sm:flex-row gap-6 justify-center">
           <button className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-10 py-4 rounded-full font-bold text-xl shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-yellow-300">
-            🏀 TODAY'S GAME
+            🏀 {t('home.watchHighlights')}
           </button>
           <button className="bg-transparent border-2 border-yellow-300 hover:bg-yellow-300 hover:text-black text-yellow-300 px-10 py-4 rounded-full font-bold text-xl transition-all duration-300 transform hover:scale-105">
-            ⚡ HIGHLIGHTS
+            ⚡ {t('home.latestNews')}
           </button>
         </div>
       </div>
@@ -79,6 +81,7 @@ const DesktopHero = React.memo(() => (
 ));
 
 const FastHome = () => {
+  const { t } = useTranslation();
   const { 
     todayGame, 
     yesterdayGame, 
@@ -116,8 +119,14 @@ const FastHome = () => {
   return (
     <PerformanceOptimizer>
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-yellow-50">
+        {/* SEO Meta Tags */}
+        <Helmet>
+          <title>{t('home.title')}</title>
+          <meta name="description" content={t('home.description')} />
+        </Helmet>
+
         {/* 响应式 Hero Section */}
-        {isMobile ? <MobileHero /> : <DesktopHero />}
+        {isMobile ? <MobileHero t={t} /> : <DesktopHero t={t} />}
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-12">
           {/* 简化的更新信息 */}

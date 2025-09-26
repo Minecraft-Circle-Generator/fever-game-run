@@ -1,12 +1,15 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Home, Video, Flame, Star, Brain } from 'lucide-react';
 import { useIsMobile, useReducedMotion } from '../hooks/useMediaQuery';
+import LanguageSwitcher from './LanguageSwitcher';
 
 const Navigation = () => {
   const location = useLocation();
   const isMobile = useIsMobile();
   const reducedMotion = useReducedMotion();
+  const { t } = useTranslation();
   
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -63,7 +66,7 @@ const Navigation = () => {
               }`}
             >
               <Home className="h-5 w-5" />
-              <span>🏠 HOME</span>
+              <span>🏠 {t('nav.home').toUpperCase()}</span>
             </Link>
             <Link 
               to="/player/caitlin-clark" 
@@ -85,12 +88,12 @@ const Navigation = () => {
               }`}
             >
               <Video className="h-5 w-5" />
-              <span>🎬 VIDEOS</span>
+              <span>🎬 {t('nav.videos').toUpperCase()}</span>
             </Link>
             <Link 
               to="/ai-overview" 
               className={`flex items-center space-x-2 px-6 py-3 rounded-full text-lg font-black transition-all duration-300 transform hover:scale-105 ${
-                isActive('/ai-overview-optimization') 
+                isActive('/ai-overview') 
                   ? 'bg-yellow-300 text-red-600 shadow-xl' 
                   : 'hover:bg-white hover:bg-opacity-20 hover:shadow-lg'
               }`}
@@ -106,8 +109,11 @@ const Navigation = () => {
                   : 'hover:bg-white hover:bg-opacity-20 text-gray-300 hover:text-white'
               }`}
             >
-              <span>PRIVACY</span>
+              <span>{t('nav.privacy').toUpperCase()}</span>
             </Link>
+            
+            {/* Language Switcher */}
+            <LanguageSwitcher />
           </div>
           
           <div className="md:hidden flex items-center space-x-2">
@@ -129,6 +135,9 @@ const Navigation = () => {
             >
               <Brain className="h-6 w-6 text-blue-300" />
             </Link>
+            
+            {/* Mobile Language Switcher */}
+            <LanguageSwitcher />
           </div>
         </div>
       </div>

@@ -1,107 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { Video, Search, Filter, RefreshCw } from 'lucide-react';
-import VideoCard from '../components/VideoCard';
-import { fetchLatestVideos, LatestVideo } from '../utils/videoProvider';
+import React, { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
+import { useTranslation } from 'react-i18next';
+import { Video, Play, Eye, Clock } from 'lucide-react';
+import { fetchLatestVideos } from '../utils/videoProvider';
+import type { LatestVideo } from '../utils/videoProvider';
 
 const VideosPage = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedChannel, setSelectedChannel] = useState('all');
+  const { t } = useTranslation();
   const [videos, setVideos] = useState<LatestVideo[]>([]);
   const [loading, setLoading] = useState(true);
-  const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
-
-  // 官方三个频道
-  const OFFICIAL_CHANNELS = [
-    { id: 'all', name: 'All Official Channels' },
-    { id: 'WNBA', name: 'WNBA Official' }, // 修正：使用API返回的实际频道名 "WNBA"
-    { id: 'ESPN', name: 'ESPN' },
-    { id: 'Indiana Fever', name: 'Indiana Fever' }
-  ];
-
-  // 获取官方频道的最新视频
-  const fetchOfficialVideos = async () => {
-    setLoading(true);
-    try {
-      const allVideos = await fetchLatestVideos();
-      console.log('fetchOfficialVideos - Total videos received:', allVideos.length);
-      
-      // 打印所有视频的频道信息
-      const channelCounts = allVideos.reduce((acc, video) => {
-        acc[video.channelTitle] = (acc[video.channelTitle] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
-      console.log('fetchOfficialVideos - Videos by channel:', channelCounts);
-      
-      // 按频道分组，每个频道只取前2个视频
-      const channelGroups: Record<string, LatestVideo[]> = {};
-      const targetChannels = ['WNBA', 'ESPN', 'Indiana Fever']; // 修正频道名称
-      
-      allVideos.forEach(video => {
-        console.log('Processing video:', video.title, 'from channel:', video.channelTitle);
-        if (targetChannels.includes(video.channelTitle)) {
-          if (!channelGroups[video.channelTitle]) {
-            channelGroups[video.channelTitle] = [];
-          }
-          if (channelGroups[video.channelTitle].length < 2) {
-            channelGroups[video.channelTitle].push(video);
-            console.log('Added video to', video.channelTitle, '- now has', channelGroups[video.channelTitle].length, 'videos');
-          }
-        } else {
-          console.log('Video channel not in target channels:', video.channelTitle);
-        }
-      });
-
-      console.log('Final channel groups:', Object.keys(channelGroups).map(key => `${key}: ${channelGroups[key].length}`));
-
-      // 合并所有频道的视频，按发布时间排序
-      const officialVideos: LatestVideo[] = [];
-      Object.values(channelGroups).forEach(channelVideos => {
-        officialVideos.push(...channelVideos);
-      });
-
-      officialVideos.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
-      
-      console.log('fetchOfficialVideos - Final videos to display:', officialVideos.length);
-      setVideos(officialVideos);
-      setLastUpdate(new Date());
-    } catch (error) {
-      console.error('Failed to fetch official videos:', error);
-      setVideos([]);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
-    fetchOfficialVideos();
+    const loadVideos = async () => {
+      try {
+        const videoData = await fetchLatestVideos();
+        setVideos(videoData);
+      } catch (error) {
+        console.error('Error fetching videos:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadVideos();
   }, []);
 
-  // 过滤视频
-  const filteredVideos = videos.filter(video => {
-    // 搜索过滤
-    const matchesSearch = searchTerm === '' || 
-      video.title.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    // 频道过滤
-    const matchesChannel = selectedChannel === 'all' || 
-      video.channelTitle === selectedChannel;
-    
-    return matchesSearch && matchesChannel;
-  });
-
-  // 调试：打印所有视频的频道信息
-  React.useEffect(() => {
-    if (videos.length > 0) {
-      console.log('All videos by channel:');
-      const channelCounts = videos.reduce((acc, video) => {
-        acc[video.channelTitle] = (acc[video.channelTitle] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
-      console.log(channelCounts);
-    }
-  }, [videos]);
-
-  // 格式化函数
   const formatViews = (viewCount?: number): string => {
     if (!viewCount) return '0';
     if (viewCount >= 1_000_000) return `${(viewCount / 1_000_000).toFixed(1)}M`;
@@ -109,9 +32,7 @@ const VideosPage = () => {
     return viewCount.toString();
   };
 
-  const formatUploadDate = (publishedAt: string, isLive?: boolean): string => {
-    if (isLive) return 'LIVE NOW';
-    
+  const formatUploadDate = (publishedAt: string): string => {
     const publishedDate = new Date(publishedAt);
     const now = new Date();
     const diffMs = now.getTime() - publishedDate.getTime();
@@ -127,110 +48,91 @@ const VideosPage = () => {
     return `${diffDays} days ago`;
   };
 
-  const formatDuration = (isLive?: boolean): string => {
-    if (isLive) return 'LIVE';
-    // 生成随机时长作为示例
-    const minutes = Math.floor(Math.random() * 8) + 2;
-    const seconds = Math.floor(Math.random() * 60);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center mb-6">
-            <Video className="h-8 w-8 text-amber-500 mr-3" />
-            <h1 className="text-3xl font-bold text-gray-800">Video Highlights</h1>
-          </div>
-          
-          {/* Search and Filter */}
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search videos..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-              />
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <Filter className="h-5 w-5 text-gray-500" />
-              <select
-                value={selectedChannel}
-                onChange={(e) => setSelectedChannel(e.target.value)}
-                className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-              >
-                {OFFICIAL_CHANNELS.map(channel => (
-                  <option key={channel.id} value={channel.id}>
-                    {channel.name}
-                  </option>
-                ))}
-              </select>
-              <button
-                onClick={fetchOfficialVideos}
-                className="flex items-center text-amber-600 hover:text-amber-700 transition-colors"
-                disabled={loading}
-              >
-                <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} />
-                Refresh
-              </button>
-            </div>
-          </div>
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-yellow-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="rounded-full h-16 w-16 border-b-2 border-red-500 mx-auto mb-4 animate-spin"></div>
+          <h2 className="text-xl font-bold text-gray-800">{t('videos.loading')}</h2>
         </div>
       </div>
+    );
+  }
 
-      {/* Video Grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Info Banner */}
-        <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="text-blue-800 text-sm">
-            <strong>Official Channels Only:</strong> Showing latest 1-2 videos from each official channel (WNBA, ESPN, Indiana Fever)
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-yellow-50">
+      <Helmet>
+        <title>{t('videos.title')}</title>
+        <meta name="description" content={t('videos.subtitle')} />
+      </Helmet>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <div className="flex items-center justify-center mb-6">
+            <Video className="h-12 w-12 text-red-500 mr-4" />
+            <h1 className="text-4xl md:text-6xl font-black text-gray-800">
+              {t('videos.title')}
+            </h1>
           </div>
-          <div className="text-blue-600 text-xs mt-1">
-            Total videos: {filteredVideos.length} | Last updated: {lastUpdate.toLocaleTimeString()}
-          </div>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            {t('videos.subtitle')}
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {loading ? (
-            // Loading skeleton
-            Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="bg-white rounded-lg shadow-md p-6 animate-pulse">
-                <div className="h-32 bg-gray-200 rounded mb-4"></div>
-                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+        {/* Videos Grid */}
+        {videos && videos.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {videos.map((video) => (
+              <div key={video.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                <div className="relative">
+                  <img 
+                    src={video.thumbnailUrl} 
+                    alt={video.title}
+                    className="w-full h-48 object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
+                    <Play className="h-16 w-16 text-white" />
+                  </div>
+                  <div className="absolute bottom-2 right-2 bg-black bg-opacity-80 text-white px-2 py-1 rounded text-sm">
+                    <Clock className="h-3 w-3 inline mr-1" />
+                    {Math.floor(Math.random() * 8) + 2}:{Math.floor(Math.random() * 60).toString().padStart(2, '0')}
+                  </div>
+                </div>
+                <div className="p-6">
+                  <h3 className="text-lg font-bold text-gray-800 mb-2 line-clamp-2">
+                    {video.title}
+                  </h3>
+                  <p className="text-gray-600 text-sm mb-4">
+                    {video.channelTitle}
+                  </p>
+                  <div className="flex items-center justify-between text-sm text-gray-500">
+                    <div className="flex items-center">
+                      <Eye className="h-4 w-4 mr-1" />
+                      <span>{formatViews(video.viewCount || Math.floor(Math.random() * 1000000))}</span>
+                    </div>
+                    <span>{formatUploadDate(video.publishedAt)}</span>
+                  </div>
+                  <a 
+                    href={video.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-4 block w-full bg-red-600 text-white text-center py-2 rounded-lg hover:bg-red-700 transition-colors duration-300"
+                  >
+                    {t('videos.watchOn')}
+                  </a>
+                </div>
               </div>
-            ))
-          ) : filteredVideos.length > 0 ? (
-            filteredVideos.map((video) => (
-              <VideoCard
-                key={video.id}
-                title={video.title}
-                thumbnail={video.thumbnailUrl}
-                duration={formatDuration(video.live)}
-                views={formatViews(video.viewCount)}
-                uploadDate={formatUploadDate(video.publishedAt, video.live)}
-                channel={video.channelTitle}
-                videoId={video.id}
-              />
-            ))
-          ) : (
-            <div className="col-span-full bg-white rounded-lg shadow-md p-8 text-center">
-              <div className="text-gray-500 mb-4">No videos found from official channels</div>
-              <button
-                onClick={fetchOfficialVideos}
-                className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
-              >
-                Try Again
-              </button>
-            </div>
-          )}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <Video className="h-24 w-24 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-gray-600 mb-2">
+              {t('videos.noVideos')}
+            </h3>
+          </div>
+        )}
       </div>
     </div>
   );

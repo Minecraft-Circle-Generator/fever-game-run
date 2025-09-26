@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import Navigation from './components/Navigation';
+import './i18n';
 const FastHome = lazy(() => import('./pages/FastHome'));
 const PlayerPage = lazy(() => import('./pages/PlayerPage'));
 const VideosPage = lazy(() => import('./pages/VideosPage'));

@@ -1,0 +1,117 @@
+{
+  "nav": {
+    "home": "홈",
+    "player": "케이틀린 클라크",
+    "videos": "비디오",
+    "privacy": "개인정보보호",
+    "aiOverview": "AI 개요"
+  },
+  "home": {
+    "title": "인디애나 피버 - 케이틀린 클라크 시대",
+    "subtitle": "농구의 떠오르는 스타의 여정을 따라가세요",
+    "description": "케이틀린 클라크의 신인 시즌, 경기 하이라이트, 팀 업데이트에 대한 포괄적인 커버리지로 인디애나 피버 농구의 흥미진진함을 경험하세요.",
+    "featuredVideos": "추천 비디오",
+    "latestNews": "최신 뉴스",
+    "playerStats": "선수 통계",
+    "gameSchedule": "경기 일정",
+    "watchHighlights": "하이라이트 보기",
+    "viewStats": "통계 보기",
+    "seeSchedule": "일정 보기"
+  },
+  "player": {
+    "title": "케이틀린 클라크 - 떠오르는 스타",
+    "position": "포인트 가드",
+    "team": "인디애나 피버",
+    "stats": "통계",
+    "highlights": "커리어 하이라이트",
+    "biography": "전기",
+    "achievements": "성취",
+    "ppg": "경기당 득점",
+    "apg": "경기당 어시스트",
+    "rpg": "경기당 리바운드",
+    "careerHighlights": {
+      "title": "커리어 하이라이트",
+      "rookieRecord": "WNBA 신인 어시스트 기록",
+      "tripleDouble": "첫 신인 트리플 더블",
+      "allStar": "WNBA 올스타 선정",
+      "rotY": "올해의 신인 후보"
+    },
+    "bio": {
+      "title": "전기",
+      "content": "케이틀린 클라크는 인디애나 피버에서의 신인 시즌에 WNBA를 강타했습니다. 뛰어난 코트 비전, 3점 슛, 그리고 경쟁 정신으로 유명한 클라크는 빠르게 리그에서 가장 흥미진진한 선수 중 한 명이 되었습니다."
+    }
+  },
+  "videos": {
+    "title": "최신 비디오",
+    "subtitle": "인디애나 피버 경기의 최고 순간들을 시청하세요",
+    "loading": "비디오 로딩 중...",
+    "noVideos": "현재 사용 가능한 비디오가 없습니다.",
+    "watchOn": "YouTube에서 시청",
+    "gameHighlights": "경기 하이라이트",
+    "playerSpotlight": "선수 스포트라이트",
+    "teamUpdates": "팀 업데이트"
+  },
+  "privacy": {
+    "title": "개인정보보호정책",
+    "lastUpdated": "최종 업데이트",
+    "sections": {
+      "intro": {
+        "title": "소개",
+        "content": "이 개인정보보호정책은 귀하가 저희 웹사이트를 방문할 때 저희가 귀하의 정보를 수집, 사용 및 보호하는 방법을 설명합니다."
+      },
+      "collection": {
+        "title": "수집하는 정보",
+        "content": "저희에게 직접 제공하는 정보(예: 연락처 정보나 업데이트 구독 시)를 수집할 수 있습니다."
+      },
+      "usage": {
+        "title": "정보 사용 방법",
+        "content": "수집한 정보를 서비스 제공, 유지 및 개선을 위해 사용합니다."
+      },
+      "protection": {
+        "title": "데이터 보호",
+        "content": "귀하의 개인정보를 보호하기 위해 적절한 보안 조치를 시행합니다."
+      },
+      "contact": {
+        "title": "문의하기",
+        "content": "이 개인정보보호정책에 대한 질문이 있으시면 저희에게 연락해 주세요."
+      }
+    }
+  },
+  "aiOverview": {
+    "title": "AI 개요",
+    "subtitle": "농구 분석에서의 인공지능",
+    "description": "AI 기술이 농구 분석과 선수 개발을 어떻게 혁신하고 있는지 탐구해보세요.",
+    "sections": {
+      "analytics": {
+        "title": "성능 분석",
+        "content": "AI 기반 시스템은 선수 움직임, 슛 정확도, 게임 패턴을 분석하여 인사이트를 제공합니다."
+      },
+      "prediction": {
+        "title": "경기 예측",
+        "content": "머신러닝 알고리즘은 경기 결과와 선수 성능을 예측하는 데 도움을 줍니다."
+      },
+      "training": {
+        "title": "훈련 최적화",
+        "content": "AI는 최적의 선수 개발을 위한 개인화된 훈련 프로그램 생성을 지원합니다."
+      }
+    }
+  },
+  "common": {
+    "loading": "로딩 중...",
+    "error": "오류가 발생했습니다",
+    "tryAgain": "다시 시도",
+    "back": "뒤로",
+    "next": "다음",
+    "previous": "이전",
+    "close": "닫기",
+    "save": "저장",
+    "cancel": "취소",
+    "confirm": "확인",
+    "language": "언어"
+  },
+  "notFound": {
+    "title": "페이지를 찾을 수 없습니다",
+    "message": "찾고 있는 페이지가 존재하지 않습니다.",
+    "backHome": "홈으로 돌아가기"
+  }
+}
