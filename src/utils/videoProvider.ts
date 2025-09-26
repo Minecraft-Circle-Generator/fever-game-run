@@ -1,6 +1,6 @@
-
 // 获取多个YouTube频道的最新视频
 // 专门针对WNBA Official、ESPN、Indiana Fever三个频道
+// 方案3：多个备用API密钥 + 缓存机制
 
 export interface LatestVideo {
   id: string;
@@ -20,76 +20,106 @@ function getEnv(key: string): string | undefined {
   return typeof v === 'string' && v.length ? v : undefined;
 }
 
-// 多个备用 API 密钥，轮换使用
+// 多个备用 API 密钥配置
 const API_KEYS = [
-  getEnv('VITE_YOUTUBE_API_KEY'),
-  'AIzaSyDGX8WhcJkKjYLbYtVwXxPzQ9mN4oE6fR8', // 备用密钥1
-  'AIzaSyC7HjKmN9pQ2rS5tU8vW1xY3zA4bC6dE9f', // 备用密钥2
-  'AIzaSyB8IjLnO0qR3sT6uV9wX2yZ4aB5cD7eF0g', // 备用密钥3
-].filter(Boolean) as string[];
+  () => getEnv('VITE_YOUTUBE_API_KEY'),
+  () => getEnv('VITE_YOUTUBE_API_KEY_2'), 
+  () => getEnv('VITE_YOUTUBE_API_KEY_3'),
+  () => 'AIzaSyB-To2HdPVodNAK54rYZdVCA8jeVOfAjm8', // 备用密钥1
+  () => 'AIzaSyBpVRHSo98enkIJrREPfCTQzm2FUkzXTvg', // 备用密钥2
+];
 
-let currentKeyIndex = 0;
+// 当前使用的 API 密钥索引
+let currentApiKeyIndex = 0;
 
-function getCurrentApiKey(): string {
-  if (API_KEYS.length === 0) {
-    console.warn('No valid API keys available, using demo data');
-    return '';
-  }
-  return API_KEYS[currentKeyIndex % API_KEYS.length];
-}
-
-function rotateApiKey(): void {
-  currentKeyIndex = (currentKeyIndex + 1) % API_KEYS.length;
-  console.log(`Rotated to API key index: ${currentKeyIndex}`);
-}
-
-// 带重试的 API 调用
-async function fetchWithRetry(url: string, maxRetries: number = API_KEYS.length): Promise<Response> {
-  let lastError: Error | null = null;
-  
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    try {
-      const currentKey = getCurrentApiKey();
-      if (!currentKey) {
-        throw new Error('No API keys available');
-      }
-      
-      // 替换 URL 中的 API key
-      const urlWithKey = url.replace(/key=[^&]*/, `key=${currentKey}`);
-      console.log(`API attempt ${attempt + 1}/${maxRetries} with key index ${currentKeyIndex}`);
-      
-      const response = await fetch(urlWithKey, { cache: 'no-store' });
-      
-      if (response.ok) {
-        return response;
-      }
-      
-      if (response.status === 403 || response.status === 429) {
-        console.warn(`API key ${currentKeyIndex} failed with status ${response.status}, rotating...`);
-        rotateApiKey();
-        lastError = new Error(`API key failed: ${response.status}`);
-        continue;
-      }
-      
-      throw new Error(`API error: ${response.status}`);
-    } catch (error) {
-      lastError = error as Error;
-      console.error(`Attempt ${attempt + 1} failed:`, error);
-      
-      if (attempt < maxRetries - 1) {
-        rotateApiKey();
-        await new Promise(resolve => setTimeout(resolve, 1000)); // 等待1秒后重试
-      }
+function getApiKey(): string {
+  for (let i = currentApiKeyIndex; i < API_KEYS.length; i++) {
+    const key = API_KEYS[i]();
+    if (key && key.length > 10) {
+      currentApiKeyIndex = i;
+      return key;
     }
   }
   
-  throw lastError || new Error('All API keys failed');
+  // 如果所有密钥都无效，重置索引并返回最后一个备用密钥
+  currentApiKeyIndex = 0;
+  return API_KEYS[API_KEYS.length - 1]() || '';
 }
 
-// 三个目标频道的配置（Indiana Fever 频道ID将自动解析）
+// 切换到下一个 API 密钥（当当前密钥配额用完时）
+function switchToNextApiKey(): string {
+  currentApiKeyIndex = Math.min(currentApiKeyIndex + 1, API_KEYS.length - 1);
+  const newKey = getApiKey();
+  console.log(`[VideoProvider] Switched to API key index ${currentApiKeyIndex}`);
+  return newKey;
+}
+
+// 视频缓存管理
+const CACHE_KEY = 'fever_game_videos_cache';
+const CACHE_EXPIRY_KEY = 'fever_game_videos_cache_expiry';
+const CACHE_DURATION = 2 * 60 * 60 * 1000; // 2小时缓存
+
+// 保存视频到缓存
+function saveVideosToCache(videos: LatestVideo[]): void {
+  try {
+    const cacheData = {
+      videos,
+      timestamp: Date.now()
+    };
+    localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+    localStorage.setItem(CACHE_EXPIRY_KEY, (Date.now() + CACHE_DURATION).toString());
+    console.log(`[VideoProvider] Cached ${videos.length} videos`);
+  } catch (error) {
+    console.warn('[VideoProvider] Failed to save cache:', error);
+  }
+}
+
+// 从缓存获取视频
+function getVideosFromCache(): LatestVideo[] | null {
+  try {
+    const expiryTime = localStorage.getItem(CACHE_EXPIRY_KEY);
+    if (!expiryTime || Date.now() > parseInt(expiryTime)) {
+      console.log('[VideoProvider] Cache expired');
+      return null;
+    }
+    
+    const cacheData = localStorage.getItem(CACHE_KEY);
+    if (!cacheData) {
+      console.log('[VideoProvider] No cache data found');
+      return null;
+    }
+    
+    const parsed = JSON.parse(cacheData);
+    if (parsed.videos && Array.isArray(parsed.videos) && parsed.videos.length > 0) {
+      console.log(`[VideoProvider] Loaded ${parsed.videos.length} videos from cache`);
+      return parsed.videos;
+    }
+    
+    return null;
+  } catch (error) {
+    console.warn('[VideoProvider] Failed to load cache:', error);
+    return null;
+  }
+}
+
+// 清除过期缓存
+function clearExpiredCache(): void {
+  try {
+    const expiryTime = localStorage.getItem(CACHE_EXPIRY_KEY);
+    if (expiryTime && Date.now() > parseInt(expiryTime)) {
+      localStorage.removeItem(CACHE_KEY);
+      localStorage.removeItem(CACHE_EXPIRY_KEY);
+      console.log('[VideoProvider] Cleared expired cache');
+    }
+  } catch (error) {
+    console.warn('[VideoProvider] Failed to clear cache:', error);
+  }
+}
+
+// 三个目标频道的配置
 const TARGET_CHANNELS = [
   {
-    name: 'WNBA', // 修正：API返回的频道名是 "WNBA"，不是 "WNBA Official"
+    name: 'WNBA',
     channelId: 'UCO9a_ryN_l7DIDS-VIt-zmw', // WNBA 官方频道 (@WNBA)
     searchQuery: ''
   },
@@ -110,22 +140,34 @@ const channelIdCache: Record<string, string> = {};
 async function resolveChannelIdByName(name: string): Promise<string | undefined> {
   if (channelIdCache[name]) return channelIdCache[name];
   
-  // 为 WNBA Official 使用更精确的搜索
   let searchQuery = name;
   if (name === 'WNBA Official') {
     searchQuery = 'WNBA';
   }
   
+  const apiKey = getApiKey();
   const base = 'https://www.googleapis.com/youtube/v3/search';
   const params = new URLSearchParams({
-    key: 'PLACEHOLDER', // 将被 fetchWithRetry 替换
+    key: apiKey,
     part: 'snippet',
     maxResults: '5',
     q: searchQuery,
     type: 'channel'
   });
+  
   try {
-    const res = await fetchWithRetry(`${base}?${params.toString()}`);
+    const res = await fetch(`${base}?${params.toString()}`, { cache: 'no-store' });
+    if (!res.ok) {
+      if (res.status === 403) {
+        // API 配额用完，切换到下一个密钥
+        const newKey = switchToNextApiKey();
+        if (newKey !== apiKey) {
+          return resolveChannelIdByName(name); // 用新密钥重试
+        }
+      }
+      throw new Error(`resolve channel failed: ${res.status}`);
+    }
+    
     const data = await res.json();
     
     // 对于 WNBA，寻找官方频道
@@ -155,240 +197,30 @@ async function resolveChannelIdByName(name: string): Promise<string | undefined>
   }
 }
 
-// 构建YouTube搜索URL - 针对特定频道
-function buildChannelSearchUrl(channelId: string): string {
-  const base = 'https://www.googleapis.com/youtube/v3/search';
-  const params = new URLSearchParams({
-    key: 'PLACEHOLDER', // 将被 fetchWithRetry 替换
-    part: 'snippet',
-    order: 'date', // 最新在前
-    maxResults: '10',
-    type: 'video',
-    channelId,
-    // 仅拉取最近7天，避免旧视频
-    publishedAfter: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
-  });
-  return `${base}?${params.toString()}`;
-}
-
-// 构建通用搜索URL - 作为备用方案
-function buildGeneralSearchUrl(): string {
-  const base = 'https://www.googleapis.com/youtube/v3/search';
-  const params = new URLSearchParams({
-    key: 'PLACEHOLDER', // 将被 fetchWithRetry 替换
-    part: 'snippet',
-    order: 'date',
-    maxResults: '15',
-    type: 'video',
-    q: 'Indiana Fever Caitlin Clark WNBA highlights 2024',
-    publishedAfter: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString() // 最近7天
-  });
-  
-  return `${base}?${params.toString()}`;
-}
-
-// 从单个频道获取视频
-async function fetchChannelVideos(channelConfig: typeof TARGET_CHANNELS[0]): Promise<LatestVideo[]> {
-  // 确保拿到有效的 channelId
-  let cid = channelConfig.channelId;
-  if (!cid) {
-    cid = (await resolveChannelIdByName(channelConfig.name)) || '';
-  }
-  if (!cid) {
-    console.warn(`No channel ID found for ${channelConfig.name}`);
-    return [];
-  }
-  
-  console.log(`Fetching videos from ${channelConfig.name} (${cid})`);
-  const url = buildChannelSearchUrl(cid);
-  
-  try {
-    const res = await fetchWithRetry(url);
-    const json = await res.json();
-    const items = (json.items || []) as any[];
-    
-    console.log(`Found ${items.length} videos from ${channelConfig.name}`);
-
-    const videos = items.map((it) => {
-      const id = it.id?.videoId || it.id;
-      const sn = it.snippet || {};
-      const publishedAt = sn.publishedAt || new Date().toISOString();
-      const title = sn.title || 'Untitled';
-      const channelTitle = sn.channelTitle || channelConfig.name;
-      const thumb = sn.thumbnails?.high?.url || sn.thumbnails?.medium?.url || sn.thumbnails?.default?.url || '';
-      const live = sn.liveBroadcastContent === 'live';
-      return {
-        id,
-        title,
-        publishedAt,
-        channelTitle,
-        thumbnailUrl: thumb,
-        url: `https://www.youtube.com/watch?v=${id}`,
-        live
-      };
-    }).filter(v => !!v.id);
-    
-    console.log(`Processed ${videos.length} valid videos from ${channelConfig.name}`);
-    return videos;
-  } catch (err) {
-    console.error(`Failed to fetch from ${channelConfig.name}:`, err);
-    return [];
-  }
-}
-
-// 获取所有频道的最新视频
-export async function fetchLatestVideos(): Promise<LatestVideo[]> {
-  if (API_KEYS.length === 0) {
-    console.warn('No YouTube API key found, using demo data');
-    return getDemoVideos();
-  }
-  
-  console.log('Starting to fetch latest videos from all channels...');
-  
-  try {
-    // 仅官方三频道，严格聚合最近7天
-    const channelPromises = TARGET_CHANNELS.map(channel => fetchUploadsVideos(channel));
-    const channelResults = await Promise.all(channelPromises);
-
-    console.log('Channel results:', channelResults.map((videos, i) => 
-      `${TARGET_CHANNELS[i].name}: ${videos.length} videos`
-    ));
-
-    // 合并并基于视频ID强去重
-    let allVideos: LatestVideo[] = [];
-    channelResults.forEach((videos, i) => { 
-      console.log(`Adding ${videos.length} videos from ${TARGET_CHANNELS[i].name}`);
-      allVideos = allVideos.concat(videos); 
-    });
-    
-    console.log(`Total videos before deduplication: ${allVideos.length}`);
-    allVideos = allVideos.filter((v, i, self) => i === self.findIndex(x => x.id === v.id));
-    console.log(`Total videos after deduplication: ${allVideos.length}`);
-
-    // 拉取统计（分批<=50）
-    const statsMap = await fetchStatsForIds(allVideos.map(v => v.id));
-    allVideos = allVideos.map(v => ({
-      ...v,
-      viewCount: statsMap[v.id]?.viewCount || v.viewCount,
-      likeCount: statsMap[v.id]?.likeCount || v.likeCount
-    }));
-
-    // 确保每个频道都有视频被包含 - 每个频道取最新的4个视频
-    const videosByChannel = new Map<string, any[]>();
-    
-    // 按频道分组
-    allVideos.forEach(video => {
-      const channel = video.channelTitle;
-      if (!videosByChannel.has(channel)) {
-        videosByChannel.set(channel, []);
-      }
-      videosByChannel.get(channel)!.push(video);
-    });
-    
-    // 每个频道按发布时间排序并取前12个（进一步增加数量以获得更多 Caitlin Clark 相关视频）
-    const balancedVideos: any[] = [];
-    videosByChannel.forEach((videos, channel) => {
-      const sortedVideos = videos.sort((a, b) => +new Date(b.publishedAt) - +new Date(a.publishedAt));
-      balancedVideos.push(...sortedVideos.slice(0, 12));
-      console.log(`Including ${Math.min(12, sortedVideos.length)} videos from ${channel}`);
-    });
-    
-    // 最终按发布时间排序
-    balancedVideos.sort((a, b) => +new Date(b.publishedAt) - +new Date(a.publishedAt));
-
-    console.log(`Returning ${balancedVideos.length} videos (balanced across channels)`);
-    return balancedVideos;
-  } catch (err) {
-    console.error('fetchLatestVideos error:', err);
-    return getDemoVideos();
-  }
-}
-
-// 通用搜索作为备用方案
-async function fetchGeneralVideos(): Promise<LatestVideo[]> {
-  const url = buildGeneralSearchUrl();
-  try {
-    const res = await fetchWithRetry(url);
-    const json = await res.json();
-    const items = (json.items || []) as any[];
-
-    const videos: LatestVideo[] = items.map((it) => {
-      const id = it.id?.videoId || it.id;
-      const sn = it.snippet || {};
-      const publishedAt = sn.publishedAt || new Date().toISOString();
-      const title = sn.title || 'Untitled';
-      const channelTitle = sn.channelTitle || 'YouTube';
-      const thumb = sn.thumbnails?.high?.url || sn.thumbnails?.medium?.url || sn.thumbnails?.default?.url || '';
-      const live = sn.liveBroadcastContent === 'live';
-      
-      return {
-        id,
-        title,
-        publishedAt,
-        channelTitle,
-        thumbnailUrl: thumb,
-        url: `https://www.youtube.com/watch?v=${id}`,
-        live
-      };
-    }).filter(v => !!v.id);
-
-    // 按发布时间排序
-    videos.sort((a, b) => +new Date(b.publishedAt) - +new Date(a.publishedAt));
-    return videos;
-  } catch (err) {
-    console.warn('General search failed, using demo data:', err);
-    return getDemoVideos();
-  }
-  
-}
-// 批量获取统计数据
-async function fetchStatsForIds(ids: string[]): Promise<Record<string, { viewCount: number; likeCount: number }>> {
-  const result: Record<string, { viewCount: number; likeCount: number }> = {};
-  if (API_KEYS.length === 0 || ids.length === 0) return result;
-
-  const chunks: string[][] = [];
-  for (let i = 0; i < ids.length; i += 50) {
-    chunks.push(ids.slice(i, i + 50));
-  }
-
-  await Promise.all(chunks.map(async (chunk) => {
-    const base = 'https://www.googleapis.com/youtube/v3/videos';
-    const params = new URLSearchParams({
-      key: 'PLACEHOLDER', // 将被 fetchWithRetry 替换
-      part: 'statistics',
-      id: chunk.join(',')
-    });
-    try {
-      const res = await fetchWithRetry(`${base}?${params.toString()}`);
-      const data = await res.json();
-      (data.items || []).forEach((it: any) => {
-        const id = it.id as string;
-        const st = it.statistics || {};
-        const views = Number(st.viewCount || 0);
-        const likes = Number(st.likeCount || 0);
-        result[id] = { viewCount: views, likeCount: likes };
-      });
-    } catch {
-      // 忽略单批失败
-    }
-  }));
-
-  return result;
-}
- 
-/**
- * 获取频道的 uploads 播放列表ID
- */
+// 获取频道的 uploads 播放列表ID
 async function getUploadsPlaylistId(channelId: string): Promise<string | undefined> {
-  if (API_KEYS.length === 0 || !channelId) return undefined;
+  const apiKey = getApiKey();
+  if (!apiKey || !channelId) return undefined;
+  
   const base = 'https://www.googleapis.com/youtube/v3/channels';
   const params = new URLSearchParams({
-    key: 'PLACEHOLDER', // 将被 fetchWithRetry 替换
+    key: apiKey,
     part: 'contentDetails',
     id: channelId
   });
+  
   try {
-    const res = await fetchWithRetry(`${base}?${params.toString()}`);
+    const res = await fetch(`${base}?${params.toString()}`);
+    if (!res.ok) {
+      if (res.status === 403) {
+        const newKey = switchToNextApiKey();
+        if (newKey !== apiKey) {
+          return getUploadsPlaylistId(channelId); // 用新密钥重试
+        }
+      }
+      return undefined;
+    }
+    
     const data = await res.json();
     return data?.items?.[0]?.contentDetails?.relatedPlaylists?.uploads as string | undefined;
   } catch {
@@ -396,9 +228,7 @@ async function getUploadsPlaylistId(channelId: string): Promise<string | undefin
   }
 }
 
-/**
- * 从官方频道的 uploads 列表获取最近30天的上传视频，并补齐统计与缩略图
- */
+// 从官方频道的 uploads 列表获取最近30天的上传视频
 async function fetchUploadsVideos(channelConfig: typeof TARGET_CHANNELS[0]): Promise<LatestVideo[]> {
   // 解析有效 channelId
   let cid = channelConfig.channelId;
@@ -422,22 +252,33 @@ async function fetchUploadsVideos(channelConfig: typeof TARGET_CHANNELS[0]): Pro
   console.log(`Found uploads playlist: ${uploadsId} for ${channelConfig.name}`);
 
   // 拉取播放列表项（上传视频）
+  const apiKey = getApiKey();
   const basePI = 'https://www.googleapis.com/youtube/v3/playlistItems';
   const paramsPI = new URLSearchParams({
-    key: 'PLACEHOLDER', // 将被 fetchWithRetry 替换
+    key: apiKey,
     part: 'snippet',
-    maxResults: '50', // 增加到50个
+    maxResults: '50',
     playlistId: uploadsId
   });
 
   try {
-    const resPI = await fetchWithRetry(`${basePI}?${paramsPI.toString()}`);
+    const resPI = await fetch(`${basePI}?${paramsPI.toString()}`, { cache: 'no-store' });
+    if (!resPI.ok) {
+      if (resPI.status === 403) {
+        const newKey = switchToNextApiKey();
+        if (newKey !== apiKey) {
+          return fetchUploadsVideos(channelConfig); // 用新密钥重试
+        }
+      }
+      throw new Error(`YouTube API error: ${resPI.status}`);
+    }
+    
     const dataPI = await resPI.json();
     const items = (dataPI.items || []) as any[];
 
     console.log(`Found ${items.length} playlist items for ${channelConfig.name}`);
 
-    // 扩大时间范围到30天，避免过滤太严格
+    // 扩大时间范围到30天
     const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
     const recentItems = items.filter((it) => {
       const published = new Date(it?.snippet?.publishedAt || Date.now()).getTime();
@@ -460,12 +301,22 @@ async function fetchUploadsVideos(channelConfig: typeof TARGET_CHANNELS[0]): Pro
     // 补齐统计与缩略图
     const baseV = 'https://www.googleapis.com/youtube/v3/videos';
     const paramsV = new URLSearchParams({
-      key: 'PLACEHOLDER', // 将被 fetchWithRetry 替换
+      key: apiKey,
       part: 'snippet,statistics',
       id: ids.join(',')
     });
 
-    const resV = await fetchWithRetry(`${baseV}?${paramsV.toString()}`);
+    const resV = await fetch(`${baseV}?${paramsV.toString()}`, { cache: 'no-store' });
+    if (!resV.ok) {
+      if (resV.status === 403) {
+        const newKey = switchToNextApiKey();
+        if (newKey !== apiKey) {
+          return fetchUploadsVideos(channelConfig); // 用新密钥重试
+        }
+      }
+      throw new Error(`YouTube API error: ${resV.status}`);
+    }
+    
     const dataV = await resV.json();
 
     const videosRaw: LatestVideo[] = (dataV.items || []).map((it: any) => {
@@ -506,65 +357,98 @@ async function fetchUploadsVideos(channelConfig: typeof TARGET_CHANNELS[0]): Pro
   }
 }
 
-// 演示数据 - 当API不可用时使用
-function getDemoVideos(): LatestVideo[] {
-  const now = new Date();
-  const hoursAgo = (hours: number) => new Date(now.getTime() - hours * 60 * 60 * 1000).toISOString();
+// 主要的获取视频函数 - 带缓存和多密钥支持
+export async function fetchLatestVideos(): Promise<LatestVideo[]> {
+  console.log('[VideoProvider] Starting to fetch latest videos...');
+  console.log(`[VideoProvider] Using API key index: ${currentApiKeyIndex}`);
   
-  return [
-    {
-      id: 'demo-live',
-      title: '🔴 LIVE: Caitlin Clark DOMINATING vs Las Vegas Aces - MUST WATCH!',
-      publishedAt: hoursAgo(0.5), // 30分钟前
-      channelTitle: 'WNBA Official',
-      thumbnailUrl: 'https://images.pexels.com/photos/1752757/pexels-photo-1752757.jpeg?auto=compress&cs=tinysrgb&w=800',
-      url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-      live: true,
-    },
-    {
-      id: 'demo-1',
-      title: '🔥 Caitlin Clark 31 Points EXPLOSION! Career-High Performance vs Mercury',
-      publishedAt: hoursAgo(2), // 2小时前
-      channelTitle: 'ESPN',
-      thumbnailUrl: 'https://images.pexels.com/photos/1618269/pexels-photo-1618269.jpeg?auto=compress&cs=tinysrgb&w=800',
-      url: 'https://www.youtube.com/watch?v=jNQXAC9IVRw',
-      live: false,
-    },
-    {
-      id: 'demo-2',
-      title: '⚡ Indiana Fever WIN STREAK! Top 10 Plays from Last 3 Games',
-      publishedAt: hoursAgo(6), // 6小时前
-      channelTitle: 'Indiana Fever',
-      thumbnailUrl: 'https://images.pexels.com/photos/1407354/pexels-photo-1407354.jpeg?auto=compress&cs=tinysrgb&w=800',
-      url: 'https://www.youtube.com/watch?v=M7lc1UVf-VE',
-      live: false,
-    },
-    {
-      id: 'demo-3',
-      title: '🚀 ROOKIE RECORD BROKEN! Caitlin Clark Makes WNBA History',
-      publishedAt: hoursAgo(12), // 12小时前
-      channelTitle: 'WNBA Official',
-      thumbnailUrl: 'https://images.pexels.com/photos/2834914/pexels-photo-2834914.jpeg?auto=compress&cs=tinysrgb&w=800',
-      url: 'https://www.youtube.com/watch?v=5qap5aO4i9A',
-      live: false,
-    },
-    {
-      id: 'demo-4',
-      title: '💥 Fever vs Aces EPIC BATTLE! Full Game Highlights & Best Moments',
-      publishedAt: hoursAgo(18), // 18小时前
-      channelTitle: 'ESPN',
-      thumbnailUrl: 'https://images.pexels.com/photos/1618269/pexels-photo-1618269.jpeg?auto=compress&cs=tinysrgb&w=800',
-      url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-      live: false,
-    },
-    {
-      id: 'demo-5',
-      title: '🎯 Caitlin Clark CLUTCH 3-Pointers! Game-Winning Shots Compilation',
-      publishedAt: hoursAgo(24), // 1天前
-      channelTitle: 'Indiana Fever',
-      thumbnailUrl: 'https://images.pexels.com/photos/1407354/pexels-photo-1407354.jpeg?auto=compress&cs=tinysrgb&w=800',
-      url: 'https://www.youtube.com/watch?v=M7lc1UVf-VE',
-      live: false,
+  // 清理过期缓存
+  clearExpiredCache();
+  
+  // 首先尝试从缓存获取
+  const cachedVideos = getVideosFromCache();
+  if (cachedVideos && cachedVideos.length > 0) {
+    console.log(`[VideoProvider] Using cached videos: ${cachedVideos.length} videos`);
+    // 异步更新缓存（不阻塞当前请求）
+    fetchAndCacheVideos();
+    return cachedVideos;
+  }
+  
+  // 缓存无效，直接获取新视频
+  return await fetchAndCacheVideos();
+}
+
+// 获取并缓存视频的内部函数
+async function fetchAndCacheVideos(): Promise<LatestVideo[]> {
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    console.warn('[VideoProvider] No API key available');
+    return getVideosFromCache() || [];
+  }
+  
+  try {
+    // 从所有频道获取视频
+    const channelPromises = TARGET_CHANNELS.map(channel => fetchUploadsVideos(channel));
+    const channelResults = await Promise.all(channelPromises);
+
+    console.log('Channel results:', channelResults.map((videos, i) => 
+      `${TARGET_CHANNELS[i].name}: ${videos.length} videos`
+    ));
+
+    // 合并并去重
+    let allVideos: LatestVideo[] = [];
+    channelResults.forEach((videos, i) => { 
+      console.log(`Adding ${videos.length} videos from ${TARGET_CHANNELS[i].name}`);
+      allVideos = allVideos.concat(videos); 
+    });
+    
+    console.log(`Total videos before deduplication: ${allVideos.length}`);
+    allVideos = allVideos.filter((v, i, self) => i === self.findIndex(x => x.id === v.id));
+    console.log(`Total videos after deduplication: ${allVideos.length}`);
+
+    if (allVideos.length === 0) {
+      console.warn('[VideoProvider] No videos fetched from API, using cached data');
+      return getVideosFromCache() || [];
     }
-  ];
+
+    // 按频道平衡视频数量
+    const videosByChannel = new Map<string, LatestVideo[]>();
+    allVideos.forEach(video => {
+      const channel = video.channelTitle;
+      if (!videosByChannel.has(channel)) {
+        videosByChannel.set(channel, []);
+      }
+      videosByChannel.get(channel)!.push(video);
+    });
+    
+    // 每个频道取最新的12个视频
+    const balancedVideos: LatestVideo[] = [];
+    videosByChannel.forEach((videos, channel) => {
+      const sortedVideos = videos.sort((a, b) => +new Date(b.publishedAt) - +new Date(a.publishedAt));
+      balancedVideos.push(...sortedVideos.slice(0, 12));
+      console.log(`Including ${Math.min(12, sortedVideos.length)} videos from ${channel}`);
+    });
+    
+    // 最终按发布时间排序
+    balancedVideos.sort((a, b) => +new Date(b.publishedAt) - +new Date(a.publishedAt));
+
+    console.log(`Successfully fetched ${balancedVideos.length} videos`);
+    
+    // 保存到缓存
+    if (balancedVideos.length > 0) {
+      saveVideosToCache(balancedVideos);
+    }
+    
+    return balancedVideos;
+    
+  } catch (err) {
+    console.error('[VideoProvider] Error fetching videos:', err);
+    // 发生错误时，返回缓存的视频
+    const cachedVideos = getVideosFromCache();
+    if (cachedVideos && cachedVideos.length > 0) {
+      console.log('[VideoProvider] Using cached videos due to error');
+      return cachedVideos;
+    }
+    return [];
+  }
 }
