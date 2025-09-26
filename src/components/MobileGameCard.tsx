@@ -54,14 +54,14 @@ const MobileGameCard: React.FC<MobileGameCardProps> = ({
 
       {/* Teams and Scores */}
       <div className="p-4">
-        <div className="flex items-center justify-between mb-3 gap-2">
+        <div className="flex items-center justify-between mb-4 gap-3">
           {/* Away Team */}
-          <div className="text-center flex-1">
-            <div className="text-[13px] font-bold text-gray-800 mb-1 leading-snug">
+          <div className="text-center flex-1 min-w-0">
+            <div className="text-sm font-bold text-gray-800 mb-2 leading-tight truncate px-1">
               {awayTeam.includes('Las Vegas') ? 'Las Vegas Aces' : 
                awayTeam.includes('Indiana') ? 'Indiana Fever' : awayTeam}
             </div>
-            <div className="text-xl font-black text-gray-900">
+            <div className="text-lg sm:text-xl font-black text-gray-900 bg-gray-100 rounded px-2 py-1">
               {typeof awayScore === 'number' ? awayScore : '--'}
             </div>
           </div>
@@ -75,12 +75,12 @@ const MobileGameCard: React.FC<MobileGameCardProps> = ({
           </div>
 
           {/* Home Team */}
-          <div className="text-center flex-1">
+          <div className="text-center flex-1 min-w-0">
             <div className="text-[13px] font-bold text-gray-800 mb-1 leading-snug">
               {homeTeam.includes('Las Vegas') ? 'Las Vegas Aces' : 
                homeTeam.includes('Indiana') ? 'Indiana Fever' : homeTeam}
             </div>
-            <div className="text-xl font-black text-gray-900">
+            <div className="text-lg sm:text-xl font-black text-gray-900 bg-gray-100 rounded px-2 py-1">
               {typeof homeScore === 'number' ? homeScore : '--'}
             </div>
           </div>

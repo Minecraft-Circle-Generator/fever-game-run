@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, User, Video, Calendar, Trophy, Flame, Star } from 'lucide-react';
+import { Home, Video, Flame, Star } from 'lucide-react';
 import { useIsMobile, useReducedMotion } from '../hooks/useMediaQuery';
 
 const Navigation = () => {

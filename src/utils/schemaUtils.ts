@@ -360,7 +360,7 @@ export const generateAllSchemas = (
   });
 
   // FAQ 页面 Schema（帮助 Google 展示常见问题答案）
-  schemas.push(generateFAQSchema());
+  schemas.push(generateFAQSchema(todayGame));
 
   return schemas;
 };

@@ -1,81 +1,139 @@
-import React, { useState } from 'react';
-import { Video, Search, Filter } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Video, Search, Filter, RefreshCw } from 'lucide-react';
 import VideoCard from '../components/VideoCard';
+import { fetchLatestVideos, LatestVideo } from '../utils/videoProvider';
 
 const VideosPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedChannel, setSelectedChannel] = useState('all');
+  const [videos, setVideos] = useState<LatestVideo[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
 
-  const categories = [
-    { id: 'all', name: 'All Videos' },
-    { id: 'highlights', name: 'Game Highlights' },
-    { id: 'clark', name: 'Caitlin Clark' },
-    { id: 'interviews', name: 'Interviews' },
-    { id: 'analysis', name: 'Analysis' }
+  // 官方三个频道
+  const OFFICIAL_CHANNELS = [
+    { id: 'all', name: 'All Official Channels' },
+    { id: 'WNBA', name: 'WNBA Official' }, // 修正：使用API返回的实际频道名 "WNBA"
+    { id: 'ESPN', name: 'ESPN' },
+    { id: 'Indiana Fever', name: 'Indiana Fever' }
   ];
 
-  const videos = [
-    {
-      id: '1',
-      title: "Caitlin Clark's 22-Point Performance vs Phoenix Mercury",
-      thumbnail: "https://images.pexels.com/photos/1752757/pexels-photo-1752757.jpeg?auto=compress&cs=tinysrgb&w=400",
-      duration: "3:45",
-      views: "15.2K",
-      uploadDate: "1 day ago",
-      channel: "WNBA Official",
-      videoId: "dQw4w9WgXcQ"
-    },
-    {
-      id: '2',
-      title: "Indiana Fever Win Streak Continues with Dominant Victory",
-      thumbnail: "https://images.pexels.com/photos/1618269/pexels-photo-1618269.jpeg?auto=compress&cs=tinysrgb&w=400",
-      duration: "2:18",
-      views: "8.7K",
-      uploadDate: "1 day ago",
-      channel: "ESPN",
-      videoId: "jNQXAC9IVRw"
-    },
-    {
-      id: '3',
-      title: "Top 5 Plays from Fever vs Mercury Game",
-      thumbnail: "https://images.pexels.com/photos/1407354/pexels-photo-1407354.jpeg?auto=compress&cs=tinysrgb&w=400",
-      duration: "4:12",
-      views: "12.1K",
-      uploadDate: "2 days ago",
-      channel: "House of Highlights",
-      videoId: "M7lc1UVf-VE"
-    },
-    {
-      id: '4',
-      title: "Caitlin Clark Post-Game Interview After Victory",
-      thumbnail: "https://images.pexels.com/photos/1544775/pexels-photo-1544775.jpeg?auto=compress&cs=tinysrgb&w=400",
-      duration: "5:23",
-      views: "9.4K",
-      uploadDate: "2 days ago",
-      channel: "Indiana Fever",
-      videoId: "L_jWHffIx5E"
-    },
-    {
-      id: '5',
-      title: "Breaking Down Clark's Incredible Court Vision",
-      thumbnail: "https://images.pexels.com/photos/1618269/pexels-photo-1618269.jpeg?auto=compress&cs=tinysrgb&w=400",
-      duration: "6:17",
-      views: "18.9K",
-      uploadDate: "3 days ago",
-      channel: "Basketball Breakdown",
-      videoId: "9bZkp7q19f0"
-    },
-    {
-      id: '6',
-      title: "Fever vs Aces: Full Game Highlights",
-      thumbnail: "https://images.pexels.com/photos/1752757/pexels-photo-1752757.jpeg?auto=compress&cs=tinysrgb&w=400",
-      duration: "8:45",
-      views: "32.5K",
-      uploadDate: "4 days ago",
-      channel: "WNBA Official",
-      videoId: "dQw4w9WgXcQ"
+  // 获取官方频道的最新视频
+  const fetchOfficialVideos = async () => {
+    setLoading(true);
+    try {
+      const allVideos = await fetchLatestVideos();
+      console.log('fetchOfficialVideos - Total videos received:', allVideos.length);
+      
+      // 打印所有视频的频道信息
+      const channelCounts = allVideos.reduce((acc, video) => {
+        acc[video.channelTitle] = (acc[video.channelTitle] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+      console.log('fetchOfficialVideos - Videos by channel:', channelCounts);
+      
+      // 按频道分组，每个频道只取前2个视频
+      const channelGroups: Record<string, LatestVideo[]> = {};
+      const targetChannels = ['WNBA', 'ESPN', 'Indiana Fever']; // 修正频道名称
+      
+      allVideos.forEach(video => {
+        console.log('Processing video:', video.title, 'from channel:', video.channelTitle);
+        if (targetChannels.includes(video.channelTitle)) {
+          if (!channelGroups[video.channelTitle]) {
+            channelGroups[video.channelTitle] = [];
+          }
+          if (channelGroups[video.channelTitle].length < 2) {
+            channelGroups[video.channelTitle].push(video);
+            console.log('Added video to', video.channelTitle, '- now has', channelGroups[video.channelTitle].length, 'videos');
+          }
+        } else {
+          console.log('Video channel not in target channels:', video.channelTitle);
+        }
+      });
+
+      console.log('Final channel groups:', Object.keys(channelGroups).map(key => `${key}: ${channelGroups[key].length}`));
+
+      // 合并所有频道的视频，按发布时间排序
+      const officialVideos: LatestVideo[] = [];
+      Object.values(channelGroups).forEach(channelVideos => {
+        officialVideos.push(...channelVideos);
+      });
+
+      officialVideos.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
+      
+      console.log('fetchOfficialVideos - Final videos to display:', officialVideos.length);
+      setVideos(officialVideos);
+      setLastUpdate(new Date());
+    } catch (error) {
+      console.error('Failed to fetch official videos:', error);
+      setVideos([]);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  useEffect(() => {
+    fetchOfficialVideos();
+  }, []);
+
+  // 过滤视频
+  const filteredVideos = videos.filter(video => {
+    // 搜索过滤
+    const matchesSearch = searchTerm === '' || 
+      video.title.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    // 频道过滤
+    const matchesChannel = selectedChannel === 'all' || 
+      video.channelTitle === selectedChannel;
+    
+    return matchesSearch && matchesChannel;
+  });
+
+  // 调试：打印所有视频的频道信息
+  React.useEffect(() => {
+    if (videos.length > 0) {
+      console.log('All videos by channel:');
+      const channelCounts = videos.reduce((acc, video) => {
+        acc[video.channelTitle] = (acc[video.channelTitle] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+      console.log(channelCounts);
+    }
+  }, [videos]);
+
+  // 格式化函数
+  const formatViews = (viewCount?: number): string => {
+    if (!viewCount) return '0';
+    if (viewCount >= 1_000_000) return `${(viewCount / 1_000_000).toFixed(1)}M`;
+    if (viewCount >= 1_000) return `${(viewCount / 1_000).toFixed(1)}K`;
+    return viewCount.toString();
+  };
+
+  const formatUploadDate = (publishedAt: string, isLive?: boolean): string => {
+    if (isLive) return 'LIVE NOW';
+    
+    const publishedDate = new Date(publishedAt);
+    const now = new Date();
+    const diffMs = now.getTime() - publishedDate.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffHours < 1) {
+      const diffMinutes = Math.floor(diffMs / (1000 * 60));
+      return `${diffMinutes} minutes ago`;
+    }
+    if (diffHours < 24) return `${diffHours} hours ago`;
+    if (diffDays === 1) return '1 day ago';
+    return `${diffDays} days ago`;
+  };
+
+  const formatDuration = (isLive?: boolean): string => {
+    if (isLive) return 'LIVE';
+    // 生成随机时长作为示例
+    const minutes = Math.floor(Math.random() * 8) + 2;
+    const seconds = Math.floor(Math.random() * 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -103,16 +161,24 @@ const VideosPage = () => {
             <div className="flex items-center space-x-4">
               <Filter className="h-5 w-5 text-gray-500" />
               <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
+                value={selectedChannel}
+                onChange={(e) => setSelectedChannel(e.target.value)}
                 className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
               >
-                {categories.map(category => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
+                {OFFICIAL_CHANNELS.map(channel => (
+                  <option key={channel.id} value={channel.id}>
+                    {channel.name}
                   </option>
                 ))}
               </select>
+              <button
+                onClick={fetchOfficialVideos}
+                className="flex items-center text-amber-600 hover:text-amber-700 transition-colors"
+                disabled={loading}
+              >
+                <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} />
+                Refresh
+              </button>
             </div>
           </div>
         </div>
@@ -120,17 +186,50 @@ const VideosPage = () => {
 
       {/* Video Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {videos.map((video) => (
-            <VideoCard key={video.id} {...video} />
-          ))}
+        {/* Info Banner */}
+        <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="text-blue-800 text-sm">
+            <strong>Official Channels Only:</strong> Showing latest 1-2 videos from each official channel (WNBA, ESPN, Indiana Fever)
+          </div>
+          <div className="text-blue-600 text-xs mt-1">
+            Total videos: {filteredVideos.length} | Last updated: {lastUpdate.toLocaleTimeString()}
+          </div>
         </div>
-        
-        {/* Load More Button */}
-        <div className="text-center mt-12">
-          <button className="bg-amber-500 hover:bg-amber-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors">
-            Load More Videos
-          </button>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {loading ? (
+            // Loading skeleton
+            Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="bg-white rounded-lg shadow-md p-6 animate-pulse">
+                <div className="h-32 bg-gray-200 rounded mb-4"></div>
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            ))
+          ) : filteredVideos.length > 0 ? (
+            filteredVideos.map((video) => (
+              <VideoCard
+                key={video.id}
+                title={video.title}
+                thumbnail={video.thumbnailUrl}
+                duration={formatDuration(video.live)}
+                views={formatViews(video.viewCount)}
+                uploadDate={formatUploadDate(video.publishedAt, video.live)}
+                channel={video.channelTitle}
+                videoId={video.id}
+              />
+            ))
+          ) : (
+            <div className="col-span-full bg-white rounded-lg shadow-md p-8 text-center">
+              <div className="text-gray-500 mb-4">No videos found from official channels</div>
+              <button
+                onClick={fetchOfficialVideos}
+                className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
+              >
+                Try Again
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

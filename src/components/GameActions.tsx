@@ -21,14 +21,26 @@ const GameActions: React.FC<GameActionsProps> = ({ game }) => {
 
   const handleViewStats = () => {
     // 跳转到统计页面
-    const statsSection = document.getElementById('player-stats');
-    statsSection?.scrollIntoView({ behavior: 'smooth' });
+    try {
+      const statsSection = document.getElementById('player-stats');
+      if (statsSection) {
+        statsSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    } catch (error) {
+      console.warn('Stats section not found');
+    }
   };
 
   const handleViewHighlights = () => {
     // 跳转到视频集锦
-    const highlightsSection = document.getElementById('highlights');
-    highlightsSection?.scrollIntoView({ behavior: 'smooth' });
+    try {
+      const highlightsSection = document.getElementById('highlights');
+      if (highlightsSection) {
+        highlightsSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    } catch (error) {
+      console.warn('Highlights section not found');
+    }
   };
 
   const handleAddToCalendar = () => {
@@ -41,14 +53,16 @@ const GameActions: React.FC<GameActionsProps> = ({ game }) => {
     window.open(calendarUrl, '_blank');
   };
 
+  const buttonClass = "flex items-center justify-center text-white px-3 py-2 rounded-lg font-semibold text-xs sm:text-sm transition-colors min-h-[44px] flex-1 min-w-[120px]";
+
   return (
     <div className="mt-4 space-y-2">
       {/* 主要操作按钮 */}
-      <div className="grid grid-cols-2 gap-2">
+      <div className="flex flex-wrap gap-2">
         {game.status === 'live' && (
           <button
             onClick={handleWatchLive}
-            className="flex items-center justify-center bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold text-sm transition-colors"
+            className={`${buttonClass} bg-red-500 hover:bg-red-600`}
           >
             <Play className="h-4 w-4 mr-2" />
             Watch Live
@@ -58,7 +72,7 @@ const GameActions: React.FC<GameActionsProps> = ({ game }) => {
         {game.status === 'upcoming' && (
           <button
             onClick={handleAddToCalendar}
-            className="flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold text-sm transition-colors"
+            className={`${buttonClass} bg-blue-500 hover:bg-blue-600`}
           >
             <Calendar className="h-4 w-4 mr-2" />
             Add to Calendar
@@ -67,7 +81,7 @@ const GameActions: React.FC<GameActionsProps> = ({ game }) => {
         
         <button
           onClick={handleViewStats}
-          className="flex items-center justify-center bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-semibold text-sm transition-colors"
+          className={`${buttonClass} bg-orange-500 hover:bg-orange-600`}
         >
           <BarChart3 className="h-4 w-4 mr-2" />
           View Stats
@@ -75,10 +89,10 @@ const GameActions: React.FC<GameActionsProps> = ({ game }) => {
       </div>
 
       {/* 次要操作按钮 */}
-      <div className="grid grid-cols-2 gap-2">
+      <div className="flex flex-wrap gap-2">
         <button
           onClick={handleViewHighlights}
-          className="flex items-center justify-center bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold text-sm transition-colors"
+          className={`${buttonClass} bg-purple-500 hover:bg-purple-600`}
         >
           <Video className="h-4 w-4 mr-2" />
           Highlights
@@ -87,7 +101,7 @@ const GameActions: React.FC<GameActionsProps> = ({ game }) => {
         {game.platform && (
           <button
             onClick={handleWatchLive}
-            className="flex items-center justify-center bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold text-sm transition-colors"
+            className={`${buttonClass} bg-gray-500 hover:bg-gray-600`}
           >
             <ExternalLink className="h-4 w-4 mr-2" />
             {game.platform}

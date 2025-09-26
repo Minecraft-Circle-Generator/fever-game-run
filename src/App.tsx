@@ -1,7 +1,6 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navigation from './components/Navigation';
-import SEOHead from './components/SEOHead';
 const OptimizedHome = lazy(() => import('./pages/OptimizedHome'));
 const PlayerPage = lazy(() => import('./pages/PlayerPage'));
 const VideosPage = lazy(() => import('./pages/VideosPage'));
@@ -14,7 +13,6 @@ function App() {
     <Router>
       <div className="min-h-screen bg-gray-50">
         <Navigation />
-        <SEOHead todayGame={null} playerStats={null} pageType="home" />
         <Suspense fallback={<div className="p-6 text-center text-gray-600">Loading...</div>}>
           <Routes>
             <Route path="/" element={<OptimizedHome />} />

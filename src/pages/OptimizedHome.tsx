@@ -39,23 +39,31 @@ const OptimizedHome = () => {
 
   // 点击跳转并高亮目标区块
   const handleJump = (sectionId: string) => {
-    // 更新 URL hash，便于分享与刷新后定位
-    if (typeof window !== 'undefined') {
-      window.location.hash = sectionId;
-    }
-    // 等待懒加载组件渲染后再滚动
-    setTimeout(() => {
-      const el = document.getElementById(sectionId);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        // 临时高亮
-        el.classList.add('ring-4', 'ring-yellow-400');
-        setTimeout(() => el.classList.remove('ring-4', 'ring-yellow-400'), 1500);
-        // 将焦点移至区块，提升可访问性
-        (el as HTMLElement).setAttribute('tabindex', '-1');
-        (el as HTMLElement).focus({ preventScroll: true });
+    try {
+      // 更新 URL hash，便于分享与刷新后定位
+      if (typeof window !== 'undefined') {
+        window.location.hash = sectionId;
       }
-    }, 100);
+      // 等待懒加载组件渲染后再滚动
+      setTimeout(() => {
+        const el = document.getElementById(sectionId);
+        if (el && typeof el.getBoundingClientRect === 'function') {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          // 临时高亮
+          el.classList.add('ring-4', 'ring-yellow-400');
+          setTimeout(() => {
+            if (el.classList) {
+              el.classList.remove('ring-4', 'ring-yellow-400');
+            }
+          }, 1500);
+          // 将焦点移至区块，提升可访问性
+          (el as HTMLElement).setAttribute('tabindex', '-1');
+          (el as HTMLElement).focus({ preventScroll: true });
+        }
+      }, 100);
+    } catch (error) {
+      console.warn(`Section ${sectionId} not found or not ready`);
+    }
   };
 
   // 动画类名优化
@@ -83,8 +91,8 @@ const OptimizedHome = () => {
       {/* SEO 优化 */}
       <SEOHead todayGame={todayGame} playerStats={playerStats} />
       
-      {/* 结构化数据（包含最新视频的 VideoObject） */}
-      <StructuredData todayGame={todayGame} playerStats={playerStats} videos={videos} />
+      {/* 结构化数据 */}
+      <StructuredData todayGame={todayGame} playerStats={playerStats} />
       
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-yellow-50">
       {/* 优化的Hero Section - 移动端简化 */}
@@ -122,8 +130,14 @@ const OptimizedHome = () => {
               </button>
               <button 
                 onClick={() => {
-                  const videosSection = document.getElementById('highlights');
-                  videosSection?.scrollIntoView({ behavior: 'smooth' });
+                  try {
+                    const videosSection = document.getElementById('highlights');
+                    if (videosSection) {
+                      videosSection.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  } catch (error) {
+                    console.warn('Highlights section not found');
+                  }
                 }}
                 className={`bg-transparent border-2 border-yellow-300 hover:bg-yellow-300 hover:text-black text-yellow-300 px-6 md:px-10 py-3 md:py-4 rounded-full font-bold text-base md:text-xl transition-all duration-300 ${getAnimationClass('transform hover:scale-105')}`}
               >

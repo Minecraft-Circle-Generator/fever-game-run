@@ -69,6 +69,38 @@
     margin: 8px 0;
   }
 
+  /* 游戏卡片优化 */
+  .game-card-mobile {
+    padding: 16px 12px;
+  }
+
+  .game-card-mobile .score {
+    font-size: 1.125rem;
+    background: rgba(0, 0, 0, 0.05);
+    padding: 8px 12px;
+    border-radius: 6px;
+  }
+
+  .game-card-mobile .team-name {
+    font-size: 0.875rem;
+    line-height: 1.2;
+    max-width: 100px;
+  }
+
+  /* 按钮组优化 */
+  .button-group-mobile {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .button-group-mobile button {
+    flex: 1;
+    min-width: 120px;
+    font-size: 0.75rem;
+    padding: 10px 8px;
+  }
+
   /* 隐藏复杂动画 */
   .animate-pulse,
   .animate-bounce,
@@ -105,5 +137,50 @@
 
   h3 {
     font-size: 1.125rem !important;
+  }
+}
+
+/* 移动端基线修复：防止横向溢出、长词换行、媒体响应 */
+@media (max-width: 768px) {
+  html, body {
+    margin: 0;
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* 容器与间距 */
+  .container {
+    max-width: 100%;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  /* 文本换行，避免长词撑破布局 */
+  .text-wrap {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  /* 表格与列表在窄屏下可滚动而不破版 */
+  .scroll-x {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* 媒体响应 */
+  img, video, canvas {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* 常见卡片在移动端的紧凑内边距 */
+  .card {
+    padding: 12px;
+  }
+
+  /* 在移动端隐藏不必要的复杂元素 */
+  .hide-on-mobile {
+    display: none !important;
   }
 }

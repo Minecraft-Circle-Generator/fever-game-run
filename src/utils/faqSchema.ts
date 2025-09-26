@@ -1,6 +1,10 @@
 import { StructuredDataSchema } from '../types/seo';
+import { GameData } from '../hooks/useRealTimeData';
 
-export const generateFAQSchema = (): StructuredDataSchema => {
+/**
+ * 生成 FAQPage（根据今日比赛动态填充）
+ */
+export const generateFAQSchema = (todayGame?: GameData | null): StructuredDataSchema => {
   return {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -10,31 +14,39 @@ export const generateFAQSchema = (): StructuredDataSchema => {
         "name": "What time is the Indiana Fever game today?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Check the Today's Game card for the exact start time and broadcast channel; we update in real time."
+          "text": todayGame?.time && todayGame?.date
+            ? `Today at ${todayGame.time} (${todayGame.date})`
+            : "Check today's schedule for the latest start time."
         }
       },
       {
         "@type": "Question",
-        "name": "Where can I watch the Fever game live?",
+        "name": "Where is the Indiana Fever game today?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Live broadcasts are listed on the game card (e.g., ESPN). We show the platform badge at the top."
+          "text": todayGame?.venue
+            ? `At ${todayGame.venue}`
+            : "Venue information will be updated when available."
         }
       },
       {
         "@type": "Question",
-        "name": "What were the final scores of the last Fever game?",
+        "name": "How can I watch the Indiana Fever game today?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "See the Yesterday's Game section for final scores including home and away totals."
+          "text": todayGame?.platform
+            ? `Watch on ${todayGame.platform}`
+            : "Broadcast platform will be announced before the game."
         }
       },
       {
         "@type": "Question",
-        "name": "How is Caitlin Clark performing recently?",
+        "name": "Is the Indiana Fever game live right now?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "The Caitlin Clark Stats section displays points, assists, and 3-pointers with frequent updates."
+          "text": todayGame?.status === 'live'
+            ? "Yes, it's live now!"
+            : "Not live yet."
         }
       }
     ]
