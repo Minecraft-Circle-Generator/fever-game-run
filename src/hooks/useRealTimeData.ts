@@ -417,7 +417,7 @@ export const useRealTimeData = () => {
     loadInitialData();
 
     // 根据页面可见性调整更新频率
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval> | undefined;
     
     const handleVisibilityChange = () => {
       clearInterval(interval);
