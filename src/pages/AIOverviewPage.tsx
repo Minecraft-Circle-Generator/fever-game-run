@@ -6,14 +6,14 @@ const AIOverviewPage: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>Indiana Fever AI Analysis & Performance Overview | Caitlin Clark Stats</title>
+        <title>Indiana Fever AI Overview | Caitlin Clark 数据与球队表现分析</title>
         <meta name="description" content="Comprehensive AI-powered analysis of Indiana Fever basketball team performance, Caitlin Clark statistics, game predictions, and WNBA insights. Real-time data and advanced analytics." />
         <meta name="keywords" content="Indiana Fever, Caitlin Clark, WNBA analytics, basketball AI analysis, performance stats, game predictions, player analysis" />
         <meta property="og:title" content="Indiana Fever AI Analysis & Performance Overview" />
         <meta property="og:description" content="Advanced AI analysis of Indiana Fever team performance, featuring Caitlin Clark statistics and WNBA insights" />
         <meta property="og:type" content="article" />
-        <meta property="og:url" content="http://fever-game.run/ai-overview-optimization" />
-        <link rel="canonical" href="http://fever-game.run/ai-overview-optimization" />
+        <meta property="og:url" content="http://fever-game.run/ai-overview" />
+        <link rel="canonical" href="http://fever-game.run/ai-overview" />
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
@@ -36,7 +36,7 @@ const AIOverviewPage: React.FC = () => {
             "dateModified": "2025-09-26",
             "mainEntityOfPage": {
               "@type": "WebPage",
-              "@id": "http://fever-game.run/ai-overview-optimization"
+              "@id": "http://fever-game.run/ai-overview"
             }
           })}
         </script>

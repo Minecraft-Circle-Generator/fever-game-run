@@ -23,7 +23,7 @@ function App() {
               <Route path="/videos" element={<VideosPage />} />
               <Route path="/recap/:gameId" element={<GameRecap />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
-              <Route path="/ai-overview-optimization" element={<AIOverviewPage />} />
+              <Route path="/ai-overview" element={<AIOverviewPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
