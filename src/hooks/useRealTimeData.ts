@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { fetchLatestVideos, LatestVideo } from '../utils/videoProvider';
-import { fetchFeverTodayFromESPN } from '../utils/espnProvider';
+import { fetchFeverTodayFromESPN, fetchFeverLatestFinalFromESPN } from '../utils/espnProvider';
 
 export interface GameData {
   id: string;
@@ -120,22 +120,40 @@ export const useRealTimeData = () => {
     });
   };
 
-  // 获取昨日比赛数据
+  // 获取昨日/最近一场已结束比赛（优先 ESPN，无密钥）
   const fetchYesterdayGame = async (): Promise<GameData> => {
+    try {
+      const latest = await fetchFeverLatestFinalFromESPN();
+      if (latest) {
+        const dateStr = new Date(latest.startIso || Date.now()).toLocaleDateString('en-US', {
+          month: 'long', day: 'numeric', year: 'numeric'
+        });
+        const homeTeamName = latest.isFeverHome ? 'Indiana Fever' : latest.opponent;
+        const awayTeamName = latest.isFeverHome ? latest.opponent : 'Indiana Fever';
+        return {
+          id: latest.startIso || 'yesterday-game',
+          homeTeam: homeTeamName,
+          awayTeam: awayTeamName,
+          homeScore: latest.homeScore,
+          awayScore: latest.awayScore,
+          date: dateStr,
+          time: `${latest.startTime || '7:00 PM'} ${latest.timezone || 'EST'}`,
+          venue: latest.venue || 'Gainbridge Fieldhouse',
+          status: 'finished',
+          platform: 'ESPN'
+        };
+      }
+    } catch {}
+    // 回退到原有模拟
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    
     return mockApiCall({
       id: 'yesterday-game',
       homeTeam: 'Indiana Fever',
       awayTeam: 'Phoenix Mercury',
       homeScore: 89,
       awayScore: 76,
-      date: yesterday.toLocaleDateString('en-US', { 
-        month: 'long', 
-        day: 'numeric', 
-        year: 'numeric' 
-      }),
+      date: yesterday.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
       time: '7:00 PM EST',
       venue: 'Gainbridge Fieldhouse',
       status: 'finished'

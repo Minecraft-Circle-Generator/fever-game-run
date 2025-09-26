@@ -1,10 +1,19 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { Trophy, Star, TrendingUp, Video, Calendar, MapPin } from 'lucide-react';
 import VideoCard from '../components/VideoCard';
+import { fetchFeverLatestFinalFromESPN, fetchFeverTodayFromESPN } from '../utils/espnProvider';
 
 const GameRecap = () => {
   const { gameId } = useParams<{ gameId: string }>();
+  const [latestData, setLatestData] = useState<{
+    status: 'FINAL' | 'LIVE' | 'SCHEDULED';
+    title: string;
+    date: string;
+    venue: string;
+    away: { name: string; score?: number };
+    home: { name: string; score?: number };
+  } | null>(null);
 
   // 简易数据源：可维护的比赛回顾字典；后续可接入真实API
   const games: Record<string, {
@@ -42,7 +51,53 @@ const GameRecap = () => {
     },
   };
 
-  const data = games[gameId || 'latest'];
+  // 当访问 /recap/latest 时，优先从ESPN拉取最近一场已结束比赛；无则尝试今日比赛；再无则回退到字典
+  useEffect(() => {
+    const loadLatest = async () => {
+      if (gameId !== 'latest') return;
+      try {
+        const latest = await fetchFeverLatestFinalFromESPN();
+        if (latest) {
+          const dateStr = new Date(latest.startIso || Date.now()).toLocaleDateString('en-US', {
+            month: 'long', day: 'numeric', year: 'numeric'
+          });
+          const homeName = latest.isFeverHome ? 'Indiana Fever' : latest.opponent;
+          const awayName = latest.isFeverHome ? latest.opponent : 'Indiana Fever';
+          setLatestData({
+            status: 'FINAL',
+            title: `Indiana Fever vs ${latest.opponent}`,
+            date: dateStr,
+            venue: latest.venue || 'Gainbridge Fieldhouse',
+            away: { name: awayName, score: latest.awayScore },
+            home: { name: homeName, score: latest.homeScore },
+          });
+          return;
+        }
+        const today = await fetchFeverTodayFromESPN();
+        if (today) {
+          const dateStr = new Date(today.startIso || Date.now()).toLocaleDateString('en-US', {
+            month: 'long', day: 'numeric', year: 'numeric'
+          });
+          const homeName = today.isFeverHome ? 'Indiana Fever' : today.opponent;
+          const awayName = today.isFeverHome ? today.opponent : 'Indiana Fever';
+          const statusMap = today.status === 'live' ? 'LIVE' : today.status === 'final' ? 'FINAL' : 'SCHEDULED';
+          setLatestData({
+            status: statusMap as 'FINAL' | 'LIVE' | 'SCHEDULED',
+            title: `Indiana Fever vs ${today.opponent}`,
+            date: dateStr,
+            venue: today.venue || 'Gainbridge Fieldhouse',
+            away: { name: awayName, score: today.awayScore },
+            home: { name: homeName, score: today.homeScore },
+          });
+        }
+      } catch {
+        // ignore, fallback to dictionary
+      }
+    };
+    loadLatest();
+  }, [gameId]);
+
+  const data = latestData ?? games[gameId || 'latest'];
 
   // 如果传入未知 slug，跳到 latest
   if (!data) {
