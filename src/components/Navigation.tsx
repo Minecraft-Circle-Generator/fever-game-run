@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Video, Flame, Star } from 'lucide-react';
+import { Home, Video, Flame, Star, Brain } from 'lucide-react';
 import { useIsMobile, useReducedMotion } from '../hooks/useMediaQuery';
 
 const Navigation = () => {
@@ -88,6 +88,17 @@ const Navigation = () => {
               <span>🎬 VIDEOS</span>
             </Link>
             <Link 
+              to="/ai-overview-optimization" 
+              className={`flex items-center space-x-2 px-6 py-3 rounded-full text-lg font-black transition-all duration-300 transform hover:scale-105 ${
+                isActive('/ai-overview-optimization') 
+                  ? 'bg-yellow-300 text-red-600 shadow-xl' 
+                  : 'hover:bg-white hover:bg-opacity-20 hover:shadow-lg'
+              }`}
+            >
+              <Brain className="h-5 w-5 animate-pulse" />
+              <span>🧠 AI</span>
+            </Link>
+            <Link 
               to="/privacy" 
               className={`flex items-center space-x-2 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
                 isActive('/privacy') 
@@ -111,6 +122,12 @@ const Navigation = () => {
               className="p-2 rounded-full hover:bg-white hover:bg-opacity-20 transition-all duration-300"
             >
               <Video className="h-6 w-6 text-white" />
+            </Link>
+            <Link 
+              to="/ai-overview-optimization" 
+              className="p-2 rounded-full hover:bg-white hover:bg-opacity-20 transition-all duration-300"
+            >
+              <Brain className="h-6 w-6 text-blue-300" />
             </Link>
           </div>
         </div>
