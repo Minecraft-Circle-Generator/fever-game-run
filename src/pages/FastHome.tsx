@@ -259,20 +259,55 @@ const FastHome = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {videos && videos.length > 0 ? (
-                videos.map((video) => (
-                  <Suspense key={video.id} fallback={<QuickLoader />}>
-                    <OptimizedVideoCard
-                      title={video.title}
-                      thumbnail={video.thumbnail}
-                      duration={video.duration}
-                      views={video.views}
-                      uploadDate={video.uploadDate}
-                      channel={video.channel}
-                      videoId={video.videoId}
-                      isLive={video.isLive}
-                    />
-                  </Suspense>
-                ))
+                videos.slice(0, 6).map((video) => {
+                  // 格式化视频数据
+                  const formatViews = (viewCount?: number): string => {
+                    if (!viewCount) return '0';
+                    if (viewCount >= 1_000_000) return `${(viewCount / 1_000_000).toFixed(1)}M`;
+                    if (viewCount >= 1_000) return `${(viewCount / 1_000).toFixed(1)}K`;
+                    return viewCount.toString();
+                  };
+
+                  const formatUploadDate = (publishedAt: string): string => {
+                    const publishedDate = new Date(publishedAt);
+                    const now = new Date();
+                    const diffMs = now.getTime() - publishedDate.getTime();
+                    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                    const diffDays = Math.floor(diffHours / 24);
+
+                    if (video.live) return 'LIVE NOW';
+                    if (diffHours < 1) {
+                      const diffMinutes = Math.floor(diffMs / (1000 * 60));
+                      return `${diffMinutes} minutes ago`;
+                    }
+                    if (diffHours < 24) return `${diffHours} hours ago`;
+                    if (diffDays === 1) return '1 day ago';
+                    return `${diffDays} days ago`;
+                  };
+
+                  const formatDuration = (): string => {
+                    if (video.live) return 'LIVE';
+                    // 生成随机时长作为示例
+                    const minutes = Math.floor(Math.random() * 8) + 2;
+                    const seconds = Math.floor(Math.random() * 60);
+                    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                  };
+
+                  return (
+                    <Suspense key={video.id} fallback={<QuickLoader />}>
+                      <OptimizedVideoCard
+                        title={video.title}
+                        thumbnail={video.thumbnailUrl}
+                        duration={formatDuration()}
+                        views={formatViews(video.viewCount)}
+                        uploadDate={formatUploadDate(video.publishedAt)}
+                        channel={video.channelTitle}
+                        videoId={video.id}
+                        isLive={video.live}
+                      />
+                    </Suspense>
+                  );
+                })
               ) : (
                 <div className="col-span-full">
                   <QuickLoader />

@@ -13,6 +13,7 @@ export interface LatestVideo {
   // 真实统计（可选，若成功拉取）
   viewCount?: number;
   likeCount?: number;
+  description?: string;
 }
 
 function getEnv(key: string): string | undefined {
