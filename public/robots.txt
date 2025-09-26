@@ -1,5 +1,5 @@
 # Robots.txt for Fever Game Run
-# https://fever-game-run.vercel.app
+# https://fever-game.run
 
 User-agent: *
 Allow: /
@@ -22,7 +22,7 @@ Disallow: /*?*fbclid*
 Disallow: /*?*gclid*
 
 # 网站地图位置
-Sitemap: https://fever-game-run.vercel.app/sitemap.xml
+Sitemap: https://fever-game.run/sitemap.xml
 
 # 特定搜索引擎优化
 User-agent: Googlebot
