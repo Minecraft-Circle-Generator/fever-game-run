@@ -4,6 +4,7 @@ import { useRealTimeData } from '../hooks/useRealTimeData';
 import { useIsMobile, useReducedMotion } from '../hooks/useMediaQuery';
 import LazyImage from '../components/LazyImage';
 import PerformanceOptimizer from '../components/PerformanceOptimizer';
+import SeoSchema from '../components/SeoSchema';
 import { Helmet } from 'react-helmet-async';
 
 // 懒加载组件 - 进一步优化
@@ -116,6 +117,8 @@ const FastHome = () => {
 
   return (
     <PerformanceOptimizer>
+      {/* 结构化数据注入（仅供搜索抓取，不改变UI） */}
+      <SeoSchema todayGame={todayGame} playerStats={playerStats} lastUpdate={lastUpdate} />
       {/* SEO / AEO 结构化数据 */}
       <Helmet>
         <title>Indiana Fever Game Today: Live WNBA Scores & Updates</title>
