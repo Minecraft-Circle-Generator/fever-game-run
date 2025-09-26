@@ -125,8 +125,8 @@ const PlayerPage = () => {
   // 初始化 AdSense 广告
   useEffect(() => {
     try {
-      if (window.adsbygoogle) {
-        window.adsbygoogle.push({});
+      if ((window as any).adsbygoogle) {
+        (window as any).adsbygoogle.push({});
       }
     } catch (e) {
       console.log('AdSense error:', e);
