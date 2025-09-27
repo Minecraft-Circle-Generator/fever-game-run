@@ -56,6 +56,95 @@ const withTimeout = async <T>(p: Promise<T>, ms: number, fallback: T): Promise<T
   ]);
 };
 
+// 智能视频缓存管理
+const VIDEO_CACHE_KEY = 'fever_game_videos_global_cache';
+const VIDEO_CACHE_TIMESTAMP_KEY = 'fever_game_videos_cache_timestamp';
+
+// 动态缓存时长策略
+const getCacheDuration = (): number => {
+  const currentHour = new Date().getHours();
+  const isGameTime = currentHour >= 19 && currentHour <= 22; // 比赛时间 7PM-10PM
+  
+  if (isGameTime) {
+    return 60 * 1000; // 比赛期间：1分钟缓存
+  } else {
+    return 10 * 60 * 1000; // 非比赛时间：10分钟缓存
+  }
+};
+
+// 保存视频到缓存（智能策略）
+const saveVideosToCache = (videos: VideoData[]): void => {
+  try {
+    const cacheData = {
+      videos,
+      timestamp: Date.now()
+    };
+    localStorage.setItem(VIDEO_CACHE_KEY, JSON.stringify(cacheData));
+    localStorage.setItem(VIDEO_CACHE_TIMESTAMP_KEY, Date.now().toString());
+    
+    const currentHour = new Date().getHours();
+    const isGameTime = currentHour >= 19 && currentHour <= 22;
+    console.log(`[VideoCache] Saved ${videos.length} videos (${isGameTime ? 'GAME TIME' : 'NORMAL'} mode)`);
+  } catch (error) {
+    console.warn('[VideoCache] Failed to save cache:', error);
+  }
+};
+
+// 从缓存获取视频（智能策略）
+const getCachedVideos = (): VideoData[] | null => {
+  try {
+    const lastUpdate = localStorage.getItem(VIDEO_CACHE_TIMESTAMP_KEY);
+    if (!lastUpdate) {
+      console.log('[VideoCache] No cache timestamp found');
+      return null;
+    }
+    
+    const timeDiff = Date.now() - parseInt(lastUpdate);
+    const cacheDuration = getCacheDuration();
+    
+    if (timeDiff > cacheDuration) {
+      const currentHour = new Date().getHours();
+      const isGameTime = currentHour >= 19 && currentHour <= 22;
+      console.log(`[VideoCache] Cache expired (${Math.round(timeDiff/1000)}s > ${cacheDuration/1000}s) - ${isGameTime ? 'GAME TIME' : 'NORMAL'} mode`);
+      return null;
+    }
+    
+    const cacheData = localStorage.getItem(VIDEO_CACHE_KEY);
+    if (!cacheData) {
+      console.log('[VideoCache] No cache data found');
+      return null;
+    }
+    
+    const parsed = JSON.parse(cacheData);
+    if (parsed.videos && Array.isArray(parsed.videos) && parsed.videos.length > 0) {
+      const currentHour = new Date().getHours();
+      const isGameTime = currentHour >= 19 && currentHour <= 22;
+      console.log(`[VideoCache] Using cached data: ${parsed.videos.length} videos (${isGameTime ? 'GAME TIME' : 'NORMAL'} mode, age: ${Math.round(timeDiff/1000)}s)`);
+      return parsed.videos;
+    }
+    
+    return null;
+  } catch (error) {
+    console.warn('[VideoCache] Failed to load cache:', error);
+    return null;
+  }
+};
+
+// 检查是否需要更新缓存
+const shouldUpdateCache = (): boolean => {
+  try {
+    const lastUpdate = localStorage.getItem(VIDEO_CACHE_TIMESTAMP_KEY);
+    if (!lastUpdate) return true;
+    
+    const timeDiff = Date.now() - parseInt(lastUpdate);
+    const cacheDuration = getCacheDuration();
+    
+    return timeDiff >= cacheDuration;
+  } catch {
+    return true;
+  }
+};
+
 export const useRealTimeData = () => {
   const [todayGame, setTodayGame] = useState<GameData | null>(null);
   const [yesterdayGame, setYesterdayGame] = useState<GameData | null>(null);
@@ -253,12 +342,24 @@ export const useRealTimeData = () => {
     return mockApiCall(items, 200);
   };
 
-  // 最新视频（YouTube 实时来源，无密钥自动回退）
+  // 最新视频（智能缓存策略）
   const fetchVideosYT = async (): Promise<VideoData[]> => {
-    const latest: LatestVideo[] = await fetchLatestVideos();
+    // 首先检查缓存
+    if (!shouldUpdateCache()) {
+      const cached = getCachedVideos();
+      if (cached && cached.length > 0) {
+        return cached;
+      }
+    }
 
-    // 映射为页面数据，并用真实 viewCount 格式化 views
-    const mapped = latest.map(v => {
+    try {
+      console.log('[VideoCache] Fetching fresh data from API...');
+      const latest: LatestVideo[] = await fetchLatestVideos();
+      
+      if (latest && latest.length > 0) {
+
+      // 映射为页面数据，并用真实 viewCount 格式化 views
+      const mapped = latest.map(v => {
       const publishedDate = new Date(v.publishedAt);
       const now = new Date();
       const diffMs = now.getTime() - publishedDate.getTime();
@@ -281,8 +382,10 @@ export const useRealTimeData = () => {
 
       const viewsStr = ((): string => {
         const n = v.viewCount;
-        if (typeof n === 'number' && n >= 0) {
-          return n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1)}M` : `${(n / 1_000).toFixed(1)}K`;
+        if (typeof n === 'number' && n > 0) {
+          if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+          if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
+          return n.toString();
         }
         return `${(Math.random() * 50 + 10).toFixed(1)}K`;
       })();
@@ -335,7 +438,22 @@ export const useRealTimeData = () => {
       ).values()
     ).sort((a, b) => combinedScore(b.uploadDate, b.views) - combinedScore(a.uploadDate, a.views));
 
-    return filtered;
+        if (filtered.length > 0) {
+          saveVideosToCache(filtered); // 保存新缓存
+          return filtered;
+        }
+      }
+      
+      // API返回空数据，使用缓存
+      console.warn('[VideoCache] API returned empty, using cached data');
+      const cached = getCachedVideos();
+      return cached || [];
+      
+    } catch (error) {
+      console.error('[VideoCache] API failed, using cached data:', error);
+      const cached = getCachedVideos();
+      return cached || [];
+    }
   };
 
   // 获取直播状态
@@ -373,7 +491,7 @@ export const useRealTimeData = () => {
         fetchTodayGame(),
         fetchYesterdayGame(),
         fetchPlayerStats(),
-        withTimeout(fetchVideosYT(), 3500, []),
+        fetchVideosYT(),
         fetchLiveStatus()
       ]);
 
@@ -397,7 +515,7 @@ export const useRealTimeData = () => {
       const [todayGameData, playerStatsData, videosData, liveStatusData] = await Promise.all([
         fetchTodayGame(),
         fetchPlayerStats(),
-        withTimeout(fetchVideosYT(), 3500, []),
+        fetchVideosYT(),
         fetchLiveStatus()
       ]);
 
@@ -412,30 +530,55 @@ export const useRealTimeData = () => {
     }
   }, []);
 
-  // 初始化和设置定时更新 - 优化更新频率
+  // 初始化和设置智能定时更新
   useEffect(() => {
     loadInitialData();
 
-    // 根据页面可见性调整更新频率
+    // 根据比赛时间和页面可见性动态调整更新频率
     let interval: ReturnType<typeof setInterval> | undefined;
     
-    const handleVisibilityChange = () => {
+    const getUpdateInterval = (): number => {
+      const currentHour = new Date().getHours();
+      const isGameTime = currentHour >= 19 && currentHour <= 22;
+      
+      if (isGameTime) {
+        return 60000; // 比赛期间：每1分钟更新
+      } else {
+        return 10 * 60000; // 非比赛时间：每10分钟更新
+      }
+    };
+    
+    const setupInterval = () => {
       clearInterval(interval);
       if (!document.hidden) {
-        // 页面可见时每60秒更新一次（降低频率）
-        interval = setInterval(updateRealTimeData, 60000);
+        const updateFreq = getUpdateInterval();
+        const currentHour = new Date().getHours();
+        const isGameTime = currentHour >= 19 && currentHour <= 22;
+        
+        console.log(`[VideoCache] Setting update interval: ${updateFreq/1000}s (${isGameTime ? 'GAME TIME' : 'NORMAL'} mode)`);
+        interval = setInterval(updateRealTimeData, updateFreq);
       }
+    };
+    
+    const handleVisibilityChange = () => {
+      setupInterval();
     };
 
     // 初始设置
-    if (!document.hidden) {
-      interval = setInterval(updateRealTimeData, 60000);
-    }
+    setupInterval();
+    
+    // 每小时重新评估更新频率
+    const hourlyCheck = setInterval(() => {
+      if (!document.hidden) {
+        setupInterval();
+      }
+    }, 60 * 60 * 1000); // 每小时检查一次
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
       clearInterval(interval);
+      clearInterval(hourlyCheck);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [updateRealTimeData]);
