@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Video, Search, Filter, RefreshCw } from 'lucide-react';
 import VideoCard from '../components/VideoCard';
+import BookmarkButton from '../components/BookmarkButton';
 import { fetchLatestVideos, LatestVideo } from '../utils/videoProvider';
+import { t } from '../utils/i18n';
 
 const VideosPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -171,14 +173,26 @@ const VideosPage = () => {
                   </option>
                 ))}
               </select>
-              <button
-                onClick={fetchOfficialVideos}
-                className="flex items-center text-amber-600 hover:text-amber-700 transition-colors"
-                disabled={loading}
-              >
-                <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} />
-                Refresh
-              </button>
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={fetchOfficialVideos}
+                  className="flex items-center text-amber-600 hover:text-amber-700 transition-colors"
+                  disabled={loading}
+                >
+                  <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} />
+                  Refresh
+                </button>
+                <BookmarkButton
+                  label={t('bookmark.label')}
+                  messages={{
+                    iosAddToHome: t('bookmark.iosAddToHome'),
+                    pressKeysMac: t('bookmark.pressKeysMac'),
+                    pressKeysWin: t('bookmark.pressKeysWin'),
+                    copied: t('bookmark.copied'),
+                  }}
+                  className="flex items-center text-amber-600 hover:text-amber-700 transition-colors"
+                />
+              </div>
             </div>
           </div>
         </div>

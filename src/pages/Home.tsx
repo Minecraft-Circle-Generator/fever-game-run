@@ -1,8 +1,10 @@
 import React from 'react';
 import { Calendar, Star, TrendingUp, Video, Flame, Zap, Trophy, Target, RefreshCw } from 'lucide-react';
 import GameCard from '../components/GameCard';
+import BookmarkButton from '../components/BookmarkButton';
 import VideoCard from '../components/VideoCard';
 import { useRealTimeData } from '../hooks/useRealTimeData';
+import { t } from '../utils/i18n';
 
 const Home = () => {
   const { 
@@ -126,13 +128,25 @@ const Home = () => {
             <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
             <span>Last updated: {lastUpdate.toLocaleTimeString()}</span>
           </div>
-          <button 
-            onClick={refreshData}
-            className="flex items-center text-sm text-gray-600 hover:text-gray-800 transition-colors"
-          >
-            <RefreshCw className="h-4 w-4 mr-1" />
-            Refresh Data
-          </button>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={refreshData}
+              className="flex items-center text-sm text-gray-600 hover:text-gray-800 transition-colors"
+            >
+              <RefreshCw className="h-4 w-4 mr-1" />
+              Refresh Data
+            </button>
+            <BookmarkButton
+              label={t('bookmark.label')}
+              messages={{
+                iosAddToHome: t('bookmark.iosAddToHome'),
+                pressKeysMac: t('bookmark.pressKeysMac'),
+                pressKeysWin: t('bookmark.pressKeysWin'),
+                copied: t('bookmark.copied'),
+              }}
+              className="text-sm text-gray-600 hover:text-gray-800"
+            />
+          </div>
         </div>
 
         {/* Live Status Banner */}

@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { Play, Eye, Clock } from 'lucide-react';
 import LazyImage from './LazyImage';
 import { useIsMobile } from '../hooks/useMediaQuery';
@@ -12,6 +12,9 @@ interface OptimizedVideoCardProps {
   channel: string;
   videoId?: string;
   isLive?: boolean;
+  // 新增：用于真实时间与观看数的鲁棒展示
+  publishedAtISO?: string;
+  viewsNumeric?: number;
 }
 
 const OptimizedVideoCard: React.FC<OptimizedVideoCardProps> = memo(({
@@ -22,7 +25,9 @@ const OptimizedVideoCard: React.FC<OptimizedVideoCardProps> = memo(({
   uploadDate,
   channel,
   videoId,
-  isLive = false
+  isLive = false,
+  publishedAtISO,
+  viewsNumeric
 }) => {
   const isMobile = useIsMobile();
 
@@ -31,6 +36,94 @@ const OptimizedVideoCard: React.FC<OptimizedVideoCardProps> = memo(({
       window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank');
     }
   };
+
+  // 为有 videoId 的视频构造 YouTube 官方缩略图候选链
+  const thumbCandidates = useMemo(() => {
+    if (!videoId) return [];
+    return [
+      `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`,
+      `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+      `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`,
+      `https://i.ytimg.com/vi/${videoId}/default.jpg`
+    ];
+  }, [videoId]);
+
+  // 真实观看数优先，缺失则使用字符串或“—”
+  const displayViews = useMemo(() => {
+    // 1) 数值优先
+    if (typeof viewsNumeric === 'number' && isFinite(viewsNumeric) && viewsNumeric > 0) {
+      return viewsNumeric >= 1_000_000
+        ? `${(viewsNumeric / 1_000_000).toFixed(1)}M`
+        : `${(viewsNumeric / 1_000).toFixed(1)}K`;
+    }
+    // 2) 解析字符串（例如 "12.3K", "2.1M", "1234"）
+    const s = (views || '').trim();
+    if (s) {
+      const mM = s.match(/([\d.]+)\s*M/i);
+      const mK = s.match(/([\d.]+)\s*K/i);
+      if (mM) {
+        const n = parseFloat(mM[1]) * 1_000_000;
+        if (isFinite(n) && n > 0) return `${(n / 1_000_000).toFixed(1)}M`;
+      }
+      if (mK) {
+        const n = parseFloat(mK[1]) * 1_000;
+        if (isFinite(n) && n > 0) return `${(n / 1_000).toFixed(1)}K`;
+      }
+      const num = parseFloat(s.replace(/[^0-9.]/g, ''));
+      if (isFinite(num) && num > 0) {
+        return num >= 1_000_000 ? `${(num / 1_000_000).toFixed(1)}M` : `${(num / 1_000).toFixed(1)}K`;
+      }
+    }
+    // 3) 不可用或为0时显示横杠
+    return '—';
+  }, [viewsNumeric, views]);
+
+  // 真实发布时间优先，非法或缺失则兜底
+  const displayUpload = useMemo(() => {
+    if (isLive) return 'LIVE NOW';
+    // 1) 页面层相对时间优先
+    const hasValidText = uploadDate && !/NaN/i.test(uploadDate);
+    if (hasValidText) {
+      // 若为 "Just now" 但 ISO 显示已过去 >=5 分钟，则改用 ISO 重新计算，避免误判
+      if (/^just now$/i.test(uploadDate) && publishedAtISO) {
+        const d = new Date(publishedAtISO);
+        if (!isNaN(d.getTime())) {
+          const diffMs = Date.now() - d.getTime();
+          if (diffMs >= 5 * 60 * 1000) {
+            const min = Math.floor(diffMs / 60000);
+            const h = Math.floor(min / 60);
+            const days = Math.floor(h / 24);
+            if (h < 1) return `${min} minutes ago`;
+            if (h < 24) return `${h} hours ago`;
+            if (days === 1) return '1 day ago';
+            return `${days} days ago`;
+          }
+        }
+      }
+      return uploadDate!;
+    }
+    // 2) ISO 兜底计算；未来或非法则显示绝对日期
+    if (publishedAtISO) {
+      const d = new Date(publishedAtISO);
+      if (!isNaN(d.getTime())) {
+        const now = Date.now();
+        const diffMs = now - d.getTime();
+        if (diffMs >= 0) {
+          const min = Math.floor(diffMs / 60000);
+          const h = Math.floor(min / 60);
+          const days = Math.floor(h / 24);
+          if (h < 1) return `${min} minutes ago`;
+          if (h < 24) return `${h} hours ago`;
+          if (days === 1) return '1 day ago';
+          return `${days} days ago`;
+        }
+        // 未来时间或本地时区解析异常：显示绝对日期
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      }
+    }
+    // 3) 最终兜底
+    return 'Just now';
+  }, [publishedAtISO, uploadDate, isLive]);
 
   return (
     <div 
@@ -44,6 +137,7 @@ const OptimizedVideoCard: React.FC<OptimizedVideoCardProps> = memo(({
           src={thumbnail}
           alt={title}
           className="w-full h-48 object-cover"
+          sources={thumbCandidates}
         />
         
         {/* 播放按钮 */}
@@ -72,9 +166,9 @@ const OptimizedVideoCard: React.FC<OptimizedVideoCardProps> = memo(({
         <div className="flex items-center justify-between text-xs text-gray-500">
           <span className="flex items-center">
             <Eye className="h-3 w-3 mr-1" />
-            {views} views
+            {displayViews === '—' ? '—' : `${displayViews} views`}
           </span>
-          <span>{uploadDate}</span>
+          <span>{displayUpload}</span>
         </div>
       </div>
     </div>

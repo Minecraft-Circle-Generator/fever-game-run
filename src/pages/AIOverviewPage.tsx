@@ -1,5 +1,6 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
+import BookmarkButton from '../components/BookmarkButton';
 import { TrendingUp, Search, Brain, Target, Users, Award } from 'lucide-react';
 
 const AIOverviewPage: React.FC = () => {
@@ -46,9 +47,12 @@ const AIOverviewPage: React.FC = () => {
         {/* Next Game Today Banner */}
         <div className="flex items-center justify-between mb-3 text-sm text-gray-600">
           <span>• Updated: {new Date().toLocaleString()}</span>
-          <button className="flex items-center gap-1 text-gray-500 hover:text-gray-800" onClick={() => window.location.reload()}>
-            <span>↻ Refresh</span>
-          </button>
+          <div className="flex items-center gap-3">
+            <button className="flex items-center gap-1 text-gray-500 hover:text-gray-800" onClick={() => window.location.reload()}>
+              <span>↻ Refresh</span>
+            </button>
+            <BookmarkButton label="Bookmark" className="text-gray-500 hover:text-gray-800" />
+          </div>
         </div>
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg p-4 md:p-6 mb-8 shadow-lg">
           <div className="flex items-center gap-3">

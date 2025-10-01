@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Star, TrendingUp, Award, Target, RefreshCw } from 'lucide-react';
+import BookmarkButton from '../components/BookmarkButton';
 import PlayerStats from '../components/PlayerStats';
 import VideoCard from '../components/VideoCard';
 import { fetchLatestVideos, LatestVideo } from '../utils/videoProvider';
@@ -32,7 +33,7 @@ const PlayerPage = () => {
       // 严格筛选真正与 Caitlin Clark 相关的高质量视频
       const clarkVideos = allVideos.filter(video => {
         const title = video.title.toLowerCase();
-        const description = video.description?.toLowerCase() || '';
+        const description = ((video as any)?.description?.toLowerCase?.()) || ''
         
         // 高优先级关键词 - 直接提到 Caitlin Clark
         if (title.includes('caitlin clark') || description.includes('caitlin clark')) {
@@ -273,14 +274,17 @@ const PlayerPage = () => {
         <section>
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-800">Highlight Videos</h2>
-            <button
-              onClick={fetchClarkVideos}
-              className="flex items-center text-amber-600 hover:text-amber-700 transition-colors"
-              disabled={loading}
-            >
-              <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} />
-              Refresh
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={fetchClarkVideos}
+                className="flex items-center text-amber-600 hover:text-amber-700 transition-colors"
+                disabled={loading}
+              >
+                <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} />
+                Refresh
+              </button>
+              <BookmarkButton label="Bookmark" className="text-amber-600 hover:text-amber-700" />
+            </div>
           </div>
           
           {loading ? (

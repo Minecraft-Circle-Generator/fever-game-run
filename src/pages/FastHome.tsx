@@ -4,6 +4,8 @@ import { useRealTimeData } from '../hooks/useRealTimeData';
 import { useIsMobile, useReducedMotion } from '../hooks/useMediaQuery';
 import LazyImage from '../components/LazyImage';
 import PerformanceOptimizer from '../components/PerformanceOptimizer';
+import BookmarkButton from '../components/BookmarkButton';
+import { t } from '../utils/i18n';
 
 // 懒加载组件 - 进一步优化
 const GameCard = lazy(() => import('../components/GameCard'));
@@ -126,13 +128,25 @@ const FastHome = () => {
               <div className={`w-2 h-2 bg-green-500 rounded-full mr-2 ${getAnimationClass('animate-pulse')}`}></div>
               <span>Updated: {lastUpdate.toLocaleTimeString()}</span>
             </div>
-            <button 
-              onClick={refreshData}
-              className="flex items-center text-gray-600 hover:text-gray-800 transition-colors p-2"
-            >
-              <RefreshCw className="h-4 w-4 mr-1" />
-              <span className="hidden sm:inline">Refresh</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={refreshData}
+                className="flex items-center text-gray-600 hover:text-gray-800 transition-colors p-2"
+              >
+                <RefreshCw className="h-4 w-4 mr-1" />
+                <span className="hidden sm:inline">Refresh</span>
+              </button>
+              <BookmarkButton
+                label={t('bookmark.label')}
+                messages={{
+                  iosAddToHome: t('bookmark.iosAddToHome'),
+                  pressKeysMac: t('bookmark.pressKeysMac'),
+                  pressKeysWin: t('bookmark.pressKeysWin'),
+                  copied: t('bookmark.copied'),
+                }}
+                className="text-gray-600 hover:text-gray-800 p-2"
+              />
+            </div>
           </div>
 
           {/* 实时状态横幅 */}
@@ -260,22 +274,27 @@ const FastHome = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {videos && videos.length > 0 ? (
                 videos.slice(0, 6).map((video) => {
-                  // 格式化视频数据
-                  const formatViews = (viewCount?: number): string => {
-                    if (!viewCount) return '0';
+                  // 统一字段命名，兼容现有类型
+                  const viewsNumeric = (video as any).viewsNumeric ?? (video as any).views ?? 0;
+                  const publishedAtISO = (video as any).publishedAtISO ?? (video as any).publishedAt;
+                  const isLive = (video as any).isLive ?? (video as any).live ?? false;
+                  const thumbnail = (video as any).thumbnail ?? (video as any).thumbnailUrl;
+
+                  const formatViews = (v?: number): string => {
+                    const viewCount = v ?? 0;
                     if (viewCount >= 1_000_000) return `${(viewCount / 1_000_000).toFixed(1)}M`;
                     if (viewCount >= 1_000) return `${(viewCount / 1_000).toFixed(1)}K`;
                     return viewCount.toString();
                   };
 
-                  const formatUploadDate = (publishedAt: string): string => {
-                    const publishedDate = new Date(publishedAt);
+                  const formatUploadDate = (iso?: string, live?: boolean): string => {
+                    if (live) return 'LIVE NOW';
+                    if (!iso) return '';
+                    const publishedDate = new Date(iso);
                     const now = new Date();
                     const diffMs = now.getTime() - publishedDate.getTime();
                     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
                     const diffDays = Math.floor(diffHours / 24);
-
-                    if (video.live) return 'LIVE NOW';
                     if (diffHours < 1) {
                       const diffMinutes = Math.floor(diffMs / (1000 * 60));
                       return `${diffMinutes} minutes ago`;
@@ -285,25 +304,24 @@ const FastHome = () => {
                     return `${diffDays} days ago`;
                   };
 
-                  const formatDuration = (): string => {
-                    if (video.live) return 'LIVE';
-                    // 生成随机时长作为示例
+                  const formatDuration = (live?: boolean): string => {
+                    if (live) return 'LIVE';
                     const minutes = Math.floor(Math.random() * 8) + 2;
                     const seconds = Math.floor(Math.random() * 60);
                     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
                   };
 
                   return (
-                    <Suspense key={video.id} fallback={<QuickLoader />}>
+                    <Suspense key={(video as any).id} fallback={<QuickLoader />}>
                       <OptimizedVideoCard
-                        title={video.title}
-                        thumbnail={video.thumbnailUrl}
-                        duration={formatDuration()}
-                        views={formatViews(video.viewCount)}
-                        uploadDate={formatUploadDate(video.publishedAt)}
-                        channel={video.channelTitle}
-                        videoId={video.id}
-                        isLive={video.live}
+                        title={(video as any).title}
+                        thumbnail={thumbnail}
+                        duration={formatDuration(isLive)}
+                        views={formatViews(viewsNumeric)}
+                        uploadDate={formatUploadDate(publishedAtISO, isLive)}
+                        channel={(video as any).channel}
+                        videoId={(video as any).videoId ?? (video as any).id}
+                        isLive={isLive}
                       />
                     </Suspense>
                   );
