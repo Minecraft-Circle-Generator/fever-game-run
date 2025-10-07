@@ -207,6 +207,7 @@ const VideosPage = () => {
           </div>
           <div className="text-blue-600 text-xs mt-1">
             Total videos: {filteredVideos.length} | Last updated: {lastUpdate.toLocaleTimeString()}
+
           </div>
         </div>
 

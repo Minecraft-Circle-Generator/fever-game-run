@@ -57,6 +57,17 @@ const CACHE_KEY = 'fever_game_videos_global_cache';
 const CACHE_EXPIRY_KEY = 'fever_game_videos_cache_expiry';
 const CACHE_DURATION = 60 * 60 * 1000; // 1小时缓存
 
+// 导出：判断缓存是否陈旧（已过期）
+export function isVideoCacheStale(): boolean {
+  try {
+    const expiryTime = localStorage.getItem(CACHE_EXPIRY_KEY);
+    if (!expiryTime) return true;
+    return Date.now() > parseInt(expiryTime);
+  } catch {
+    return true;
+  }
+}
+
 // 保存视频到缓存
 function saveVideosToCache(videos: LatestVideo[]): void {
   try {
@@ -75,24 +86,17 @@ function saveVideosToCache(videos: LatestVideo[]): void {
 // 从缓存获取视频
 function getVideosFromCache(): LatestVideo[] | null {
   try {
-    const expiryTime = localStorage.getItem(CACHE_EXPIRY_KEY);
-    if (!expiryTime || Date.now() > parseInt(expiryTime)) {
-      console.log('[VideoProvider] Cache expired');
-      return null;
-    }
-    
     const cacheData = localStorage.getItem(CACHE_KEY);
     if (!cacheData) {
       console.log('[VideoProvider] No cache data found');
       return null;
     }
-    
     const parsed = JSON.parse(cacheData);
     if (parsed.videos && Array.isArray(parsed.videos) && parsed.videos.length > 0) {
-      console.log(`[VideoProvider] Loaded ${parsed.videos.length} videos from cache`);
+      const stale = isVideoCacheStale();
+      console.log(`[VideoProvider] Loaded ${parsed.videos.length} videos from cache${stale ? ' (stale)' : ''}`);
       return parsed.videos;
     }
-    
     return null;
   } catch (error) {
     console.warn('[VideoProvider] Failed to load cache:', error);
@@ -450,9 +454,6 @@ async function fetchUploadsVideos(channelConfig: typeof TARGET_CHANNELS[0]): Pro
 export async function fetchLatestVideos(): Promise<LatestVideo[]> {
   console.log('[VideoProvider] Starting to fetch latest videos...');
   console.log(`[VideoProvider] Using API key index: ${currentApiKeyIndex}`);
-  
-  // 清理过期缓存
-  clearExpiredCache();
   
   // 首先尝试从缓存获取
   const cachedVideos = getVideosFromCache();

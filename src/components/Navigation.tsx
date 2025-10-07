@@ -16,7 +16,7 @@ const Navigation = () => {
     <nav className="relative bg-gradient-to-r from-black via-red-900 to-black text-white shadow-2xl sticky top-0 z-50 border-b-4 border-red-600 overflow-hidden">
       {/* Background Player Silhouettes - disable on mobile or reduced motion */}
       {!(isMobile || reducedMotion) && (
-      <div className="absolute inset-0 opacity-15">
+      <div className="absolute inset-0 opacity-15 pointer-events-none">
         <div className="absolute top-2 left-1/4 w-6 h-10 bg-gradient-to-b from-red-400 to-transparent transform rotate-12 animate-pulse">
           <div className="w-1 h-1 bg-red-300 rounded-full mx-auto mb-1"></div>
           <div className="w-3 h-5 bg-red-400 mx-auto mb-1"></div>
