@@ -1,23 +1,50 @@
 {
-  "title": "Fever vs Liberty Recap — 三分与空间博弈",
-  "theme": "3PT & Spacing",
-  "summary": "外线质量与无球掩护成功率决定空间。Fever 角落三分占比较高，但空位转化效率需提升。",
-  "highlights": [
-    "3PT Rate：Fever 41% vs Liberty 38%",
-    "角落三分占比：Fever 33%",
-    "无球掩护成功率：Fever 62%"
+  "title_en": "Indiana Fever vs New York Liberty Recap",
+  "title_zh": "Indiana Fever vs New York Liberty 回顾",
+  "summary_en": "Focus on 3PT spacing and off-ball screens; how Fever responded to Liberty's high-post coordination and Spain PnR.",
+  "summary_zh": "围绕三分空间与无球掩护的对抗，解析 Fever 如何应对 Liberty 的高位协同与 Spain PnR。",
+  "theme_en": "3PT Spacing & Off-ball Synergy",
+  "theme_zh": "三分空间与无球协同",
+  "publishedAt": "2024-09-24",
+  "lastmod": "2024-09-24",
+  "highlights_en": [
+    "Opening: Liberty used corner gravity; Fever contained drives via switches and rim protection.",
+    "Mid-game: Spain PnR frequently used; Fever anticipated and shrank weak side to respond.",
+    "Closing: Fever increased perimeter pressure and rotations, limited consecutive 3s, secured defensive boards."
   ],
-  "storyline": [
-    "开局：双方拉开空间试探三分点位。",
-    "中段：Spain PnR 制造错位，外线空位增多。",
-    "收尾：Liberty 缩小防线，Fever 外线命中率波动。"
+  "highlights_zh": [
+    "开局阶段：Liberty 通过底角牵制拉开空间，Fever 以换防与护筐限制内突。",
+    "中段：Liberty 频繁使用 Spain PnR（高位挡拆+背掩护），Fever 通过提前沟通与弱侧收缩应对。",
+    "末节：Fever 加强外线压迫与协防轮转，遏制连续三分，控制防守篮板。"
   ],
-  "tactics": [
-    "Spain PnR：内外协同制造空位",
-    "延误与轮转换防：限制弧顶投射"
+  "storyline_en": [
+    "1) Space probing with corner shooters; Fever kept intensity via traps/switches.",
+    "2) Spain PnR created mismatches; Fever pre-called coverages and recognized back screens.",
+    "3) Endgame: solid help and closeouts reduced open 3s; improved defensive rebounding."
+  ],
+  "storyline_zh": [
+    "1. 开局双方试探空间：Liberty 试图用底角射手牵制，Fever 以包夹和换防维持防守强度。",
+    "2. 中段攻防拉锯：Spain PnR 被多次打出，Fever 通过提前叫位与背掩护识别降低杀伤。",
+    "3. 终结阶段：Fever 稳定二次协防与外线追防，减少空位三分出手、提升防守篮板率。"
+  ],
+  "tactics_en": [
+    "Liberty Spain PnR: back screen to create mismatch; Fever countered via pre-communication and switching.",
+    "Fever off-ball screens: weak-side flare + pindown combos to create threes and cuts.",
+    "Defensive plan: top delay + weak-side wall to limit middle drives."
+  ],
+  "tactics_zh": [
+    "Liberty Spain PnR：背掩护到位制造错位，Fever 通过提前沟通与换防化解。",
+    "Fever 无球掩护：弱侧 flare + pindown 结合，创造外线机会与切入通道。",
+    "防守策略：顶弧延阻 + 弱侧包线，限制持球人中路推进。"
   ],
   "advanced": {
-    "radar3pt": { "corners": 0.33, "aboveBreak": 0.47, "wing": 0.20 },
-    "offBallSuccess": { "flare": 0.58, "pinDown": 0.64, "backScreen": 0.63 }
+    "threePointRate": 0.42,
+    "corner3Attempts": 12,
+    "defRebRate": 0.74,
+    "spainPnRSequences": [
+      { "time": "Q2 07:12", "result_en": "Hedge success, perimeter miss", "result_zh": "延阻成功，外线投篮不中" },
+      { "time": "Q3 03:45", "result_en": "Switch identified, back screen recognized", "result_zh": "换防到位，背掩护被识别" },
+      { "time": "Q4 02:18", "result_en": "Weak-side help on time, cut denied", "result_zh": "弱侧补位及时，切入被封堵" }
+    ]
   }
 }

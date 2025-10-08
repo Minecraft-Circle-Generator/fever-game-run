@@ -5,6 +5,7 @@ import VideoCard from '../components/VideoCard';
 import { fetchFeverLatestFinalFromESPN, fetchFeverTodayFromESPN } from '../utils/espnProvider';
 import { Helmet } from 'react-helmet-async';
 import StructuredData from '../components/StructuredData';
+import { t } from '../utils/i18n';
 
 const GameRecap = () => {
   const { gameId } = useParams<{ gameId: string }>();
@@ -116,10 +117,72 @@ const GameRecap = () => {
     }
   })();
 
+  // 递归渲染高级数据的辅助函数：数组优先表格/列表，对象递归键值
+  const renderValue = (val: any): any => {
+    if (val == null) return '—';
+    if (Array.isArray(val)) {
+      const arr = val;
+      if (arr.length > 0 && typeof arr[0] === 'object' && arr.every(x => typeof x === 'object')) {
+        // 仅显示当前语言列（默认英文）：过滤 *_en / *_zh 字段，并优先展示 time
+        const allCols = Array.from(new Set(arr.flatMap(x => Object.keys(x))));
+        const isZh = (document.documentElement.lang || '').toLowerCase().startsWith('zh');
+        const cols = allCols
+          .filter(c => {
+            const isEnCol = /_en$/.test(c);
+            const isZhCol = /_zh$/.test(c);
+            if (isEnCol || isZhCol) return isZh ? isZhCol : isEnCol;
+            return true; // 保留非语言后缀列，如 time、score 等
+          })
+          .sort((a, b) => {
+            if (a === 'time') return -1;
+            if (b === 'time') return 1;
+            return a.localeCompare(b);
+          });
+        return (
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr>{cols.map(c => <th key={c} className="text-left px-2 py-1 border-b">{c}</th>)}</tr>
+              </thead>
+              <tbody>
+                {arr.map((row, i) => (
+                  <tr key={i}>
+                    {cols.map(c => <td key={c} className="px-2 py-1 border-b">{renderValue((row as any)[c])}</td>)}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
+      }
+      return <ul className="list-disc list-inside space-y-1">{arr.map((x, i) => <li key={i}>{renderValue(x)}</li>)}</ul>;
+    }
+    if (typeof val === 'object') {
+      return (
+        <ul className="list-disc list-inside space-y-1">
+          {Object.entries(val).map(([k, v]) => (
+            <li key={k}><span className="font-semibold">{k}</span>: {renderValue(v)}</li>
+          ))}
+        </ul>
+      );
+    }
+    return String(val);
+  };
+
+  // 选择语言文本的辅助：优先使用 {key_en}/{key_zh}，否则回退到 {key}
+  const pickLang = (obj: any, key: string) => {
+    try {
+      const lang = (document.documentElement.lang || navigator.language || 'en').toLowerCase().startsWith('zh') ? 'zh' : 'en';
+      const langKey = `${key}_${lang}`;
+      if (obj && langKey in obj && obj[langKey]) return obj[langKey];
+      return obj?.[key];
+    } catch { return obj?.[key]; }
+  };
+
   if (dynamicRecap) {
     const canonical = `https://fever-game.run/recap/${gameId}`;
-    const metaTitle = dynamicRecap.title || 'Game Recap';
-    const metaDesc = dynamicRecap.summary || `Recap: ${String(gameId)}`;
+    const metaTitle = pickLang(dynamicRecap, 'title') || t('recap.title', 'Game Recap');
+    const metaDesc = pickLang(dynamicRecap, 'summary') || t('recap.metaDesc', `Recap: ${String(gameId)}`);
     const published = dynamicRecap.publishedAt || undefined;
     const modified = dynamicRecap.lastmod || undefined;
 
@@ -131,55 +194,51 @@ const GameRecap = () => {
           <link rel="canonical" href={canonical} />
         </Helmet>
 
-        <StructuredData
-          type="Article"
-          data={{
-            "@context": "https://schema.org",
-            "@type": "Article",
-            "headline": metaTitle,
-            "description": metaDesc,
-            "datePublished": published,
-            "dateModified": modified || published,
-            "mainEntityOfPage": canonical
-          }}
-        />
+        <StructuredData todayGame={null} playerStats={null} />
 
         <header className="bg-white shadow-sm border-b">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <h1 className="text-3xl font-bold text-gray-800">{dynamicRecap.title}</h1>
-            <p className="text-gray-600 mt-2">{dynamicRecap.summary}</p>
-            <div className="mt-3 text-sm text-gray-500">主题：{dynamicRecap.theme}</div>
+            <h1 className="text-3xl font-bold text-gray-800">{pickLang(dynamicRecap, 'title')}</h1>
+            <p className="text-gray-600 mt-2">{pickLang(dynamicRecap, 'summary')}</p>
+            <div className="mt-3 text-sm text-gray-500">
+              {t('recap.theme', 'Theme')}: {pickLang(dynamicRecap, 'theme')}
+            </div>
           </div>
         </header>
 
         <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
           <section>
-            <h2 className="text-xl font-semibold mb-3">关键看点</h2>
+            <h2 className="text-xl font-semibold mb-3">{t('recap.highlights', 'Key Highlights')}</h2>
             <ul className="list-disc list-inside space-y-1 text-gray-700">
-              {(dynamicRecap.highlights || []).map((h: string, i: number) => <li key={i}>{h}</li>)}
+              {(pickLang(dynamicRecap, 'highlights') || []).map((h: string, i: number) => <li key={i}>{h}</li>)}
             </ul>
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mb-3">比赛故事线</h2>
+            <h2 className="text-xl font-semibold mb-3">{t('recap.storyline', 'Game Storyline')}</h2>
             <ol className="list-decimal list-inside space-y-1 text-gray-700">
-              {(dynamicRecap.storyline || []).map((s: string, i: number) => <li key={i}>{s}</li>)}
+              {(pickLang(dynamicRecap, 'storyline') || []).map((s: string, i: number) => <li key={i}>{s}</li>)}
             </ol>
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mb-3">战术解读</h2>
+            <h2 className="text-xl font-semibold mb-3">{t('recap.tactics', 'Tactical Analysis')}</h2>
             <ul className="list-disc list-inside space-y-1 text-gray-700">
-              {(dynamicRecap.tactics || []).map((t: string, i: number) => <li key={i}>{t}</li>)}
+              {(pickLang(dynamicRecap, 'tactics') || []).map((tactic: string, i: number) => <li key={i}>{tactic}</li>)}
             </ul>
           </section>
 
-          <section>
-            <h2 className="text-xl font-semibold mb-3">高阶数据</h2>
-            <pre className="bg-gray-50 border rounded p-4 text-sm overflow-x-auto">
-              {JSON.stringify(dynamicRecap.advanced || {}, null, 2)}
-            </pre>
-          </section>
+          {(dynamicRecap.advanced && Object.keys(dynamicRecap.advanced).length > 0) && (
+            <section>
+              <details className="bg-gray-50 border rounded p-4">
+                <summary className="cursor-pointer font-medium">{t('recap.advancedData', 'Advanced Data')}</summary>
+                <div className="mt-3 text-sm text-gray-700">
+                  {/* 这里可替换为图表组件；临时以列表呈现，避免直接显示代码 */}
+                  {renderValue(dynamicRecap.advanced)}
+                </div>
+              </details>
+            </section>
+          )}
         </main>
       </div>
     );
@@ -242,7 +301,7 @@ const GameRecap = () => {
         <section className="mb-12">
           <div className="flex items-center mb-6">
             <Trophy className="h-6 w-6 text-amber-500 mr-3" />
-            <h2 className="text-2xl font-bold text-gray-800">Game Summary</h2>
+            <h2 className="text-2xl font-bold text-gray-800">{t('recap.gameSummary', 'Game Summary')}</h2>
           </div>
           <div className="bg-white rounded-lg shadow-md p-6">
             <p className="text-gray-700 leading-relaxed mb-4">
@@ -263,7 +322,7 @@ const GameRecap = () => {
         <section className="mb-12">
           <div className="flex items-center mb-6">
             <Star className="h-6 w-6 text-amber-500 mr-3" />
-            <h2 className="text-2xl font-bold text-gray-800">Player Stats</h2>
+            <h2 className="text-2xl font-bold text-gray-800">{t('recap.playerStats', 'Player Stats')}</h2>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Indiana Fever Stats */}
@@ -384,7 +443,7 @@ const GameRecap = () => {
         <section>
           <div className="flex items-center mb-6">
             <Video className="h-6 w-6 text-amber-500 mr-3" />
-            <h2 className="text-2xl font-bold text-gray-800">Game Highlights</h2>
+            <h2 className="text-2xl font-bold text-gray-800">{t('recap.gameHighlights', 'Game Highlights')}</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <VideoCard

@@ -1,26 +1,43 @@
 {
-  "title": "Fever vs Mercury Recap — 新人与老将的火力对比",
-  "theme": "Rookies vs Veterans",
-  "summary": "新人使用率与每回合得分（PPP）对比，老将带队效率与关键球参与度更稳。",
-  "highlights": [
+  "title_en": "Fever vs Mercury Recap — Firepower: rookies vs veterans",
+  "title_zh": "Fever vs Mercury 回顾 — 新人与老将的火力对比",
+  "theme_en": "Rookies vs Veterans",
+  "theme_zh": "新人 vs 老将",
+  "summary_en": "Usage and points per possession comparison: veterans steadier leading efficiency and clutch involvement.",
+  "summary_zh": "新人使用率与每回合得分（PPP）对比，老将带队效率与关键球参与度更稳。",
+  "highlights_en": [
+    "Rookie usage: 28%",
+    "PPP: rookies 0.98 vs veterans 1.12",
+    "Clutch involvement (veterans): 73%"
+  ],
+  "highlights_zh": [
     "新人使用率：28%",
     "新人 PPP：0.98 vs 老将 PPP：1.12",
     "关键球参与度（老将）：73%"
   ],
-  "storyline": [
+  "storyline_en": [
+    "Opening: rookies probed pace and shot selection.",
+    "Mid-game: veterans controlled flow, neutralizing scheme changes.",
+    "Closing: clutch plays driven by experienced core."
+  ],
+  "storyline_zh": [
     "开局：新人试探节奏与投射选择。",
     "中段：老将控场，以经验化解防守变化。",
     "收尾：关键球由经验核心主导。"
   ],
-  "tactics": [
+  "tactics_en": [
+    "Mismatch targeting: chained screens to create slow-foot mismatches.",
+    "Tempo control: reduce turnovers, improve PPP."
+  ],
+  "tactics_zh": [
     "错位针对：通过连续掩护制造慢防错位",
     "节奏转换：降低失误，提升每回合产出"
   ],
   "advanced": {
     "pppCompare": { "rookies": 0.98, "veterans": 1.12 },
     "clutchSankey": [
-      { "from": "新人", "to": "出手", "value": 22 },
-      { "from": "老将", "to": "组织", "value": 38 }
+      { "from_en": "Rookies", "from_zh": "新人", "to_en": "Shots", "to_zh": "出手", "value": 22 },
+      { "from_en": "Veterans", "from_zh": "老将", "to_en": "Creation", "to_zh": "组织", "value": 38 }
     ]
   }
 }

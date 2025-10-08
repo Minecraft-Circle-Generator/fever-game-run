@@ -16,6 +16,16 @@ const en: MessageTable = {
   'bookmark.pressKeysMac': 'Press Cmd + D to bookmark.',
   'bookmark.pressKeysWin': 'Press Ctrl + D to bookmark.',
   'bookmark.copied': 'Link copied.',
+  'recap.title': 'Game Recap',
+  'recap.metaDesc': 'Game Recap',
+  'recap.theme': 'Theme',
+  'recap.highlights': 'Key Highlights',
+  'recap.storyline': 'Game Storyline',
+  'recap.tactics': 'Tactical Analysis',
+  'recap.advancedData': 'Advanced Data',
+  'recap.gameSummary': 'Game Summary',
+  'recap.playerStats': 'Player Stats',
+  'recap.gameHighlights': 'Game Highlights'
 };
 
 const zh: MessageTable = {
@@ -24,6 +34,16 @@ const zh: MessageTable = {
   'bookmark.pressKeysMac': '按 Cmd + D 将本站加入书签。',
   'bookmark.pressKeysWin': '按 Ctrl + D 将本站加入书签。',
   'bookmark.copied': '已复制链接。',
+  'recap.title': '比赛回顾',
+  'recap.metaDesc': '比赛回顾',
+  'recap.theme': '主题',
+  'recap.highlights': '关键看点',
+  'recap.storyline': '比赛故事线',
+  'recap.tactics': '战术解读',
+  'recap.advancedData': '高级数据',
+  'recap.gameSummary': '比赛综述',
+  'recap.playerStats': '球员数据',
+  'recap.gameHighlights': '比赛集锦'
 };
 
 const builtin = { en, zh };

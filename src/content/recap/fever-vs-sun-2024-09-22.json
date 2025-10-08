@@ -1,30 +1,47 @@
 {
-  "title": "Fever vs Sun Recap — 内线对抗与二次进攻",
-  "theme": "Paint & Offensive Rebounds",
-  "summary": "禁区得分与前场篮板决定了二次进攻机会。Fever 在 OR% 方面占优，Sun 的协防轮转限制了连续得分。",
-  "highlights": [
+  "title_en": "Fever vs Sun Recap — Paint battle and second chances",
+  "title_zh": "Fever vs Sun 回顾 — 内线对抗与二次进攻",
+  "theme_en": "Paint & Offensive Rebounds",
+  "theme_zh": "内线与前场篮板",
+  "summary_en": "Paint points and offensive boards drove second-chance scoring. Fever led in OR%, while Sun’s rotations limited runs.",
+  "summary_zh": "禁区得分与前场篮板决定了二次进攻机会。Fever 在 OR% 方面占优，Sun 的协防轮转限制了连续得分。",
+  "highlights_en": [
+    "Paint points: Fever 42",
+    "Offensive rebound rate (OR%): Fever 31%",
+    "Second-chance points: Fever 14"
+  ],
+  "highlights_zh": [
     "禁区得分（Paint Points）：Fever 42",
     "进攻篮板率（OR%）：Fever 31%",
     "二次进攻得分：Fever 14"
   ],
-  "storyline": [
+  "storyline_en": [
+    "Opening: early low-post touches set tone.",
+    "Mid-game: frequent weak-side help and rotations.",
+    "Closing: board battles decided key possessions."
+  ],
+  "storyline_zh": [
     "开局：低位强攻拉开基调。",
     "中段：弱侧包夹与协防轮转频繁。",
     "收尾：篮板争抢决定每次关键球权。"
   ],
-  "tactics": [
+  "tactics_en": [
+    "Low-post isolations: pre-seal and delayed release.",
+    "Counter help: collapse baseline then quick expand to perimeter."
+  ],
+  "tactics_zh": [
     "低位单打：提前卡位 + 出球延迟",
     "反包夹：底线协防后快速外扩"
   ],
   "advanced": {
     "reboundMap": [
-      { "zone": "左侧低位", "wins": 7 },
-      { "zone": "右侧低位", "wins": 5 },
-      { "zone": "前场中路", "wins": 4 }
+      { "zone_en": "Left low block", "zone_zh": "左侧低位", "wins": 7 },
+      { "zone_en": "Right low block", "zone_zh": "右侧低位", "wins": 5 },
+      { "zone_en": "Front mid lane", "zone_zh": "前场中路", "wins": 4 }
     ],
     "secondChanceTimeline": [
-      { "time": "06:12", "event": "前场板→补篮2分" },
-      { "time": "02:45", "event": "二次进攻→造犯规2罚" }
+      { "time": "06:12", "event_en": "Offensive board → putback 2", "event_zh": "前场板→补篮2分" },
+      { "time": "02:45", "event_en": "Second chance → drew foul (2 FT)", "event_zh": "二次进攻→造犯规2罚" }
     ]
   }
 }

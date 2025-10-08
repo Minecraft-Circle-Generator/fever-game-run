@@ -1,25 +1,42 @@
 {
-  "title": "Fever vs Storm Recap — 转换防守与失误管理",
-  "theme": "Transition D & Turnovers",
-  "summary": "快攻失分与失误成本是关键变量。Fever 回防速度提升但弧顶保护仍需优化。",
-  "highlights": [
+  "title_en": "Fever vs Storm Recap — Transition defense and turnover cost",
+  "title_zh": "Fever vs Storm 回顾 — 转换防守与失误管理",
+  "theme_en": "Transition D & Turnovers",
+  "theme_zh": "转换防守与失误",
+  "summary_en": "Fastbreak points and turnover cost as key variables. Fever improved retreat speed, but top-of-arc protection still needs work.",
+  "summary_zh": "快攻失分与失误成本是关键变量。Fever 回防速度提升但弧顶保护仍需优化。",
+  "highlights_en": [
+    "Opponent fastbreak points: 18",
+    "Turnover-induced points: 11",
+    "Retreat time median: 4.2s"
+  ],
+  "highlights_zh": [
     "对手快攻得分：18",
     "失误直接失分：11",
     "回防时间中位数：4.2s"
   ],
-  "storyline": [
+  "storyline_en": [
+    "Opening: frequent transition, defensive shape hard to restore.",
+    "Mid-game: early switching to protect top-of-arc.",
+    "Closing: turnovers clustered in drives and passes."
+  ],
+  "storyline_zh": [
     "开局：转换进攻频繁，防守落位难以还原。",
     "中段：提前换防尝试保护弧顶。",
     "收尾：失误类型集中在持球突破与传导。"
   ],
-  "tactics": [
+  "tactics_en": [
+    "Early switch: block arc initiations.",
+    "Weak-side help: shrink paint attempts."
+  ],
+  "tactics_zh": [
     "提前换防：阻断弧顶启动",
     "弱侧协防：缩小禁区出手"
   ],
   "advanced": {
     "turnoverGraph": [
-      { "type": "运球丢失", "points": 6 },
-      { "type": "传球失误", "points": 5 }
+      { "type_en": "Dribble lost", "type_zh": "运球丢失", "points": 6 },
+      { "type_en": "Pass turnover", "type_zh": "传球失误", "points": 5 }
     ],
     "retreatBoxplot": { "median": 4.2, "q1": 3.7, "q3": 4.9 }
   }
