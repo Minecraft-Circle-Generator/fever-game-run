@@ -1,0 +1,23 @@
+{
+  "title": "Fever vs Liberty Recap — 三分与空间博弈",
+  "theme": "3PT & Spacing",
+  "summary": "外线质量与无球掩护成功率决定空间。Fever 角落三分占比较高，但空位转化效率需提升。",
+  "highlights": [
+    "3PT Rate：Fever 41% vs Liberty 38%",
+    "角落三分占比：Fever 33%",
+    "无球掩护成功率：Fever 62%"
+  ],
+  "storyline": [
+    "开局：双方拉开空间试探三分点位。",
+    "中段：Spain PnR 制造错位，外线空位增多。",
+    "收尾：Liberty 缩小防线，Fever 外线命中率波动。"
+  ],
+  "tactics": [
+    "Spain PnR：内外协同制造空位",
+    "延误与轮转换防：限制弧顶投射"
+  ],
+  "advanced": {
+    "radar3pt": { "corners": 0.33, "aboveBreak": 0.47, "wing": 0.20 },
+    "offBallSuccess": { "flare": 0.58, "pinDown": 0.64, "backScreen": 0.63 }
+  }
+}

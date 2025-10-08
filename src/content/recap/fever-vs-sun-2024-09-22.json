@@ -1,0 +1,30 @@
+{
+  "title": "Fever vs Sun Recap — 内线对抗与二次进攻",
+  "theme": "Paint & Offensive Rebounds",
+  "summary": "禁区得分与前场篮板决定了二次进攻机会。Fever 在 OR% 方面占优，Sun 的协防轮转限制了连续得分。",
+  "highlights": [
+    "禁区得分（Paint Points）：Fever 42",
+    "进攻篮板率（OR%）：Fever 31%",
+    "二次进攻得分：Fever 14"
+  ],
+  "storyline": [
+    "开局：低位强攻拉开基调。",
+    "中段：弱侧包夹与协防轮转频繁。",
+    "收尾：篮板争抢决定每次关键球权。"
+  ],
+  "tactics": [
+    "低位单打：提前卡位 + 出球延迟",
+    "反包夹：底线协防后快速外扩"
+  ],
+  "advanced": {
+    "reboundMap": [
+      { "zone": "左侧低位", "wins": 7 },
+      { "zone": "右侧低位", "wins": 5 },
+      { "zone": "前场中路", "wins": 4 }
+    ],
+    "secondChanceTimeline": [
+      { "time": "06:12", "event": "前场板→补篮2分" },
+      { "time": "02:45", "event": "二次进攻→造犯规2罚" }
+    ]
+  }
+}

@@ -3,6 +3,8 @@ import { useParams, Navigate } from 'react-router-dom';
 import { Trophy, Star, TrendingUp, Video, Calendar, MapPin } from 'lucide-react';
 import VideoCard from '../components/VideoCard';
 import { fetchFeverLatestFinalFromESPN, fetchFeverTodayFromESPN } from '../utils/espnProvider';
+import { Helmet } from 'react-helmet-async';
+import StructuredData from '../components/StructuredData';
 
 const GameRecap = () => {
   const { gameId } = useParams<{ gameId: string }>();
@@ -98,6 +100,90 @@ const GameRecap = () => {
   }, [gameId]);
 
   const data = latestData ?? games[gameId || 'latest'];
+
+  // 按 slug 动态加载差异化 recap 内容（若存在则优先渲染）
+  const dynamicRecap = (() => {
+    try {
+      if (!gameId) return null;
+      // 使用绝对路径并遍历键，兼容 Vite 的 import.meta.glob 键名形式（通常以 /src/... 开头）
+      const modules = import.meta.glob('/src/content/recap/*.json', { eager: true });
+      const keys = Object.keys(modules);
+      const matchedKey = keys.find(k => k.endsWith(`/content/recap/${gameId}.json`));
+      const mod: any = matchedKey ? (modules as any)[matchedKey] : null;
+      return mod?.default || mod || null;
+    } catch {
+      return null;
+    }
+  })();
+
+  if (dynamicRecap) {
+    const canonical = `https://fever-game.run/recap/${gameId}`;
+    const metaTitle = dynamicRecap.title || 'Game Recap';
+    const metaDesc = dynamicRecap.summary || `Recap: ${String(gameId)}`;
+    const published = dynamicRecap.publishedAt || undefined;
+    const modified = dynamicRecap.lastmod || undefined;
+
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Helmet>
+          <title>{metaTitle}</title>
+          <meta name="description" content={metaDesc} />
+          <link rel="canonical" href={canonical} />
+        </Helmet>
+
+        <StructuredData
+          type="Article"
+          data={{
+            "@context": "https://schema.org",
+            "@type": "Article",
+            "headline": metaTitle,
+            "description": metaDesc,
+            "datePublished": published,
+            "dateModified": modified || published,
+            "mainEntityOfPage": canonical
+          }}
+        />
+
+        <header className="bg-white shadow-sm border-b">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <h1 className="text-3xl font-bold text-gray-800">{dynamicRecap.title}</h1>
+            <p className="text-gray-600 mt-2">{dynamicRecap.summary}</p>
+            <div className="mt-3 text-sm text-gray-500">主题：{dynamicRecap.theme}</div>
+          </div>
+        </header>
+
+        <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+          <section>
+            <h2 className="text-xl font-semibold mb-3">关键看点</h2>
+            <ul className="list-disc list-inside space-y-1 text-gray-700">
+              {(dynamicRecap.highlights || []).map((h: string, i: number) => <li key={i}>{h}</li>)}
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-semibold mb-3">比赛故事线</h2>
+            <ol className="list-decimal list-inside space-y-1 text-gray-700">
+              {(dynamicRecap.storyline || []).map((s: string, i: number) => <li key={i}>{s}</li>)}
+            </ol>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-semibold mb-3">战术解读</h2>
+            <ul className="list-disc list-inside space-y-1 text-gray-700">
+              {(dynamicRecap.tactics || []).map((t: string, i: number) => <li key={i}>{t}</li>)}
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-semibold mb-3">高阶数据</h2>
+            <pre className="bg-gray-50 border rounded p-4 text-sm overflow-x-auto">
+              {JSON.stringify(dynamicRecap.advanced || {}, null, 2)}
+            </pre>
+          </section>
+        </main>
+      </div>
+    );
+  }
 
   // 如果传入未知 slug，跳到 latest
   if (!data) {

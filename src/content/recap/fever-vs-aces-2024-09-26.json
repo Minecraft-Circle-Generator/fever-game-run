@@ -1,0 +1,26 @@
+{
+  "title": "Fever vs Aces Recap — 末节关键球与攻防回合质量",
+  "theme": "Clutch & Key Possessions",
+  "summary": "最后5分钟的关键球命中率与防守回合质量决定胜负。Fever 在 FTR 与 eFG% 上略优，但 Aces 的失误控制更稳。",
+  "highlights": [
+    "Clutch 时段（最后5分钟）eFG%：Fever 56% vs Aces 52%",
+    "FTR（罚球比）: Fever 0.32 vs Aces 0.28",
+    "失误率：Fever 11% vs Aces 8%"
+  ],
+  "storyline": [
+    "开局：两队以半场阵地战为主，外线效率平稳。",
+    "中段：Aces 以 Horns 变化撕裂弧顶，Fever 以 5-out 拉开回应。",
+    "末节：关键球回合中，Fever 更多造犯规，Aces 减少失误维持控场。"
+  ],
+  "tactics": [
+    "Aces Horns 变体：弱侧 flare + 高位二次掩护",
+    "Fever 5-out：清空内线，借助二次掩护制造错位"
+  ],
+  "advanced": {
+    "clutchTimeline": [
+      { "time": "04:58", "event": "Fever 造成犯规，2罚中1" },
+      { "time": "03:42", "event": "Aces 高位 handoff，底角三分不中" },
+      { "time": "01:15", "event": "Fever 关键抢断，快攻2分" }
+    ]
+  }
+}
