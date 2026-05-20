@@ -1,11 +1,14 @@
-import React, { Suspense, lazy, useMemo } from 'react';
+import React, { Suspense, lazy, useMemo, useEffect, useState } from 'react';
 import { Star, Video, Flame, Zap, Trophy, Target, RefreshCw } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
-import { Helmet } from 'react-helmet-async';
 import { useRealTimeData } from '../hooks/useRealTimeData';
 import { useIsMobile, useReducedMotion } from '../hooks/useMediaQuery';
 import LazyImage from '../components/LazyImage';
 import PerformanceOptimizer from '../components/PerformanceOptimizer';
+import BookmarkButton from '../components/BookmarkButton';
+import { t } from '../utils/i18n';
+import { fetchLatestVideos } from '../utils/videoProvider';
+import AdSenseSlot from '../components/AdSenseSlot';
+import SubscribeWidget from '../components/SubscribeWidget';
 
 // 懒加载组件 - 进一步优化
 const GameCard = lazy(() => import('../components/GameCard'));
@@ -21,7 +24,7 @@ const QuickLoader = () => (
 );
 
 // 移动端优化的 Hero 组件
-const MobileHero = React.memo(({ t }: { t: any }) => (
+const MobileHero = React.memo(() => (
   <div className="bg-gradient-to-r from-red-900 to-black text-white py-8">
     <div className="max-w-7xl mx-auto px-4 text-center">
       <div className="flex items-center justify-center mb-4">
@@ -30,14 +33,14 @@ const MobileHero = React.memo(({ t }: { t: any }) => (
         <Flame className="h-6 w-6 text-yellow-300 ml-2" />
       </div>
       <p className="text-base text-yellow-100 mb-6 font-bold">
-        🔥 {t('home.subtitle')} 🔥
+        🔥 CAITLIN CLARK IS ON FIRE! 🔥
       </p>
       <div className="flex flex-col gap-3 px-4">
-        <button className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-6 py-3 rounded-full font-bold text-base">
-          🏀 {t('home.watchHighlights')}
+        <button onClick={() => document.getElementById('todays-game')?.scrollIntoView({ behavior: 'smooth' })} className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-6 py-3 rounded-full font-bold text-base">
+          🏀 TODAY'S GAME
         </button>
-        <button className="bg-transparent border-2 border-yellow-300 text-yellow-300 px-6 py-3 rounded-full font-bold text-base">
-          ⚡ {t('home.latestNews')}
+        <button onClick={() => document.getElementById('highlights')?.scrollIntoView({ behavior: 'smooth' })} className="bg-transparent border-2 border-yellow-300 text-yellow-300 px-6 py-3 rounded-full font-bold text-base">
+          ⚡ HIGHLIGHTS
         </button>
       </div>
     </div>
@@ -45,7 +48,7 @@ const MobileHero = React.memo(({ t }: { t: any }) => (
 ));
 
 // 桌面端 Hero 组件
-const DesktopHero = React.memo(({ t }: { t: any }) => (
+const DesktopHero = React.memo(() => (
   <div className="relative bg-gradient-to-r from-black via-red-900 to-black text-white overflow-hidden">
     <div className="absolute inset-0 opacity-20">
       <div className="absolute inset-0">
@@ -65,14 +68,14 @@ const DesktopHero = React.memo(({ t }: { t: any }) => (
           <Flame className="h-12 w-12 text-yellow-300 ml-4 animate-pulse" />
         </div>
         <p className="text-2xl text-yellow-100 mb-8 font-bold">
-          🔥 {t('home.subtitle')} 🔥
+          🔥 CAITLIN CLARK IS ON FIRE! 🔥
         </p>
         <div className="flex flex-col sm:flex-row gap-6 justify-center">
-          <button className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-10 py-4 rounded-full font-bold text-xl shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-yellow-300">
-            🏀 {t('home.watchHighlights')}
+          <button onClick={() => document.getElementById('todays-game')?.scrollIntoView({ behavior: 'smooth' })} className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-10 py-4 rounded-full font-bold text-xl shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-yellow-300">
+            🏀 TODAY'S GAME
           </button>
-          <button className="bg-transparent border-2 border-yellow-300 hover:bg-yellow-300 hover:text-black text-yellow-300 px-10 py-4 rounded-full font-bold text-xl transition-all duration-300 transform hover:scale-105">
-            ⚡ {t('home.latestNews')}
+          <button onClick={() => document.getElementById('highlights')?.scrollIntoView({ behavior: 'smooth' })} className="bg-transparent border-2 border-yellow-300 hover:bg-yellow-300 hover:text-black text-yellow-300 px-10 py-4 rounded-full font-bold text-xl transition-all duration-300 transform hover:scale-105">
+            ⚡ HIGHLIGHTS
           </button>
         </div>
       </div>
@@ -81,7 +84,6 @@ const DesktopHero = React.memo(({ t }: { t: any }) => (
 ));
 
 const FastHome = () => {
-  const { t } = useTranslation();
   const { 
     todayGame, 
     yesterdayGame, 
@@ -104,6 +106,43 @@ const FastHome = () => {
     return defaultClass;
   }, [isMobile, reducedMotion]);
 
+  const [latestVideos, setLatestVideos] = useState<any[]>(videos || []);
+  useEffect(() => {
+    let mounted = true;
+    fetchLatestVideos()
+      .then(list => {
+        if (!mounted) return;
+        const enriched = (list || []).map(v => ({ ...v, channel: (v as any).channel ?? (v as any).channelTitle }));
+        setLatestVideos(enriched.slice(0, 8));
+      })
+      .catch(() => {
+        if (!mounted) return;
+        setLatestVideos(videos || []);
+      });
+    return () => { mounted = false; };
+  }, []);
+
+  // Bookmark toast logic
+  const [showBookmarkToast, setShowBookmarkToast] = useState(false);
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          const hasSeenToast = localStorage.getItem('hasSeenBookmarkToast');
+          if (!hasSeenToast) {
+            setShowBookmarkToast(true);
+            localStorage.setItem('hasSeenBookmarkToast', 'true');
+            setTimeout(() => setShowBookmarkToast(false), 5000);
+          }
+        }
+      },
+      { threshold: 0.1 }
+    );
+    const highlightsEl = document.getElementById('highlights');
+    if (highlightsEl) observer.observe(highlightsEl);
+    return () => observer.disconnect();
+  }, []);
+
   // 快速加载状态
   if (loading) {
     return (
@@ -119,14 +158,8 @@ const FastHome = () => {
   return (
     <PerformanceOptimizer>
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-yellow-50">
-        {/* SEO Meta Tags */}
-        <Helmet>
-          <title>{t('home.title')}</title>
-          <meta name="description" content={t('home.description')} />
-        </Helmet>
-
         {/* 响应式 Hero Section */}
-        {isMobile ? <MobileHero t={t} /> : <DesktopHero t={t} />}
+        {isMobile ? <MobileHero /> : <DesktopHero />}
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-12">
           {/* 简化的更新信息 */}
@@ -135,13 +168,25 @@ const FastHome = () => {
               <div className={`w-2 h-2 bg-green-500 rounded-full mr-2 ${getAnimationClass('animate-pulse')}`}></div>
               <span>Updated: {lastUpdate.toLocaleTimeString()}</span>
             </div>
-            <button 
-              onClick={refreshData}
-              className="flex items-center text-gray-600 hover:text-gray-800 transition-colors p-2"
-            >
-              <RefreshCw className="h-4 w-4 mr-1" />
-              <span className="hidden sm:inline">Refresh</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={refreshData}
+                className="flex items-center text-gray-600 hover:text-gray-800 transition-colors p-2"
+              >
+                <RefreshCw className="h-4 w-4 mr-1" />
+                <span className="hidden sm:inline">Refresh</span>
+              </button>
+              <BookmarkButton
+                label={t('bookmark.label')}
+                messages={{
+                  iosAddToHome: t('bookmark.iosAddToHome'),
+                  pressKeysMac: t('bookmark.pressKeysMac'),
+                  pressKeysWin: t('bookmark.pressKeysWin'),
+                  copied: t('bookmark.copied'),
+                }}
+                className="text-gray-600 hover:text-gray-800 p-2"
+              />
+            </div>
           </div>
 
           {/* 实时状态横幅 */}
@@ -181,7 +226,10 @@ const FastHome = () => {
               </Suspense>
               
               {/* 比赛预览卡片 */}
-              <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 border-2 border-orange-300">
+              <button 
+                onClick={() => document.getElementById('player-stats')?.scrollIntoView({ behavior: 'smooth' })}
+                className="bg-white rounded-xl shadow-lg p-4 md:p-6 border-2 border-orange-300 text-left w-full cursor-pointer hover:bg-orange-50 hover:scale-[1.02] hover:shadow-xl transition-all block"
+              >
                 <div className="flex items-center mb-4">
                   <Zap className={`h-5 w-5 md:h-6 md:w-6 text-orange-500 mr-2 ${getAnimationClass('animate-pulse')}`} />
                   <h3 className="text-lg md:text-xl font-bold text-gray-900">
@@ -194,13 +242,15 @@ const FastHome = () => {
                     : '🔥 Get ready for an epic showdown! The Indiana Fever are about to unleash Caitlin Clark!'
                   }
                 </p>
-                <div className="flex items-center text-sm md:text-base font-semibold text-red-600 bg-red-50 rounded-lg p-3">
+                <div className="flex items-center text-sm md:text-base font-semibold text-red-600 bg-red-50 rounded-lg p-3 hover:bg-red-100 transition-colors">
                   <Target className={`h-4 w-4 md:h-5 md:w-5 mr-2 text-orange-500 ${getAnimationClass('animate-spin')}`} />
                   <span>🎯 KEY BATTLE: CLARK vs PLUM!</span>
                 </div>
-              </div>
+              </button>
             </div>
           </section>
+
+          <AdSenseSlot slotId="home-middle" />
 
           {/* Caitlin Clark 统计 */}
           {playerStats && (
@@ -258,6 +308,8 @@ const FastHome = () => {
             </section>
           )}
 
+          <SubscribeWidget />
+
           {/* 最新视频 */}
           <section id="highlights">
             <div className="flex items-center mb-6">
@@ -267,24 +319,29 @@ const FastHome = () => {
               </h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              {videos && videos.length > 0 ? (
-                videos.slice(0, 6).map((video) => {
-                  // 格式化视频数据
-                  const formatViews = (viewCount?: number): string => {
-                    if (!viewCount) return '0';
+              {latestVideos && latestVideos.length > 0 ? (
+                latestVideos.slice(0, 8).map((video) => {
+                  // 统一字段命名，兼容现有类型
+                  const viewsNumeric = (video as any).viewsNumeric ?? (video as any).views ?? 0;
+                  const publishedAtISO = (video as any).publishedAtISO ?? (video as any).publishedAt;
+                  const isLive = (video as any).isLive ?? (video as any).live ?? false;
+                  const thumbnail = (video as any).thumbnail ?? (video as any).thumbnailUrl;
+
+                  const formatViews = (v?: number): string => {
+                    const viewCount = v ?? 0;
                     if (viewCount >= 1_000_000) return `${(viewCount / 1_000_000).toFixed(1)}M`;
                     if (viewCount >= 1_000) return `${(viewCount / 1_000).toFixed(1)}K`;
                     return viewCount.toString();
                   };
 
-                  const formatUploadDate = (publishedAt: string): string => {
-                    const publishedDate = new Date(publishedAt);
+                  const formatUploadDate = (iso?: string, live?: boolean): string => {
+                    if (live) return 'LIVE NOW';
+                    if (!iso) return '';
+                    const publishedDate = new Date(iso);
                     const now = new Date();
                     const diffMs = now.getTime() - publishedDate.getTime();
                     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
                     const diffDays = Math.floor(diffHours / 24);
-
-                    if (video.live) return 'LIVE NOW';
                     if (diffHours < 1) {
                       const diffMinutes = Math.floor(diffMs / (1000 * 60));
                       return `${diffMinutes} minutes ago`;
@@ -294,25 +351,24 @@ const FastHome = () => {
                     return `${diffDays} days ago`;
                   };
 
-                  const formatDuration = (): string => {
-                    if (video.live) return 'LIVE';
-                    // 生成随机时长作为示例
+                  const formatDuration = (live?: boolean): string => {
+                    if (live) return 'LIVE';
                     const minutes = Math.floor(Math.random() * 8) + 2;
                     const seconds = Math.floor(Math.random() * 60);
                     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
                   };
 
                   return (
-                    <Suspense key={video.id} fallback={<QuickLoader />}>
+                    <Suspense key={(video as any).id} fallback={<QuickLoader />}>
                       <OptimizedVideoCard
-                        title={video.title}
-                        thumbnail={video.thumbnailUrl}
-                        duration={formatDuration()}
-                        views={formatViews(video.viewCount)}
-                        uploadDate={formatUploadDate(video.publishedAt)}
-                        channel={video.channelTitle}
-                        videoId={video.id}
-                        isLive={video.live}
+                        title={(video as any).title}
+                        thumbnail={thumbnail}
+                        duration={formatDuration(isLive)}
+                        views={formatViews(viewsNumeric)}
+                        uploadDate={formatUploadDate(publishedAtISO, isLive)}
+                        channel={(video as any).channel}
+                        videoId={(video as any).videoId ?? (video as any).id}
+                        isLive={isLive}
                       />
                     </Suspense>
                   );
@@ -325,6 +381,18 @@ const FastHome = () => {
             </div>
           </section>
         </div>
+
+        {/* Floating Bookmark Toast */}
+        {showBookmarkToast && (
+          <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-6 py-4 rounded-xl shadow-2xl z-50 flex items-center gap-3 animate-bounce">
+            <span className="text-xl">⭐</span>
+            <div>
+              <p className="font-bold text-sm">Enjoying the content?</p>
+              <p className="text-xs text-gray-300">Press <strong className="text-yellow-400">Ctrl+D</strong> (or ⌘+D) to bookmark us!</p>
+            </div>
+            <button onClick={() => setShowBookmarkToast(false)} className="ml-4 text-gray-400 hover:text-white">✕</button>
+          </div>
+        )}
       </div>
     </PerformanceOptimizer>
   );

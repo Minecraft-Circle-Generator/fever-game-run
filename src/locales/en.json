@@ -1,0 +1,17 @@
+{
+  "bookmark.label": "Bookmark",
+  "bookmark.iosAddToHome": "Tap Share in Safari, then \"Add to Home Screen\".",
+  "bookmark.pressKeysMac": "Press Cmd + D to bookmark.",
+  "bookmark.pressKeysWin": "Press Ctrl + D to bookmark.",
+  "bookmark.copied": "Link copied.",
+  "recap.title": "Game Recap",
+  "recap.metaDesc": "Game Recap",
+  "recap.theme": "Theme",
+  "recap.highlights": "Key Highlights",
+  "recap.storyline": "Game Storyline",
+  "recap.tactics": "Tactical Analysis",
+  "recap.advancedData": "Advanced Data",
+  "recap.gameSummary": "Game Summary",
+  "recap.playerStats": "Player Stats",
+  "recap.gameHighlights": "Game Highlights"
+}

@@ -1,60 +1,65 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
-import { useTranslation } from 'react-i18next';
-import { Home, Search, ArrowLeft } from 'lucide-react';
+import { Home, Search, TrendingUp } from 'lucide-react';
 
 const NotFound = () => {
-  const { t } = useTranslation();
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-yellow-50 flex items-center justify-center">
-      <Helmet>
-        <title>{t('notFound.title')}</title>
-        <meta name="description" content={t('notFound.message')} />
-      </Helmet>
-
-      <div className="max-w-md mx-auto text-center px-4">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="max-w-md w-full mx-auto text-center">
         <div className="mb-8">
-          <div className="text-9xl font-black text-red-500 mb-4">404</div>
-          <Search className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+          <div className="text-6xl font-bold text-gray-300 mb-4">404</div>
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">Page Not Found</h1>
+          <p className="text-gray-600">
+            The page you're looking for doesn't exist or has been moved.
+          </p>
         </div>
-        
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">
-          {t('notFound.title')}
-        </h1>
-        
-        <p className="text-lg text-gray-600 mb-8">
-          {t('notFound.message')}
-        </p>
         
         <div className="space-y-4">
-          <Link 
+          <Link
             to="/"
-            className="inline-flex items-center justify-center w-full bg-red-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-red-700 transition-colors duration-300"
+            className="w-full bg-amber-500 hover:bg-amber-600 text-white py-3 px-6 rounded-lg font-semibold transition-colors flex items-center justify-center"
           >
             <Home className="h-5 w-5 mr-2" />
-            {t('notFound.backHome')}
+            Go to Homepage
           </Link>
           
-          <Link 
-            to="/videos"
-            className="inline-flex items-center justify-center w-full bg-gray-200 text-gray-800 px-6 py-3 rounded-lg font-bold hover:bg-gray-300 transition-colors duration-300"
-          >
-            <ArrowLeft className="h-5 w-5 mr-2" />
-            {t('nav.videos')}
-          </Link>
+          <div className="text-sm text-gray-600">
+            <p className="mb-4">Popular pages:</p>
+            <div className="space-y-2">
+              <Link 
+                to="/player/caitlin-clark" 
+                className="block text-amber-600 hover:text-amber-700 font-medium"
+              >
+                Caitlin Clark Stats
+              </Link>
+              <Link 
+                to="/videos" 
+                className="block text-amber-600 hover:text-amber-700 font-medium"
+              >
+                Latest Video Highlights
+              </Link>
+            </div>
+          </div>
         </div>
         
-        <div className="mt-8 text-sm text-gray-500">
-          <p>Looking for something specific? Try our main pages:</p>
-          <div className="flex justify-center space-x-4 mt-2">
-            <Link to="/player/caitlin-clark" className="text-red-600 hover:underline">
-              {t('nav.player')}
-            </Link>
-            <Link to="/ai-overview" className="text-red-600 hover:underline">
-              {t('nav.aiOverview')}
-            </Link>
+        <div className="mt-8 p-4 bg-white rounded-lg shadow-sm">
+          <div className="flex items-center mb-3">
+            <TrendingUp className="h-5 w-5 text-amber-500 mr-2" />
+            <span className="font-semibold text-gray-800">Recent Game Recaps</span>
+          </div>
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">Fever vs Mercury</span>
+              <span className="text-green-600 font-medium">W 89-76</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">Fever vs Storm</span>
+              <span className="text-red-600 font-medium">L 84-91</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">Fever vs Dream</span>
+              <span className="text-green-600 font-medium">W 95-82</span>
+            </div>
           </div>
         </div>
       </div>

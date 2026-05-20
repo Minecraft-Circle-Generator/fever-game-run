@@ -123,3 +123,91 @@ export async function fetchFeverLatestFinalFromESPN(): Promise<FeverGame | null>
     return null;
   }
 }
+
+/**
+ * 获取 Caitlin Clark 最近比赛数据（ESPN athlete gamelog）
+ * Clark 的 ESPN athlete ID: 4433403
+ */
+export interface ClarkGameLog {
+  date: string;       // 'May 17'
+  opponent: string;   // 'vs LAS'
+  result: string;     // 'W 95-86'
+  won: boolean;
+  points: number;
+  assists: number;
+  rebounds: number;
+  threePointers: number;
+}
+
+export async function fetchClarkGameLog(): Promise<ClarkGameLog[]> {
+  try {
+    const currentYear = new Date().getFullYear();
+    const url = `https://site.web.api.espn.com/apis/common/v3/sports/basketball/wnba/athletes/4433403/gamelog?region=us&lang=en&contentorigin=espn&season=${currentYear}&seasontype=2`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('ESPN gamelog fetch failed');
+    const data = await res.json();
+
+    // ESPN gamelog structure: data.seasonTypes[].categories[].events[]
+    // and event details are in data.events[eventId]
+    const events: ClarkGameLog[] = [];
+    const seasonTypes: any[] = data?.seasonTypes || [];
+    const labels: string[] = data?.labels || [];
+    
+    const ptsIdx = labels.findIndex((l: string) => l === 'PTS');
+    const astIdx = labels.findIndex((l: string) => l === 'AST');
+    const rebIdx = labels.findIndex((l: string) => l === 'REB');
+    const tpmIdx = labels.findIndex((l: string) => l === '3PT'); // Usually "2-4" format
+
+    for (const st of seasonTypes) {
+      for (const cat of (st?.categories || [])) {
+        if (cat?.type !== 'event') continue;
+        for (const ev of (cat?.events || [])) {
+          const eventId = ev?.eventId;
+          if (!eventId) continue;
+          
+          const eventDetails = data?.events ? data.events[eventId] : null;
+          if (!eventDetails) continue;
+
+          const stats: (string | number)[] = ev?.stats || [];
+          const atVs = eventDetails.atVs === '@' ? '@' : 'vs';
+          const oppAbbr: string = eventDetails.opponent?.abbreviation || eventDetails.opponent?.displayName || '?';
+          
+          let dateStr = '?';
+          if (eventDetails.gameDate) {
+             const d = new Date(eventDetails.gameDate);
+             dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          }
+
+          const won: boolean = eventDetails.gameResult === 'W';
+          const resultStr = `${eventDetails.gameResult || '?'} ${eventDetails.score || ''}`.trim();
+
+          let threePointers = 0;
+          if (tpmIdx >= 0 && stats[tpmIdx]) {
+            // "3PT" is usually like "5-10" where 5 is made
+            const parts = String(stats[tpmIdx]).split('-');
+            if (parts.length > 0) {
+              threePointers = parseInt(parts[0], 10) || 0;
+            }
+          }
+
+          events.push({
+            date: dateStr,
+            opponent: `${atVs} ${oppAbbr}`,
+            result: resultStr || 'N/A',
+            won,
+            points: ptsIdx >= 0 ? Number(stats[ptsIdx]) || 0 : 0,
+            assists: astIdx >= 0 ? Number(stats[astIdx]) || 0 : 0,
+            rebounds: rebIdx >= 0 ? Number(stats[rebIdx]) || 0 : 0,
+            threePointers,
+          });
+        }
+      }
+    }
+
+    // Return latest 5 games (already sorted newest-first by ESPN)
+    return events.slice(0, 5);
+  } catch (e) {
+    console.error('[ESPN] fetchClarkGameLog error', e);
+    return [];
+  }
+}

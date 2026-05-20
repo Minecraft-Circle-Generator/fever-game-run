@@ -24,10 +24,7 @@ function getEnv(key: string): string | undefined {
 const API_KEYS = [
   () => getEnv('VITE_YOUTUBE_API_KEY'),
   () => getEnv('VITE_YOUTUBE_API_KEY_2'), 
-  () => getEnv('VITE_YOUTUBE_API_KEY_3'),
-  () => 'AIzaSyC7HjKmN9pQ2rS5tU8vW1xY3zA4bC6dE9f', // 新的有效密钥1
-  () => 'AIzaSyB8IjLnO0qR3sT6uV9wX2yZ4aB5cD7eF0g', // 新的有效密钥2
-  () => 'AIzaSyD9KlMnP1qS4tU7vW8xY2zA3bC5dE6fG0h', // 新的有效密钥3
+  () => getEnv('VITE_YOUTUBE_API_KEY_3')
 ];
 
 // 当前使用的 API 密钥索引
@@ -55,10 +52,21 @@ function switchToNextApiKey(): string {
   return newKey;
 }
 
-// 视频缓存管理
-const CACHE_KEY = 'fever_game_videos_cache';
+// 视频缓存管理 - 1小时缓存，全用户共享
+const CACHE_KEY = 'fever_game_videos_global_cache';
 const CACHE_EXPIRY_KEY = 'fever_game_videos_cache_expiry';
-const CACHE_DURATION = 2 * 60 * 60 * 1000; // 2小时缓存
+const CACHE_DURATION = 60 * 60 * 1000; // 1小时缓存
+
+// 导出：判断缓存是否陈旧（已过期）
+export function isVideoCacheStale(): boolean {
+  try {
+    const expiryTime = localStorage.getItem(CACHE_EXPIRY_KEY);
+    if (!expiryTime) return true;
+    return Date.now() > parseInt(expiryTime);
+  } catch {
+    return true;
+  }
+}
 
 // 保存视频到缓存
 function saveVideosToCache(videos: LatestVideo[]): void {
@@ -78,24 +86,17 @@ function saveVideosToCache(videos: LatestVideo[]): void {
 // 从缓存获取视频
 function getVideosFromCache(): LatestVideo[] | null {
   try {
-    const expiryTime = localStorage.getItem(CACHE_EXPIRY_KEY);
-    if (!expiryTime || Date.now() > parseInt(expiryTime)) {
-      console.log('[VideoProvider] Cache expired');
-      return null;
-    }
-    
     const cacheData = localStorage.getItem(CACHE_KEY);
     if (!cacheData) {
       console.log('[VideoProvider] No cache data found');
       return null;
     }
-    
     const parsed = JSON.parse(cacheData);
     if (parsed.videos && Array.isArray(parsed.videos) && parsed.videos.length > 0) {
-      console.log(`[VideoProvider] Loaded ${parsed.videos.length} videos from cache`);
+      const stale = isVideoCacheStale();
+      console.log(`[VideoProvider] Loaded ${parsed.videos.length} videos from cache${stale ? ' (stale)' : ''}`);
       return parsed.videos;
     }
-    
     return null;
   } catch (error) {
     console.warn('[VideoProvider] Failed to load cache:', error);
@@ -271,6 +272,39 @@ async function getUploadsPlaylistId(channelId: string): Promise<string | undefin
   }
 }
 
+// 无密钥RSS回退：从频道RSS获取最新视频
+async function fetchRSSVideos(channelId: string, channelName: string): Promise<LatestVideo[]> {
+  try {
+    const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
+    const res = await fetch(rssUrl, { cache: 'no-store' });
+    if (!res.ok) return [];
+    const xml = await res.text();
+    const doc = new DOMParser().parseFromString(xml, 'application/xml');
+    const entries = Array.from(doc.getElementsByTagName('entry'));
+    const videos: LatestVideo[] = entries.slice(0, 12).map((entry) => {
+      const id = entry.getElementsByTagName('yt:videoId')[0]?.textContent || '';
+      const title = entry.getElementsByTagName('title')[0]?.textContent || 'Untitled';
+      const publishedAt = entry.getElementsByTagName('published')[0]?.textContent || new Date().toISOString();
+      const author = entry.getElementsByTagName('author')[0];
+      const channelTitle = author?.getElementsByTagName('name')[0]?.textContent || channelName;
+      const maxres = id ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : 'https://i.ytimg.com/vi/invalid/hqdefault.jpg';
+      return {
+        id,
+        title,
+        publishedAt,
+        channelTitle,
+        thumbnailUrl: maxres,
+        url: id ? `https://www.youtube.com/watch?v=${id}` : '',
+        live: false
+      };
+    });
+    return videos.sort((a, b) => +new Date(b.publishedAt) - +new Date(a.publishedAt));
+  } catch (e) {
+    console.warn('[VideoProvider] RSS fallback failed:', e);
+    return [];
+  }
+}
+
 // 从官方频道的 uploads 列表获取最近30天的上传视频
 async function fetchUploadsVideos(channelConfig: typeof TARGET_CHANNELS[0]): Promise<LatestVideo[]> {
   // 解析有效 channelId
@@ -289,6 +323,11 @@ async function fetchUploadsVideos(channelConfig: typeof TARGET_CHANNELS[0]): Pro
   const uploadsId = await getUploadsPlaylistId(cid);
   if (!uploadsId) {
     console.error(`No uploads playlist found for ${channelConfig.name}`);
+    // RSS 回退
+    const rssVideos = await fetchRSSVideos(cid, channelConfig.name);
+    if (rssVideos.length > 0) {
+      return rssVideos.slice(0, 10);
+    }
     return [];
   }
 
@@ -336,6 +375,11 @@ async function fetchUploadsVideos(channelConfig: typeof TARGET_CHANNELS[0]): Pro
 
     if (ids.length === 0) {
       console.warn(`No recent video IDs found for ${channelConfig.name}`);
+      // RSS 回退
+      const rssVideos = await fetchRSSVideos(cid, channelConfig.name);
+      if (rssVideos.length > 0) {
+        return rssVideos.slice(0, 10);
+      }
       return [];
     }
 
@@ -357,6 +401,12 @@ async function fetchUploadsVideos(channelConfig: typeof TARGET_CHANNELS[0]): Pro
           return fetchUploadsVideos(channelConfig); // 用新密钥重试
         }
       }
+      // RSS 回退
+      console.warn(`YouTube API error ${resV.status} — using RSS fallback for ${channelConfig.name}`);
+      const rssVideos = await fetchRSSVideos(cid, channelConfig.name);
+      if (rssVideos.length > 0) {
+        return rssVideos.slice(0, 10);
+      }
       throw new Error(`YouTube API error: ${resV.status}`);
     }
     
@@ -371,7 +421,7 @@ async function fetchUploadsVideos(channelConfig: typeof TARGET_CHANNELS[0]): Pro
         sn.thumbnails?.high?.url ||
         sn.thumbnails?.medium?.url ||
         sn.thumbnails?.default?.url ||
-        '';
+        `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
 
       return {
         id,
@@ -405,9 +455,6 @@ export async function fetchLatestVideos(): Promise<LatestVideo[]> {
   console.log('[VideoProvider] Starting to fetch latest videos...');
   console.log(`[VideoProvider] Using API key index: ${currentApiKeyIndex}`);
   
-  // 清理过期缓存
-  clearExpiredCache();
-  
   // 首先尝试从缓存获取
   const cachedVideos = getVideosFromCache();
   if (cachedVideos && cachedVideos.length > 0) {
@@ -429,9 +476,15 @@ async function fetchAndCacheVideos(): Promise<LatestVideo[]> {
   const apiKey = getApiKey();
   console.log('[VideoProvider] Current API key:', apiKey ? `${apiKey.substring(0, 10)}...` : 'None');
   if (!apiKey) {
-    console.warn('[VideoProvider] No API key available, using fallback videos');
+    console.warn('[VideoProvider] No API key available');
+    const cached = getVideosFromCache();
+    if (cached && cached.length > 0) {
+      console.log('[VideoProvider] Using cached videos due to missing API key');
+      return cached;
+    }
+    // 最后兜底（不写入缓存）
     const fallbackVideos = createFallbackVideos();
-    saveVideosToCache(fallbackVideos);
+    console.warn('[VideoProvider] Returning temporary fallback videos (no cache write)');
     return fallbackVideos;
   }
   
@@ -456,18 +509,19 @@ async function fetchAndCacheVideos(): Promise<LatestVideo[]> {
     console.log(`Total videos after deduplication: ${allVideos.length}`);
 
     if (allVideos.length === 0) {
-      console.warn('[VideoProvider] No videos fetched from API, using fallback videos');
+      console.warn('[VideoProvider] No videos fetched from API');
       const cachedVideos = getVideosFromCache();
       if (cachedVideos && cachedVideos.length > 0) {
+        console.log('[VideoProvider] Using cached videos (API returned none)');
         return cachedVideos;
       }
-      // 作为最后的备用方案，返回一些示例数据以便调试
+      // 最后兜底（不写入缓存）
       const fallbackVideos = createFallbackVideos();
-      saveVideosToCache(fallbackVideos);
+      console.warn('[VideoProvider] Returning temporary fallback videos (no cache write)');
       return fallbackVideos;
     }
 
-    // 按频道平衡视频数量
+    // 按频道平衡视频数量 - 确保每个频道至少2个视频
     const videosByChannel = new Map<string, LatestVideo[]>();
     allVideos.forEach(video => {
       const channel = video.channelTitle;
@@ -477,13 +531,28 @@ async function fetchAndCacheVideos(): Promise<LatestVideo[]> {
       videosByChannel.get(channel)!.push(video);
     });
     
-    // 每个频道取最新的12个视频
+    // 每个频道取最新的视频，确保总数至少6个
     const balancedVideos: LatestVideo[] = [];
+    const minVideosPerChannel = 2;
+    const maxVideosPerChannel = 8;
+    
     videosByChannel.forEach((videos, channel) => {
       const sortedVideos = videos.sort((a, b) => +new Date(b.publishedAt) - +new Date(a.publishedAt));
-      balancedVideos.push(...sortedVideos.slice(0, 12));
-      console.log(`Including ${Math.min(12, sortedVideos.length)} videos from ${channel}`);
+      const videosToTake = Math.min(maxVideosPerChannel, Math.max(minVideosPerChannel, sortedVideos.length));
+      balancedVideos.push(...sortedVideos.slice(0, videosToTake));
+      console.log(`Including ${videosToTake} videos from ${channel} (available: ${sortedVideos.length})`);
     });
+    
+    // 如果总视频数不足6个，从所有视频中补充
+    if (balancedVideos.length < 6) {
+      const remainingVideos = allVideos
+        .filter(v => !balancedVideos.find(bv => bv.id === v.id))
+        .sort((a, b) => +new Date(b.publishedAt) - +new Date(a.publishedAt));
+      
+      const needed = 6 - balancedVideos.length;
+      balancedVideos.push(...remainingVideos.slice(0, needed));
+      console.log(`Added ${Math.min(needed, remainingVideos.length)} additional videos to reach minimum of 6`);
+    }
     
     // 最终按发布时间排序
     balancedVideos.sort((a, b) => +new Date(b.publishedAt) - +new Date(a.publishedAt));

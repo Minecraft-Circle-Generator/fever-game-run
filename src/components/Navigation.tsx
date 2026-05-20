@@ -1,15 +1,12 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { Home, Video, Flame, Star, Brain } from 'lucide-react';
 import { useIsMobile, useReducedMotion } from '../hooks/useMediaQuery';
-import LanguageSwitcher from './LanguageSwitcher';
 
 const Navigation = () => {
   const location = useLocation();
   const isMobile = useIsMobile();
   const reducedMotion = useReducedMotion();
-  const { t } = useTranslation();
   
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -19,7 +16,7 @@ const Navigation = () => {
     <nav className="relative bg-gradient-to-r from-black via-red-900 to-black text-white shadow-2xl sticky top-0 z-50 border-b-4 border-red-600 overflow-hidden">
       {/* Background Player Silhouettes - disable on mobile or reduced motion */}
       {!(isMobile || reducedMotion) && (
-      <div className="absolute inset-0 opacity-15">
+      <div className="absolute inset-0 opacity-15 pointer-events-none">
         <div className="absolute top-2 left-1/4 w-6 h-10 bg-gradient-to-b from-red-400 to-transparent transform rotate-12 animate-pulse">
           <div className="w-1 h-1 bg-red-300 rounded-full mx-auto mb-1"></div>
           <div className="w-3 h-5 bg-red-400 mx-auto mb-1"></div>
@@ -66,7 +63,7 @@ const Navigation = () => {
               }`}
             >
               <Home className="h-5 w-5" />
-              <span>🏠 {t('nav.home').toUpperCase()}</span>
+              <span>🏠 HOME</span>
             </Link>
             <Link 
               to="/player/caitlin-clark" 
@@ -88,12 +85,12 @@ const Navigation = () => {
               }`}
             >
               <Video className="h-5 w-5" />
-              <span>🎬 {t('nav.videos').toUpperCase()}</span>
+              <span>🎬 VIDEOS</span>
             </Link>
             <Link 
               to="/ai-overview" 
               className={`flex items-center space-x-2 px-6 py-3 rounded-full text-lg font-black transition-all duration-300 transform hover:scale-105 ${
-                isActive('/ai-overview') 
+                isActive('/ai-overview-optimization') 
                   ? 'bg-yellow-300 text-red-600 shadow-xl' 
                   : 'hover:bg-white hover:bg-opacity-20 hover:shadow-lg'
               }`}
@@ -109,11 +106,8 @@ const Navigation = () => {
                   : 'hover:bg-white hover:bg-opacity-20 text-gray-300 hover:text-white'
               }`}
             >
-              <span>{t('nav.privacy').toUpperCase()}</span>
+              <span>PRIVACY</span>
             </Link>
-            
-            {/* Language Switcher */}
-            <LanguageSwitcher />
           </div>
           
           <div className="md:hidden flex items-center space-x-2">
@@ -135,9 +129,6 @@ const Navigation = () => {
             >
               <Brain className="h-6 w-6 text-blue-300" />
             </Link>
-            
-            {/* Mobile Language Switcher */}
-            <LanguageSwitcher />
           </div>
         </div>
       </div>

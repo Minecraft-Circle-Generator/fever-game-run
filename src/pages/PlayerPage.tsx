@@ -1,258 +1,358 @@
 import React, { useState, useEffect } from 'react';
 import { Star, TrendingUp, Award, Target, RefreshCw } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
-import { Helmet } from 'react-helmet-async';
+import BookmarkButton from '../components/BookmarkButton';
 import PlayerStats from '../components/PlayerStats';
 import VideoCard from '../components/VideoCard';
 import { fetchLatestVideos, LatestVideo } from '../utils/videoProvider';
+import { fetchClarkGameLog, ClarkGameLog } from '../utils/espnProvider';
 
 const PlayerPage = () => {
-  const { t } = useTranslation();
+  // 添加 Google AdSense 脚本
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1766207958063879';
+    script.async = true;
+    script.crossOrigin = 'anonymous';
+    document.head.appendChild(script);
+
+    return () => {
+      // 清理脚本
+      if (document.head.contains(script)) {
+        document.head.removeChild(script);
+      }
+    };
+  }, []);
   const [videos, setVideos] = useState<LatestVideo[]>([]);
   const [loading, setLoading] = useState(true);
-  const [lastUpdate, setLastUpdate] = useState(new Date());
+  const [gameLogs, setGameLogs] = useState<ClarkGameLog[]>([]);
+  const [logsLoading, setLogsLoading] = useState(true);
 
-  const refreshData = async () => {
+  // Fetch Game Logs
+  useEffect(() => {
+    let mounted = true;
+    setLogsLoading(true);
+    fetchClarkGameLog().then(logs => {
+      if (mounted) {
+        setGameLogs(logs);
+        setLogsLoading(false);
+      }
+    }).catch(e => {
+      console.error(e);
+      if (mounted) setLogsLoading(false);
+    });
+    return () => { mounted = false; };
+  }, []);
+
+  // 获取Caitlin Clark相关的热门和新视频
+  const fetchClarkVideos = async () => {
     setLoading(true);
     try {
-      const latestVideos = await fetchLatestVideos();
-      setVideos(latestVideos);
-      setLastUpdate(new Date());
+      const allVideos = await fetchLatestVideos();
+      
+      // 严格筛选真正与 Caitlin Clark 相关的高质量视频
+      const clarkVideos = allVideos.filter(video => {
+        const title = video.title.toLowerCase();
+        const description = ((video as any)?.description?.toLowerCase?.()) || ''
+        
+        // 高优先级关键词 - 直接提到 Caitlin Clark
+        if (title.includes('caitlin clark') || description.includes('caitlin clark')) {
+          return true;
+        }
+        
+        // 中优先级 - Indiana Fever 相关的比赛和重要内容
+        if (title.includes('indiana fever') && (
+          title.includes('game') || 
+          title.includes('vs') || 
+          title.includes('highlights') ||
+          title.includes('press conference') ||
+          title.includes('post-game') ||
+          title.includes('playoff') ||
+          title.includes('aces') ||
+          title.includes('liberty') ||
+          title.includes('sun') ||
+          title.includes('mercury')
+        )) {
+          return true;
+        }
+        
+        // 低优先级 - 仅包含 fever 但有比赛相关内容
+        if (title.includes('fever') && (
+          title.includes('highlights') ||
+          title.includes('vs') ||
+          title.includes('game')
+        )) {
+          return true;
+        }
+        
+        return false;
+      });
+
+      console.log(`Total videos fetched: ${allVideos.length}`);
+      console.log(`Caitlin Clark related videos found: ${clarkVideos.length}`);
+      console.log('Clark videos:', clarkVideos.map(v => `${v.title} (${v.channelTitle})`));
+
+      // 综合排序：新鲜度40% + 热度60%（球员页面更注重热度）
+      const parseViews = (viewCount?: number): number => {
+        return viewCount || 0;
+      };
+
+      const recencyScore = (publishedAt: string): number => {
+        const publishedDate = new Date(publishedAt);
+        const now = new Date();
+        const diffHours = (now.getTime() - publishedDate.getTime()) / (1000 * 60 * 60);
+        
+        if (diffHours < 24) return 1;
+        if (diffHours < 168) return Math.max(0, 1 - diffHours / 168); // 7天内线性衰减
+        return 0.1; // 超过7天给最低分
+      };
+
+      const popularityScore = (viewCount?: number): number => {
+        const views = parseViews(viewCount);
+        return Math.min(1, views / 500_000); // 50万观看为满分
+      };
+
+      const combinedScore = (video: LatestVideo): number => {
+        const r = recencyScore(video.publishedAt);
+        const p = popularityScore(video.viewCount);
+        return 0.4 * r + 0.6 * p; // 球员页面更注重热度
+      };
+
+      clarkVideos.sort((a, b) => combinedScore(b) - combinedScore(a));
+      
+      // 如果找到的视频少于3个，就重复显示现有视频以确保至少有3个
+      let finalVideos = clarkVideos.slice(0, 6);
+      if (finalVideos.length > 0 && finalVideos.length < 3) {
+        const videosToAdd = 3 - finalVideos.length;
+        for (let i = 0; i < videosToAdd; i++) {
+          finalVideos.push(finalVideos[i % finalVideos.length]);
+        }
+      }
+      
+      setVideos(finalVideos);
     } catch (error) {
-      console.error('Error fetching videos:', error);
+      console.error('Failed to fetch Clark videos:', error);
+      // 使用备用数据
+      setVideos([]);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    refreshData();
+    fetchClarkVideos();
+  }, []);
+
+  // 初始化 AdSense 广告
+  useEffect(() => {
+    try {
+      if ((window as any).adsbygoogle) {
+        (window as any).adsbygoogle.push({});
+      }
+    } catch (e) {
+      console.log('AdSense error:', e);
+    }
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-yellow-50">
-      <Helmet>
-        <title>{t('player.title')}</title>
-        <meta name="description" content={t('player.bio.content')} />
-      </Helmet>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Hero Section */}
-        <div className="bg-gradient-to-r from-red-900 to-black text-white rounded-xl p-8 mb-8 relative overflow-hidden">
-          {/* Background Pattern */}
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute inset-0">
-              <div className="absolute top-0 left-1/2 w-px h-full bg-white opacity-30 transform -translate-x-1/2"></div>
-              <div className="absolute top-1/2 left-0 w-full h-px bg-white opacity-30 transform -translate-y-1/2"></div>
-              <div className="absolute top-1/2 left-1/2 w-32 h-32 border-2 border-white opacity-30 rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
+    <div className="min-h-screen bg-gray-50">
+      {/* Hero Section */}
+      <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="flex flex-col md:flex-row items-center">
+            <div className="mb-6 md:mb-0 md:mr-8">
+              <div className="w-32 h-32 bg-amber-500 rounded-full flex items-center justify-center">
+                <Star className="h-16 w-16 text-white" />
+              </div>
             </div>
-          </div>
-          
-          <div className="relative flex flex-col md:flex-row items-center">
-            <div className="md:w-1/3 mb-6 md:mb-0">
-              <div className="relative">
-                <img 
-                  src="/caitlin-clark-hero.jpg" 
-                  alt="Caitlin Clark"
-                  className="w-48 h-48 rounded-full mx-auto border-4 border-yellow-300 shadow-2xl"
-                />
-                <div className="absolute -top-2 -right-2 bg-yellow-300 text-black rounded-full p-2">
-                  <Star className="h-6 w-6" />
+            <div className="text-center md:text-left">
+              <h1 className="text-4xl md:text-5xl font-bold mb-4">
+                Caitlin Clark
+              </h1>
+              <p className="text-xl text-gray-300 mb-4">
+                Point Guard • Indiana Fever • #22
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+                <div className="flex items-center">
+                  <Award className="h-5 w-5 mr-2 text-amber-500" />
+                  <span>2024 WNBA Rookie of the Year</span>
+                </div>
+                <div className="flex items-center">
+                  <Target className="h-5 w-5 mr-2 text-amber-500" />
+                  <span>All-Star Selection</span>
                 </div>
               </div>
             </div>
-            <div className="md:w-2/3 md:pl-8 text-center md:text-left">
-              <div className="flex items-center justify-center md:justify-start mb-4">
-                <Star className="h-8 w-8 text-yellow-300 mr-3 animate-pulse" />
-                <h1 className="text-4xl md:text-6xl font-black">
-                  CAITLIN CLARK
-                </h1>
-              </div>
-              <div className="flex flex-col md:flex-row gap-4 mb-6 justify-center md:justify-start">
-                <span className="bg-yellow-300 text-black px-4 py-2 rounded-full font-bold text-lg">
-                  🏀 {t('player.position')}
-                </span>
-                <span className="bg-red-600 text-white px-4 py-2 rounded-full font-bold text-lg">
-                  🔥 {t('player.team')}
-                </span>
-              </div>
-              <p className="text-xl text-yellow-100 leading-relaxed">
-                {t('player.bio.content')}
-              </p>
-            </div>
           </div>
         </div>
+      </div>
 
-        {/* Stats Section */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center">
-              <TrendingUp className="h-8 w-8 text-red-500 mr-3 animate-bounce" />
-              <h2 className="text-3xl font-black text-gray-800">
-                {t('player.stats')} 🔥
-              </h2>
-            </div>
-            <div className="flex items-center text-sm text-gray-600">
-              <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
-              <span>Updated: {lastUpdate.toLocaleTimeString()}</span>
-              <button 
-                onClick={refreshData}
-                className="ml-4 p-2 hover:bg-gray-100 rounded-full transition-colors"
-                disabled={loading}
-              >
-                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-              </button>
-            </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Season Stats */}
+        <section className="mb-12">
+          <div className="flex items-center mb-6">
+            <TrendingUp className="h-6 w-6 text-amber-500 mr-3" />
+            <h2 className="text-2xl font-bold text-gray-800">Season Stats</h2>
           </div>
           <PlayerStats />
-        </div>
+        </section>
 
-        {/* Achievements */}
-        <div className="bg-white rounded-xl shadow-lg p-8 mb-8 border-2 border-yellow-300">
-          <div className="flex items-center mb-6">
-            <Award className="h-8 w-8 text-yellow-500 mr-3" />
-            <h2 className="text-3xl font-black text-gray-800">
-              {t('player.careerHighlights.title')} 🏆
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-gradient-to-r from-red-50 to-orange-50 p-6 rounded-lg border-l-4 border-red-500">
-              <div className="flex items-center mb-3">
-                <Target className="h-6 w-6 text-red-500 mr-2" />
-                <h3 className="text-xl font-bold text-red-600">
-                  {t('player.careerHighlights.rookieRecord')}
-                </h3>
+        {/* Recent Performance */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Recent Performance</h2>
+          <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="p-6">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-200">
+                      <th className="text-left py-3 px-4 font-semibold text-gray-700">Date</th>
+                      <th className="text-left py-3 px-4 font-semibold text-gray-700">Opponent</th>
+                      <th className="text-left py-3 px-4 font-semibold text-gray-700">Result</th>
+                      <th className="text-left py-3 px-4 font-semibold text-gray-700">PTS</th>
+                      <th className="text-left py-3 px-4 font-semibold text-gray-700">AST</th>
+                      <th className="text-left py-3 px-4 font-semibold text-gray-700">REB</th>
+                      <th className="text-left py-3 px-4 font-semibold text-gray-700">3PM</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {logsLoading ? (
+                      <tr>
+                        <td colSpan={7} className="py-8 text-center text-gray-500">
+                          <RefreshCw className="h-6 w-6 animate-spin inline-block mr-2" />
+                          Loading recent games...
+                        </td>
+                      </tr>
+                    ) : gameLogs.length > 0 ? (
+                      gameLogs.map((log, idx) => (
+                        <tr key={idx} className="border-b border-gray-100">
+                          <td className="py-3 px-4 text-gray-800">{log.date}</td>
+                          <td className="py-3 px-4 text-gray-800">{log.opponent}</td>
+                          <td className="py-3 px-4">
+                            <span className={log.won ? "bg-green-100 text-green-800 px-2 py-1 rounded text-sm" : "bg-red-100 text-red-800 px-2 py-1 rounded text-sm"}>
+                              {log.result}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 font-bold text-amber-600">{log.points}</td>
+                          <td className="py-3 px-4 font-bold text-amber-600">{log.assists}</td>
+                          <td className="py-3 px-4 text-gray-800">{log.rebounds}</td>
+                          <td className="py-3 px-4 font-bold text-amber-600">{log.threePointers}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={7} className="py-8 text-center text-gray-500">
+                          No recent game data available.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
               </div>
-              <p className="text-gray-700">
-                Set new WNBA rookie record for assists in a season with 337 assists, breaking the previous record.
-              </p>
-              <div className="mt-3 text-2xl font-black text-red-600">337 ASSISTS</div>
-            </div>
-            
-            <div className="bg-gradient-to-r from-orange-50 to-yellow-50 p-6 rounded-lg border-l-4 border-orange-500">
-              <div className="flex items-center mb-3">
-                <Star className="h-6 w-6 text-orange-500 mr-2" />
-                <h3 className="text-xl font-bold text-orange-600">
-                  {t('player.careerHighlights.tripleDouble')}
-                </h3>
-              </div>
-              <p className="text-gray-700">
-                First rookie in WNBA history to record a triple-double with 19 points, 13 assists, and 12 rebounds.
-              </p>
-              <div className="mt-3 text-2xl font-black text-orange-600">HISTORIC FIRST</div>
-            </div>
-            
-            <div className="bg-gradient-to-r from-yellow-50 to-red-50 p-6 rounded-lg border-l-4 border-yellow-500">
-              <div className="flex items-center mb-3">
-                <Award className="h-6 w-6 text-yellow-500 mr-2" />
-                <h3 className="text-xl font-bold text-yellow-600">
-                  {t('player.careerHighlights.allStar')}
-                </h3>
-              </div>
-              <p className="text-gray-700">
-                Selected for WNBA All-Star Game in rookie season, becoming the youngest player ever selected.
-              </p>
-              <div className="mt-3 text-2xl font-black text-yellow-600">ALL-STAR ⭐</div>
-            </div>
-            
-            <div className="bg-gradient-to-r from-red-50 to-yellow-50 p-6 rounded-lg border-l-4 border-red-500">
-              <div className="flex items-center mb-3">
-                <TrendingUp className="h-6 w-6 text-red-500 mr-2" />
-                <h3 className="text-xl font-bold text-red-600">
-                  {t('player.careerHighlights.rotY')}
-                </h3>
-              </div>
-              <p className="text-gray-700">
-                Leading candidate for WNBA Rookie of the Year award with outstanding performance metrics.
-              </p>
-              <div className="mt-3 text-2xl font-black text-red-600">ROY FAVORITE 🏆</div>
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* Latest Videos */}
-        <div className="mb-8">
+        {/* Google AdSense 广告位 */}
+        <section className="mb-12">
+          <div className="bg-white rounded-lg shadow-md p-6 text-center">
+            <ins className="adsbygoogle"
+                 style={{display: 'block'}}
+                 data-ad-client="ca-pub-1766207958063879"
+                 data-ad-slot="auto"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+          </div>
+        </section>
+
+        {/* Highlight Videos */}
+        <section>
           <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center">
-              <Star className="h-8 w-8 text-purple-500 mr-3 animate-spin" />
-              <h2 className="text-3xl font-black text-gray-800">
-                Latest Highlights 🎬
-              </h2>
+            <h2 className="text-2xl font-bold text-gray-800">Highlight Videos</h2>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={fetchClarkVideos}
+                className="flex items-center text-amber-600 hover:text-amber-700 transition-colors"
+                disabled={loading}
+              >
+                <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} />
+                Refresh
+              </button>
+              <BookmarkButton label="Bookmark" className="text-amber-600 hover:text-amber-700" />
             </div>
-            <button 
-              onClick={refreshData}
-              className="flex items-center text-gray-600 hover:text-gray-800 transition-colors p-2 rounded-lg hover:bg-gray-100"
-              disabled={loading}
-            >
-              <RefreshCw className={`h-5 w-5 mr-2 ${loading ? 'animate-spin' : ''}`} />
-              <span>Refresh Videos</span>
-            </button>
           </div>
           
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="bg-white rounded-lg shadow-md p-4 animate-pulse">
-                  <div className="h-48 bg-gray-200 rounded mb-4"></div>
+              {[1, 2, 3].map(i => (
+                <div key={i} className="bg-white rounded-lg shadow-md p-6 animate-pulse">
+                  <div className="h-32 bg-gray-200 rounded mb-4"></div>
                   <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
                   <div className="h-4 bg-gray-200 rounded w-1/2"></div>
                 </div>
               ))}
             </div>
-          ) : (
+          ) : videos.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {videos && videos.length > 0 ? (
-                videos.slice(0, 6).map((video) => (
+              {videos.map((video) => {
+                // 格式化视频数据
+                const formatViews = (viewCount?: number): string => {
+                  if (!viewCount) return '0';
+                  if (viewCount >= 1_000_000) return `${(viewCount / 1_000_000).toFixed(1)}M`;
+                  if (viewCount >= 1_000) return `${(viewCount / 1_000).toFixed(1)}K`;
+                  return viewCount.toString();
+                };
+
+                const formatUploadDate = (publishedAt: string): string => {
+                  const publishedDate = new Date(publishedAt);
+                  const now = new Date();
+                  const diffMs = now.getTime() - publishedDate.getTime();
+                  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                  const diffDays = Math.floor(diffHours / 24);
+
+                  if (video.live) return 'LIVE NOW';
+                  if (diffHours < 1) {
+                    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+                    return `${diffMinutes} minutes ago`;
+                  }
+                  if (diffHours < 24) return `${diffHours} hours ago`;
+                  if (diffDays === 1) return '1 day ago';
+                  return `${diffDays} days ago`;
+                };
+
+                const formatDuration = (): string => {
+                  if (video.live) return 'LIVE';
+                  // 生成随机时长作为示例
+                  const minutes = Math.floor(Math.random() * 8) + 2;
+                  const seconds = Math.floor(Math.random() * 60);
+                  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                };
+
+                return (
                   <VideoCard
                     key={video.id}
                     title={video.title}
                     thumbnail={video.thumbnailUrl}
-                    duration={`${Math.floor(Math.random() * 8) + 2}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')}`}
-                    views={`${Math.floor(Math.random() * 500) + 100}K`}
-                    uploadDate="2 days ago"
+                    duration={formatDuration()}
+                    views={formatViews(video.viewCount)}
+                    uploadDate={formatUploadDate(video.publishedAt)}
                     channel={video.channelTitle}
                     videoId={video.id}
-                    isLive={video.live}
                   />
-                ))
-              ) : (
-                <div className="col-span-full text-center py-12">
-                  <Star className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-bold text-gray-600 mb-2">
-                    No videos available
-                  </h3>
-                  <p className="text-gray-500">
-                    Check back later for the latest Caitlin Clark highlights!
-                  </p>
-                </div>
-              )}
+                );
+              })}
+            </div>
+          ) : (
+            <div className="bg-white rounded-lg shadow-md p-8 text-center">
+              <div className="text-gray-500 mb-4">No recent Caitlin Clark videos found</div>
+              <button
+                onClick={fetchClarkVideos}
+                className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
+              >
+                Try Again
+              </button>
             </div>
           )}
-        </div>
-
-        {/* Biography */}
-        <div className="bg-white rounded-xl shadow-lg p-8">
-          <h2 className="text-3xl font-black mb-6 text-gray-800">
-            {t('player.bio.title')} 📖
-          </h2>
-          <div className="prose max-w-none">
-            <p className="text-lg text-gray-700 leading-relaxed mb-6">
-              {t('player.bio.content')}
-            </p>
-            <p className="text-lg text-gray-700 leading-relaxed mb-6">
-              From her college days at Iowa to her professional debut with the Indiana Fever, 
-              Clark has consistently broken records and exceeded expectations. Her ability to 
-              see the court and create opportunities for teammates has made her an instant 
-              fan favorite and a cornerstone of the Fever's future.
-            </p>
-            <p className="text-lg text-gray-700 leading-relaxed">
-              With her exceptional three-point shooting range and court vision reminiscent of 
-              NBA legends, Clark has brought unprecedented attention to women's basketball. 
-              Her rookie season has been nothing short of spectacular, setting multiple records 
-              and earning recognition as one of the most impactful players in WNBA history.
-            </p>
-          </div>
-        </div>
+        </section>
       </div>
     </div>
   );

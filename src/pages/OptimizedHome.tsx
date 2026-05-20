@@ -6,6 +6,8 @@ import DebugInfo from '../components/DebugInfo';
 import ErrorBoundary from '../components/ErrorBoundary';
 import StructuredData from '../components/StructuredData';
 import SEOHead from '../components/SEOHead';
+import BookmarkButton from '../components/BookmarkButton';
+import { t } from '../utils/i18n';
 
 // 懒加载组件
 const GameCard = lazy(() => import('../components/GameCard'));
@@ -47,7 +49,7 @@ const OptimizedHome = () => {
       // 等待懒加载组件渲染后再滚动
       setTimeout(() => {
         const el = document.getElementById(sectionId);
-        if (el && typeof el.getBoundingClientRect === 'function') {
+        if (el) {
           el.scrollIntoView({ behavior: 'smooth', block: 'start' });
           // 临时高亮
           el.classList.add('ring-4', 'ring-yellow-400');
@@ -155,13 +157,25 @@ const OptimizedHome = () => {
             <div className={`w-2 h-2 bg-green-500 rounded-full mr-2 ${getAnimationClass('animate-pulse', 'mobile-pulse')}`}></div>
             <span>Updated: {lastUpdate.toLocaleTimeString()}</span>
           </div>
-          <button 
-            onClick={refreshData}
-            className="flex items-center text-gray-600 hover:text-gray-800 transition-colors p-2"
-          >
-            <RefreshCw className="h-4 w-4 mr-1" />
-            <span className="hidden sm:inline">Refresh</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={refreshData}
+              className="flex items-center text-gray-600 hover:text-gray-800 transition-colors p-2"
+            >
+              <RefreshCw className="h-4 w-4 mr-1" />
+              <span className="hidden sm:inline">Refresh</span>
+            </button>
+            <BookmarkButton
+              label={t('bookmark.label')}
+              messages={{
+                iosAddToHome: t('bookmark.iosAddToHome'),
+                pressKeysMac: t('bookmark.pressKeysMac'),
+                pressKeysWin: t('bookmark.pressKeysWin'),
+                copied: t('bookmark.copied'),
+              }}
+              className="text-gray-600 hover:text-gray-800 p-2"
+            />
+          </div>
         </div>
 
         {/* Live Status Banner - Mobile Optimized */}
@@ -347,6 +361,8 @@ const OptimizedHome = () => {
                       channel={video.channel}
                       videoId={video.videoId}
                       isLive={video.isLive}
+                      publishedAtISO={video.publishedAtISO}
+                      viewsNumeric={video.viewsNumeric}
                     />
                   </Suspense>
                 </ErrorBoundary>
