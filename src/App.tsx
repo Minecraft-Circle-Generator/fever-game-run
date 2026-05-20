@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import Navigation from './components/Navigation';
 import Footer from './components/Footer';
+import InstallPrompt from './components/InstallPrompt';
 
 const FastHome = lazy(() => import('./pages/FastHome'));
 const PlayerPage = lazy(() => import('./pages/PlayerPage'));
@@ -34,6 +35,7 @@ function App() {
             </Suspense>
           </main>
           <Footer />
+          <InstallPrompt />
         </div>
       </Router>
     </HelmetProvider>

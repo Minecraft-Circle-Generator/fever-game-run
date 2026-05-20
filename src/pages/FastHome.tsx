@@ -9,6 +9,7 @@ import { t } from '../utils/i18n';
 import { fetchLatestVideos } from '../utils/videoProvider';
 import AdSenseSlot from '../components/AdSenseSlot';
 import SubscribeWidget from '../components/SubscribeWidget';
+import NextGameCountdown from '../components/NextGameCountdown';
 
 // 懒加载组件 - 进一步优化
 const GameCard = lazy(() => import('../components/GameCard'));
@@ -251,6 +252,11 @@ const FastHome = () => {
           </section>
 
           <AdSenseSlot slotId="home-middle" />
+
+          {/* Countdown Widget */}
+          <div className="w-full max-w-4xl px-4 mt-8">
+            <NextGameCountdown />
+          </div>
 
           {/* Caitlin Clark 统计 */}
           {playerStats && (

@@ -211,3 +211,45 @@ export async function fetchClarkGameLog(): Promise<ClarkGameLog[]> {
     return [];
   }
 }
+
+export interface NextGameInfo {
+  date: string;       // ISO date string
+  opponent: string;   // 'Las Vegas Aces'
+  oppLogo: string;    // url
+  isHome: boolean;
+}
+
+export async function fetchNextFeverGame(): Promise<NextGameInfo | null> {
+  try {
+    const url = 'https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/teams/5/schedule';
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Failed to fetch Fever schedule');
+    const data = await res.json();
+    
+    if (!data.events) return null;
+    
+    const now = new Date();
+    // Find the first event whose date is in the future
+    const upcoming = data.events.find((e: any) => new Date(e.date) > now);
+    if (!upcoming) return null;
+    
+    const comp = upcoming.competitions?.[0];
+    if (!comp) return null;
+    
+    // Competitors: find the Fever (id "5") and the opponent
+    const fever = comp.competitors.find((c: any) => c.team.id === "5");
+    const opp = comp.competitors.find((c: any) => c.team.id !== "5");
+    
+    if (!fever || !opp) return null;
+    
+    return {
+      date: upcoming.date,
+      opponent: opp.team.displayName || opp.team.abbreviation,
+      oppLogo: opp.team.logos?.[0]?.href || '',
+      isHome: fever.homeAway === 'home'
+    };
+  } catch (e) {
+    console.error('[ESPN] fetchNextFeverGame error', e);
+    return null;
+  }
+}

@@ -8,6 +8,7 @@ import { t } from '../utils/i18n';
 import { fetchLatestVideos } from '../utils/videoProvider';
 import AdSenseSlot from '../components/AdSenseSlot';
 import SubscribeWidget from '../components/SubscribeWidget';
+import NextGameCountdown from '../components/NextGameCountdown';
 
 const Home = () => {
   const { 
@@ -170,7 +171,13 @@ const Home = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        
+        {/* Next Game Countdown Section */}
+        <div className="mb-8">
+          <NextGameCountdown />
+        </div>
+
         {/* Real-time Update Info */}
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center text-sm text-gray-600">
