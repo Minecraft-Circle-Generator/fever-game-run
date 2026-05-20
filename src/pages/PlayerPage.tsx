@@ -4,6 +4,7 @@ import BookmarkButton from '../components/BookmarkButton';
 import PlayerStats from '../components/PlayerStats';
 import VideoCard from '../components/VideoCard';
 import { fetchLatestVideos, LatestVideo } from '../utils/videoProvider';
+import { fetchClarkGameLog, ClarkGameLog } from '../utils/espnProvider';
 
 const PlayerPage = () => {
   // 添加 Google AdSense 脚本
@@ -23,6 +24,24 @@ const PlayerPage = () => {
   }, []);
   const [videos, setVideos] = useState<LatestVideo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [gameLogs, setGameLogs] = useState<ClarkGameLog[]>([]);
+  const [logsLoading, setLogsLoading] = useState(true);
+
+  // Fetch Game Logs
+  useEffect(() => {
+    let mounted = true;
+    setLogsLoading(true);
+    fetchClarkGameLog().then(logs => {
+      if (mounted) {
+        setGameLogs(logs);
+        setLogsLoading(false);
+      }
+    }).catch(e => {
+      console.error(e);
+      if (mounted) setLogsLoading(false);
+    });
+    return () => { mounted = false; };
+  }, []);
 
   // 获取Caitlin Clark相关的热门和新视频
   const fetchClarkVideos = async () => {
@@ -196,61 +215,36 @@ const PlayerPage = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr className="border-b border-gray-100">
-                      <td className="py-3 px-4 text-gray-800">Sep 24</td>
-                      <td className="py-3 px-4 text-gray-800">vs LAS</td>
-                      <td className="py-3 px-4">
-                        <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">W 95-86</span>
-                      </td>
-                      <td className="py-3 px-4 font-bold text-amber-600">28</td>
-                      <td className="py-3 px-4 font-bold text-amber-600">12</td>
-                      <td className="py-3 px-4 text-gray-800">8</td>
-                      <td className="py-3 px-4 font-bold text-amber-600">7</td>
-                    </tr>
-                    <tr className="border-b border-gray-100">
-                      <td className="py-3 px-4 text-gray-800">Sep 22</td>
-                      <td className="py-3 px-4 text-gray-800">@ CON</td>
-                      <td className="py-3 px-4">
-                        <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">W 87-81</span>
-                      </td>
-                      <td className="py-3 px-4 font-bold text-amber-600">31</td>
-                      <td className="py-3 px-4 text-gray-800">8</td>
-                      <td className="py-3 px-4 text-gray-800">5</td>
-                      <td className="py-3 px-4 font-bold text-amber-600">6</td>
-                    </tr>
-                    <tr className="border-b border-gray-100">
-                      <td className="py-3 px-4 text-gray-800">Sep 19</td>
-                      <td className="py-3 px-4 text-gray-800">vs PHX</td>
-                      <td className="py-3 px-4">
-                        <span className="bg-red-100 text-red-800 px-2 py-1 rounded text-sm">L 82-89</span>
-                      </td>
-                      <td className="py-3 px-4 text-gray-800">24</td>
-                      <td className="py-3 px-4 font-bold text-amber-600">11</td>
-                      <td className="py-3 px-4 text-gray-800">6</td>
-                      <td className="py-3 px-4 text-gray-800">4</td>
-                    </tr>
-                    <tr className="border-b border-gray-100">
-                      <td className="py-3 px-4 text-gray-800">Sep 17</td>
-                      <td className="py-3 px-4 text-gray-800">@ MIN</td>
-                      <td className="py-3 px-4">
-                        <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">W 90-83</span>
-                      </td>
-                      <td className="py-3 px-4 font-bold text-amber-600">26</td>
-                      <td className="py-3 px-4 text-gray-800">9</td>
-                      <td className="py-3 px-4 text-gray-800">7</td>
-                      <td className="py-3 px-4 font-bold text-amber-600">5</td>
-                    </tr>
-                    <tr className="border-b border-gray-100">
-                      <td className="py-3 px-4 text-gray-800">Sep 15</td>
-                      <td className="py-3 px-4 text-gray-800">vs SEA</td>
-                      <td className="py-3 px-4">
-                        <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">W 92-75</span>
-                      </td>
-                      <td className="py-3 px-4 font-bold text-amber-600">29</td>
-                      <td className="py-3 px-4 font-bold text-amber-600">13</td>
-                      <td className="py-3 px-4 text-gray-800">5</td>
-                      <td className="py-3 px-4 font-bold text-amber-600">8</td>
-                    </tr>
+                    {logsLoading ? (
+                      <tr>
+                        <td colSpan={7} className="py-8 text-center text-gray-500">
+                          <RefreshCw className="h-6 w-6 animate-spin inline-block mr-2" />
+                          Loading recent games...
+                        </td>
+                      </tr>
+                    ) : gameLogs.length > 0 ? (
+                      gameLogs.map((log, idx) => (
+                        <tr key={idx} className="border-b border-gray-100">
+                          <td className="py-3 px-4 text-gray-800">{log.date}</td>
+                          <td className="py-3 px-4 text-gray-800">{log.opponent}</td>
+                          <td className="py-3 px-4">
+                            <span className={log.won ? "bg-green-100 text-green-800 px-2 py-1 rounded text-sm" : "bg-red-100 text-red-800 px-2 py-1 rounded text-sm"}>
+                              {log.result}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 font-bold text-amber-600">{log.points}</td>
+                          <td className="py-3 px-4 font-bold text-amber-600">{log.assists}</td>
+                          <td className="py-3 px-4 text-gray-800">{log.rebounds}</td>
+                          <td className="py-3 px-4 font-bold text-amber-600">{log.threePointers}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={7} className="py-8 text-center text-gray-500">
+                          No recent game data available.
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>
