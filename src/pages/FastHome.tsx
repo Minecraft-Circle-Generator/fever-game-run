@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useMemo } from 'react';
+import React, { Suspense, lazy, useMemo, useEffect, useState } from 'react';
 import { Star, Video, Flame, Zap, Trophy, Target, RefreshCw } from 'lucide-react';
 import { useRealTimeData } from '../hooks/useRealTimeData';
 import { useIsMobile, useReducedMotion } from '../hooks/useMediaQuery';
@@ -6,6 +6,9 @@ import LazyImage from '../components/LazyImage';
 import PerformanceOptimizer from '../components/PerformanceOptimizer';
 import BookmarkButton from '../components/BookmarkButton';
 import { t } from '../utils/i18n';
+import { fetchLatestVideos } from '../utils/videoProvider';
+import AdSenseSlot from '../components/AdSenseSlot';
+import SubscribeWidget from '../components/SubscribeWidget';
 
 // 懒加载组件 - 进一步优化
 const GameCard = lazy(() => import('../components/GameCard'));
@@ -33,10 +36,10 @@ const MobileHero = React.memo(() => (
         🔥 CAITLIN CLARK IS ON FIRE! 🔥
       </p>
       <div className="flex flex-col gap-3 px-4">
-        <button className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-6 py-3 rounded-full font-bold text-base">
+        <button onClick={() => document.getElementById('todays-game')?.scrollIntoView({ behavior: 'smooth' })} className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-6 py-3 rounded-full font-bold text-base">
           🏀 TODAY'S GAME
         </button>
-        <button className="bg-transparent border-2 border-yellow-300 text-yellow-300 px-6 py-3 rounded-full font-bold text-base">
+        <button onClick={() => document.getElementById('highlights')?.scrollIntoView({ behavior: 'smooth' })} className="bg-transparent border-2 border-yellow-300 text-yellow-300 px-6 py-3 rounded-full font-bold text-base">
           ⚡ HIGHLIGHTS
         </button>
       </div>
@@ -68,10 +71,10 @@ const DesktopHero = React.memo(() => (
           🔥 CAITLIN CLARK IS ON FIRE! 🔥
         </p>
         <div className="flex flex-col sm:flex-row gap-6 justify-center">
-          <button className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-10 py-4 rounded-full font-bold text-xl shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-yellow-300">
+          <button onClick={() => document.getElementById('todays-game')?.scrollIntoView({ behavior: 'smooth' })} className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-10 py-4 rounded-full font-bold text-xl shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-yellow-300">
             🏀 TODAY'S GAME
           </button>
-          <button className="bg-transparent border-2 border-yellow-300 hover:bg-yellow-300 hover:text-black text-yellow-300 px-10 py-4 rounded-full font-bold text-xl transition-all duration-300 transform hover:scale-105">
+          <button onClick={() => document.getElementById('highlights')?.scrollIntoView({ behavior: 'smooth' })} className="bg-transparent border-2 border-yellow-300 hover:bg-yellow-300 hover:text-black text-yellow-300 px-10 py-4 rounded-full font-bold text-xl transition-all duration-300 transform hover:scale-105">
             ⚡ HIGHLIGHTS
           </button>
         </div>
@@ -102,6 +105,43 @@ const FastHome = () => {
     }
     return defaultClass;
   }, [isMobile, reducedMotion]);
+
+  const [latestVideos, setLatestVideos] = useState<any[]>(videos || []);
+  useEffect(() => {
+    let mounted = true;
+    fetchLatestVideos()
+      .then(list => {
+        if (!mounted) return;
+        const enriched = (list || []).map(v => ({ ...v, channel: (v as any).channel ?? (v as any).channelTitle }));
+        setLatestVideos(enriched.slice(0, 8));
+      })
+      .catch(() => {
+        if (!mounted) return;
+        setLatestVideos(videos || []);
+      });
+    return () => { mounted = false; };
+  }, []);
+
+  // Bookmark toast logic
+  const [showBookmarkToast, setShowBookmarkToast] = useState(false);
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          const hasSeenToast = localStorage.getItem('hasSeenBookmarkToast');
+          if (!hasSeenToast) {
+            setShowBookmarkToast(true);
+            localStorage.setItem('hasSeenBookmarkToast', 'true');
+            setTimeout(() => setShowBookmarkToast(false), 5000);
+          }
+        }
+      },
+      { threshold: 0.1 }
+    );
+    const highlightsEl = document.getElementById('highlights');
+    if (highlightsEl) observer.observe(highlightsEl);
+    return () => observer.disconnect();
+  }, []);
 
   // 快速加载状态
   if (loading) {
@@ -186,7 +226,10 @@ const FastHome = () => {
               </Suspense>
               
               {/* 比赛预览卡片 */}
-              <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 border-2 border-orange-300">
+              <button 
+                onClick={() => document.getElementById('player-stats')?.scrollIntoView({ behavior: 'smooth' })}
+                className="bg-white rounded-xl shadow-lg p-4 md:p-6 border-2 border-orange-300 text-left w-full cursor-pointer hover:bg-orange-50 hover:scale-[1.02] hover:shadow-xl transition-all block"
+              >
                 <div className="flex items-center mb-4">
                   <Zap className={`h-5 w-5 md:h-6 md:w-6 text-orange-500 mr-2 ${getAnimationClass('animate-pulse')}`} />
                   <h3 className="text-lg md:text-xl font-bold text-gray-900">
@@ -199,13 +242,15 @@ const FastHome = () => {
                     : '🔥 Get ready for an epic showdown! The Indiana Fever are about to unleash Caitlin Clark!'
                   }
                 </p>
-                <div className="flex items-center text-sm md:text-base font-semibold text-red-600 bg-red-50 rounded-lg p-3">
+                <div className="flex items-center text-sm md:text-base font-semibold text-red-600 bg-red-50 rounded-lg p-3 hover:bg-red-100 transition-colors">
                   <Target className={`h-4 w-4 md:h-5 md:w-5 mr-2 text-orange-500 ${getAnimationClass('animate-spin')}`} />
                   <span>🎯 KEY BATTLE: CLARK vs PLUM!</span>
                 </div>
-              </div>
+              </button>
             </div>
           </section>
+
+          <AdSenseSlot slotId="home-middle" />
 
           {/* Caitlin Clark 统计 */}
           {playerStats && (
@@ -263,6 +308,8 @@ const FastHome = () => {
             </section>
           )}
 
+          <SubscribeWidget />
+
           {/* 最新视频 */}
           <section id="highlights">
             <div className="flex items-center mb-6">
@@ -272,8 +319,8 @@ const FastHome = () => {
               </h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              {videos && videos.length > 0 ? (
-                videos.slice(0, 6).map((video) => {
+              {latestVideos && latestVideos.length > 0 ? (
+                latestVideos.slice(0, 8).map((video) => {
                   // 统一字段命名，兼容现有类型
                   const viewsNumeric = (video as any).viewsNumeric ?? (video as any).views ?? 0;
                   const publishedAtISO = (video as any).publishedAtISO ?? (video as any).publishedAt;
@@ -334,6 +381,18 @@ const FastHome = () => {
             </div>
           </section>
         </div>
+
+        {/* Floating Bookmark Toast */}
+        {showBookmarkToast && (
+          <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-6 py-4 rounded-xl shadow-2xl z-50 flex items-center gap-3 animate-bounce">
+            <span className="text-xl">⭐</span>
+            <div>
+              <p className="font-bold text-sm">Enjoying the content?</p>
+              <p className="text-xs text-gray-300">Press <strong className="text-yellow-400">Ctrl+D</strong> (or ⌘+D) to bookmark us!</p>
+            </div>
+            <button onClick={() => setShowBookmarkToast(false)} className="ml-4 text-gray-400 hover:text-white">✕</button>
+          </div>
+        )}
       </div>
     </PerformanceOptimizer>
   );

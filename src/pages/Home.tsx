@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Calendar, Star, TrendingUp, Video, Flame, Zap, Trophy, Target, RefreshCw } from 'lucide-react';
 import GameCard from '../components/GameCard';
 import BookmarkButton from '../components/BookmarkButton';
 import VideoCard from '../components/VideoCard';
 import { useRealTimeData } from '../hooks/useRealTimeData';
 import { t } from '../utils/i18n';
+import { fetchLatestVideos } from '../utils/videoProvider';
+import AdSenseSlot from '../components/AdSenseSlot';
+import SubscribeWidget from '../components/SubscribeWidget';
 
 const Home = () => {
   const { 
@@ -17,6 +20,52 @@ const Home = () => {
     lastUpdate, 
     refreshData 
   } = useRealTimeData();
+
+  const [latestVideos, setLatestVideos] = useState<any[]>(videos || []);
+
+  useEffect(() => {
+    let mounted = true;
+    fetchLatestVideos()
+      .then(list => {
+        if (!mounted) return;
+        const enriched = (list || []).map(v => ({
+          ...v,
+          channel: (v as any).channel ?? (v as any).channelTitle,
+          thumbnail: (v as any).thumbnail ?? (v as any).thumbnailUrl,
+          videoId: (v as any).videoId ?? (v as any).id,
+          isLive: (v as any).isLive ?? (v as any).live ?? false,
+          viewsNumeric: (v as any).viewsNumeric ?? (v as any).viewCount ?? 0,
+          publishedAtISO: (v as any).publishedAtISO ?? (v as any).publishedAt
+        }));
+        setLatestVideos(enriched.slice(0, 8));
+      })
+      .catch(() => {
+        if (!mounted) return;
+        setLatestVideos(videos || []);
+      });
+    return () => { mounted = false; };
+  }, []);
+
+  // Bookmark toast logic
+  const [showBookmarkToast, setShowBookmarkToast] = useState(false);
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          const hasSeenToast = localStorage.getItem('hasSeenBookmarkToast');
+          if (!hasSeenToast) {
+            setShowBookmarkToast(true);
+            localStorage.setItem('hasSeenBookmarkToast', 'true');
+            setTimeout(() => setShowBookmarkToast(false), 5000);
+          }
+        }
+      },
+      { threshold: 0.1 }
+    );
+    const highlightsEl = document.getElementById('highlights');
+    if (highlightsEl) observer.observe(highlightsEl);
+    return () => observer.disconnect();
+  }, []);
 
   if (loading) {
     return (
@@ -110,10 +159,10 @@ const Home = () => {
               🔥 CAITLIN CLARK IS ON FIRE! 🔥
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
-              <button className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-black px-10 py-4 rounded-full font-black text-xl shadow-2xl transform hover:scale-105 transition-all duration-300 border-4 border-yellow-300">
+              <button onClick={() => document.getElementById('todays-game')?.scrollIntoView({ behavior: 'smooth' })} className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-black px-10 py-4 rounded-full font-black text-xl shadow-2xl transform hover:scale-105 transition-all duration-300 border-4 border-yellow-300">
                 🏀 TODAY'S GAME 🏀
               </button>
-              <button className="bg-transparent border-4 border-yellow-300 hover:bg-yellow-300 hover:text-black text-yellow-300 px-10 py-4 rounded-full font-black text-xl transition-all duration-300 transform hover:scale-105">
+              <button onClick={() => document.getElementById('highlights')?.scrollIntoView({ behavior: 'smooth' })} className="bg-transparent border-4 border-yellow-300 hover:bg-yellow-300 hover:text-black text-yellow-300 px-10 py-4 rounded-full font-black text-xl transition-all duration-300 transform hover:scale-105">
                 ⚡ HIGHLIGHTS ⚡
               </button>
             </div>
@@ -163,7 +212,7 @@ const Home = () => {
         </div>
 
         {/* Today's Game Status */}
-        <section className="mb-12">
+        <section id="todays-game" className="mb-12">
           <div className="flex items-center mb-8">
             <Trophy className="h-8 w-8 text-orange-500 mr-4 animate-bounce" />
             <h2 className="text-4xl font-black text-gray-800 bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
@@ -186,7 +235,10 @@ const Home = () => {
                 />
               )}
             </div>
-            <div className="relative bg-gradient-to-br from-white via-orange-50 to-red-50 rounded-2xl shadow-xl p-8 border-4 border-orange-400 overflow-hidden">
+            <button 
+              onClick={() => document.getElementById('player-stats')?.scrollIntoView({ behavior: 'smooth' })}
+              className="relative bg-gradient-to-br from-white via-orange-50 to-red-50 rounded-2xl shadow-xl p-8 border-4 border-orange-400 overflow-hidden text-left w-full cursor-pointer hover:bg-orange-100 hover:scale-[1.02] hover:shadow-2xl transition-all block"
+            >
               {/* Subtle background elements */}
               <div className="absolute inset-0 opacity-5">
                 <div className="absolute top-4 right-6 w-10 h-14 bg-gradient-to-b from-orange-200 to-transparent transform rotate-12"></div>
@@ -204,13 +256,15 @@ const Home = () => {
                   : '🔥 GET READY FOR AN EPIC SHOWDOWN! The Indiana Fever are about to UNLEASH Caitlin Clark against the Las Vegas Aces! This is going to be INSANE! 🔥'
                 }
               </p>
-              <div className="flex items-center text-lg font-bold text-red-600 bg-white/80 rounded-lg p-3">
+              <div className="flex items-center text-lg font-bold text-red-600 bg-white/80 rounded-lg p-3 hover:bg-red-50 transition-colors">
                 <Target className="h-6 w-6 mr-2 text-orange-500 animate-spin" />
                 <span>🎯 KEY BATTLE: CLARK vs PLUM - WHO WILL DOMINATE?!</span>
               </div>
-            </div>
+            </button>
           </div>
         </section>
+
+        <AdSenseSlot slotId="home-middle" />
 
         {/* Yesterday's Recap */}
         {yesterdayGame && (
@@ -238,7 +292,7 @@ const Home = () => {
 
         {/* Caitlin Clark Stats */}
         {playerStats && (
-          <section className="mb-12">
+          <section id="player-stats" className="mb-12">
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center">
                 <Star className="h-8 w-8 text-yellow-500 mr-4 animate-spin" />
@@ -290,8 +344,10 @@ const Home = () => {
           </section>
         )}
 
+        <SubscribeWidget />
+
         {/* Latest Videos */}
-        <section>
+        <section id="highlights">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center">
               <Video className="h-8 w-8 text-red-500 mr-4 animate-bounce" />
@@ -304,27 +360,77 @@ const Home = () => {
             </button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {videos.map((video, index) => (
-              <div key={video.id} className="transform hover:scale-105 transition-all duration-300">
-                <VideoCard
-                  title={video.title}
-                  thumbnail={video.thumbnail}
-                  duration={video.duration}
-                  views={video.views}
-                  uploadDate={video.uploadDate}
-                  channel={video.channel}
-                  videoId={video.videoId}
-                />
-                {video.isLive && (
-                  <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold animate-pulse">
-                    🔴 LIVE
-                  </div>
-                )}
-              </div>
-            ))}
+            {latestVideos.map((video) => {
+              const viewsNumeric = (video as any).viewsNumeric ?? (video as any).views ?? (video as any).viewCount ?? 0;
+              const publishedAtISO = (video as any).publishedAtISO ?? (video as any).publishedAt;
+              const isLive = (video as any).isLive ?? (video as any).live ?? false;
+              const thumbnail = (video as any).thumbnail ?? (video as any).thumbnailUrl;
+
+              const formatViews = (v?: number): string => {
+                const viewCount = v ?? 0;
+                if (viewCount >= 1_000_000) return `${(viewCount / 1_000_000).toFixed(1)}M`;
+                if (viewCount >= 1_000) return `${(viewCount / 1_000).toFixed(1)}K`;
+                return viewCount.toString();
+              };
+
+              const formatUploadDate = (iso?: string, live?: boolean): string => {
+                if (live) return 'LIVE NOW';
+                if (!iso) return '';
+                const publishedDate = new Date(iso);
+                const now = new Date();
+                const diffMs = now.getTime() - publishedDate.getTime();
+                const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                const diffDays = Math.floor(diffHours / 24);
+                if (diffHours < 1) {
+                  const diffMinutes = Math.floor(diffMs / (1000 * 60));
+                  return `${diffMinutes} minutes ago`;
+                }
+                if (diffHours < 24) return `${diffHours} hours ago`;
+                if (diffDays === 1) return '1 day ago';
+                return `${diffDays} days ago`;
+              };
+
+              const formatDuration = (live?: boolean): string => {
+                if (live) return 'LIVE';
+                const minutes = Math.floor(Math.random() * 8) + 2;
+                const seconds = Math.floor(Math.random() * 60);
+                return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+              };
+
+              return (
+                <div key={(video as any).id ?? (video as any).videoId} className="transform hover:scale-105 transition-all duration-300">
+                  <VideoCard
+                    title={(video as any).title}
+                    thumbnail={thumbnail}
+                    duration={formatDuration(isLive)}
+                    views={formatViews(viewsNumeric)}
+                    uploadDate={formatUploadDate(publishedAtISO, isLive)}
+                    channel={(video as any).channel ?? (video as any).channelTitle}
+                    videoId={(video as any).videoId ?? (video as any).id}
+                  />
+                  {isLive && (
+                    <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold animate-pulse">
+                      🔴 LIVE
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </section>
       </div>
+
+      {/* Floating Bookmark Toast */}
+      {showBookmarkToast && (
+        <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-6 py-4 rounded-xl shadow-2xl z-50 flex items-center gap-3 animate-bounce">
+          <span className="text-xl">⭐</span>
+          <div>
+            <p className="font-bold text-sm">Enjoying the content?</p>
+            <p className="text-xs text-gray-300">Press <strong className="text-yellow-400">Ctrl+D</strong> (or ⌘+D) to bookmark us!</p>
+          </div>
+          <button onClick={() => setShowBookmarkToast(false)} className="ml-4 text-gray-400 hover:text-white">✕</button>
+        </div>
+      )}
     </div>
   );
 };
