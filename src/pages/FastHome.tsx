@@ -254,7 +254,7 @@ const FastHome = () => {
           <AdSenseSlot slotId="home-middle" />
 
           {/* Countdown Widget */}
-          <div className="w-full max-w-4xl px-4 mt-8">
+          <div className="w-full my-8">
             <NextGameCountdown />
           </div>
 
