@@ -148,37 +148,57 @@ export async function fetchClarkGameLog(): Promise<ClarkGameLog[]> {
     const data = await res.json();
 
     // ESPN gamelog structure: data.seasonTypes[].categories[].events[]
-    const events: any[] = [];
+    // and event details are in data.events[eventId]
+    const events: ClarkGameLog[] = [];
     const seasonTypes: any[] = data?.seasonTypes || [];
+    const labels: string[] = data?.labels || [];
+    
+    const ptsIdx = labels.findIndex((l: string) => l === 'PTS');
+    const astIdx = labels.findIndex((l: string) => l === 'AST');
+    const rebIdx = labels.findIndex((l: string) => l === 'REB');
+    const tpmIdx = labels.findIndex((l: string) => l === '3PT'); // Usually "2-4" format
+
     for (const st of seasonTypes) {
       for (const cat of (st?.categories || [])) {
-        // stat labels
-        const labels: string[] = (cat?.labels || []);
-        const ptsIdx = labels.findIndex((l: string) => l === 'PTS');
-        const astIdx = labels.findIndex((l: string) => l === 'AST');
-        const rebIdx = labels.findIndex((l: string) => l === 'REB');
-        const tpmIdx = labels.findIndex((l: string) => l === '3PM');
-
+        if (cat?.type !== 'event') continue;
         for (const ev of (cat?.events || [])) {
+          const eventId = ev?.eventId;
+          if (!eventId) continue;
+          
+          const eventDetails = data?.events ? data.events[eventId] : null;
+          if (!eventDetails) continue;
+
           const stats: (string | number)[] = ev?.stats || [];
-          const atVs = ev?.atVs === '@' ? '@' : 'vs';
-          const oppAbbr: string = ev?.opponent?.abbreviation || ev?.opponent?.displayName || '?';
-          const dateStr: string = ev?.gameDate ? new Date(ev.gameDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '?';
-          const homeScore: number = Number(ev?.homeTeamScore) || 0;
-          const awayScore: number = Number(ev?.awayTeamScore) || 0;
-          const won: boolean = ev?.result === 'W';
-          const resultScore = ev?.score || `${homeScore}-${awayScore}`;
-          const result = `${ev?.result || '?'} ${resultScore}`;
+          const atVs = eventDetails.atVs === '@' ? '@' : 'vs';
+          const oppAbbr: string = eventDetails.opponent?.abbreviation || eventDetails.opponent?.displayName || '?';
+          
+          let dateStr = '?';
+          if (eventDetails.gameDate) {
+             const d = new Date(eventDetails.gameDate);
+             dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          }
+
+          const won: boolean = eventDetails.gameResult === 'W';
+          const resultStr = `${eventDetails.gameResult || '?'} ${eventDetails.score || ''}`.trim();
+
+          let threePointers = 0;
+          if (tpmIdx >= 0 && stats[tpmIdx]) {
+            // "3PT" is usually like "5-10" where 5 is made
+            const parts = String(stats[tpmIdx]).split('-');
+            if (parts.length > 0) {
+              threePointers = parseInt(parts[0], 10) || 0;
+            }
+          }
 
           events.push({
             date: dateStr,
             opponent: `${atVs} ${oppAbbr}`,
-            result,
+            result: resultStr || 'N/A',
             won,
             points: ptsIdx >= 0 ? Number(stats[ptsIdx]) || 0 : 0,
             assists: astIdx >= 0 ? Number(stats[astIdx]) || 0 : 0,
             rebounds: rebIdx >= 0 ? Number(stats[rebIdx]) || 0 : 0,
-            threePointers: tpmIdx >= 0 ? Number(stats[tpmIdx]) || 0 : 0,
+            threePointers,
           });
         }
       }
