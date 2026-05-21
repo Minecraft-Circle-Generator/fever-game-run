@@ -4,6 +4,7 @@ import { Trophy, Star, TrendingUp, Video, Calendar, MapPin } from 'lucide-react'
 import VideoCard from '../components/VideoCard';
 import { fetchFeverLatestFinalFromESPN, fetchFeverTodayFromESPN } from '../utils/espnProvider';
 import { Helmet } from 'react-helmet-async';
+import ShareRecapButton from '../components/ShareRecapButton';
 import StructuredData from '../components/StructuredData';
 import { t } from '../utils/i18n';
 
@@ -260,9 +261,20 @@ const GameRecap = () => {
                 {data.status}
               </span>
             </div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">
-              {data.title}
-            </h1>
+            <div className="flex items-center justify-center gap-4 mb-2">
+              <h1 className="text-3xl font-bold text-gray-800">
+                {data.title}
+              </h1>
+              <ShareRecapButton 
+                gameInfo={{
+                  opponent: data.away.name === 'Indiana Fever' ? data.home.name : data.away.name,
+                  isHome: data.home.name === 'Indiana Fever',
+                  homeScore: data.home.score,
+                  awayScore: data.away.score,
+                  status: data.status
+                }}
+              />
+            </div>
             <div className="flex items-center justify-center text-gray-600 space-x-4">
               <div className="flex items-center">
                 <Calendar className="h-4 w-4 mr-1" />

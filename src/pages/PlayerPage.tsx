@@ -3,6 +3,7 @@ import { Star, TrendingUp, Award, Target, RefreshCw } from 'lucide-react';
 import BookmarkButton from '../components/BookmarkButton';
 import PlayerStats from '../components/PlayerStats';
 import VideoCard from '../components/VideoCard';
+import ShareRecapButton from '../components/ShareRecapButton';
 import { fetchLatestVideos, LatestVideo } from '../utils/videoProvider';
 import { fetchClarkGameLog, ClarkGameLog } from '../utils/espnProvider';
 
@@ -189,9 +190,12 @@ const PlayerPage = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Season Stats */}
         <section className="mb-12">
-          <div className="flex items-center mb-6">
-            <TrendingUp className="h-6 w-6 text-amber-500 mr-3" />
-            <h2 className="text-2xl font-bold text-gray-800">Season Stats</h2>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center">
+              <TrendingUp className="h-6 w-6 text-amber-500 mr-3" />
+              <h2 className="text-2xl font-bold text-gray-800">Season Stats</h2>
+            </div>
+            <ShareRecapButton />
           </div>
           <PlayerStats />
         </section>
