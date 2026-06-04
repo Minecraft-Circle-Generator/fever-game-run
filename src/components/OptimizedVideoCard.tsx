@@ -30,10 +30,11 @@ const OptimizedVideoCard: React.FC<OptimizedVideoCardProps> = memo(({
   viewsNumeric
 }) => {
   const isMobile = useIsMobile();
+  const [isPlaying, setIsPlaying] = React.useState(false);
 
   const handleVideoClick = () => {
     if (videoId) {
-      window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank');
+      setIsPlaying(true);
     }
   };
 
@@ -127,38 +128,53 @@ const OptimizedVideoCard: React.FC<OptimizedVideoCardProps> = memo(({
 
   return (
     <div 
-      className={`bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer transition-transform duration-200 ${
+      className={`bg-white rounded-xl shadow-lg overflow-hidden transition-transform duration-200 ${
         !isMobile ? 'hover:scale-105 hover:shadow-xl' : ''
       }`}
-      onClick={handleVideoClick}
     >
-      <div className="relative">
-        <LazyImage
-          src={thumbnail}
-          alt={title}
-          className="w-full h-48 object-cover"
-          sources={thumbCandidates}
-        />
-        
-        {/* 播放按钮 */}
-        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 opacity-0 hover:opacity-100 transition-opacity duration-200">
-          <Play className="h-12 w-12 text-white" fill="white" />
-        </div>
-        
-        {/* 时长标签 */}
-        <div className="absolute bottom-2 right-2 bg-black bg-opacity-75 text-white px-2 py-1 rounded text-sm font-semibold">
-          {isLive ? (
-            <span className="text-red-400 font-bold">🔴 LIVE</span>
-          ) : (
-            <span className="flex items-center">
-              <Clock className="h-3 w-3 mr-1" />
-              {duration}
-            </span>
-          )}
-        </div>
+      <div className="relative cursor-pointer" onClick={handleVideoClick}>
+        {isPlaying && videoId ? (
+          <div className="w-full h-48 bg-black">
+            <iframe
+              width="100%"
+              height="100%"
+              src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
+              title={title}
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
+          </div>
+        ) : (
+          <>
+            <LazyImage
+              src={thumbnail}
+              alt={title}
+              className="w-full h-48 object-cover"
+              sources={thumbCandidates}
+            />
+            
+            {/* 播放按钮 */}
+            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 opacity-0 hover:opacity-100 transition-opacity duration-200">
+              <Play className="h-12 w-12 text-white" fill="white" />
+            </div>
+            
+            {/* 时长标签 */}
+            <div className="absolute bottom-2 right-2 bg-black bg-opacity-75 text-white px-2 py-1 rounded text-sm font-semibold">
+              {isLive ? (
+                <span className="text-red-400 font-bold">🔴 LIVE</span>
+              ) : (
+                <span className="flex items-center">
+                  <Clock className="h-3 w-3 mr-1" />
+                  {duration}
+                </span>
+              )}
+            </div>
+          </>
+        )}
       </div>
       
-      <div className="p-4">
+      <div className="p-4" onClick={() => !isPlaying && handleVideoClick()}>
         <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 text-sm leading-tight">
           {title}
         </h3>
