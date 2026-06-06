@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Clock, MapPin, Flame, Zap, Calendar, Play, ExternalLink, TrendingUp } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Clock, MapPin, Flame, Zap, Calendar, Play, ExternalLink, TrendingUp, List } from 'lucide-react';
 import { GameData } from '../../hooks/useRealTimeData';
 
 interface InteractiveGameCardProps {
@@ -41,6 +42,7 @@ const InteractiveGameCard: React.FC<InteractiveGameCardProps> = ({
   const [showActions, setShowActions] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   // 处理卡片点击高亮效果
   useEffect(() => {
@@ -241,17 +243,30 @@ const InteractiveGameCard: React.FC<InteractiveGameCardProps> = ({
               )}
               
               {status === 'upcoming' && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleAddToCalendar();
-                  }}
-                  className="flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold text-sm transition-colors"
-                  aria-label="Add game to calendar"
-                >
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Add to Calendar
-                </button>
+                <>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAddToCalendar();
+                    }}
+                    className="flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold text-sm transition-colors"
+                    aria-label="Add game to calendar"
+                  >
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Calendar
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate('/schedule');
+                    }}
+                    className="flex items-center justify-center bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold text-sm transition-colors"
+                    aria-label="View Full Schedule"
+                  >
+                    <List className="h-4 w-4 mr-2" />
+                    Full Schedule
+                  </button>
+                </>
               )}
               
               {status === 'finished' && (

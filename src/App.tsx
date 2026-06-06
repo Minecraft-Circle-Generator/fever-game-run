@@ -17,6 +17,7 @@ const News = lazy(() => import('./pages/News'));
 const NewsArticle = lazy(() => import('./pages/NewsArticle'));
 const About = lazy(() => import('./pages/About'));
 const Contact = lazy(() => import('./pages/Contact'));
+const SchedulePage = lazy(() => import('./pages/SchedulePage'));
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
                 <Route path="/" element={<FastHome />} />
                 <Route path="/player/caitlin-clark" element={<PlayerPage />} />
                 <Route path="/videos" element={<VideosPage />} />
+                <Route path="/schedule" element={<SchedulePage />} />
                 <Route path="/recap/:gameId" element={<GameRecap />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
                 <Route path="/terms" element={<TermsOfService />} />

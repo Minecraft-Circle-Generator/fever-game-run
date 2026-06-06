@@ -88,6 +88,17 @@ const Navigation = () => {
               <span>🎬 VIDEOS</span>
             </Link>
             <Link 
+              to="/schedule" 
+              className={`flex items-center space-x-2 px-6 py-3 rounded-full text-lg font-black transition-all duration-300 transform hover:scale-105 ${
+                isActive('/schedule') 
+                  ? 'bg-yellow-300 text-red-600 shadow-xl' 
+                  : 'hover:bg-white hover:bg-opacity-20 hover:shadow-lg'
+              }`}
+            >
+              <span className="text-xl">📅</span>
+              <span>SCHEDULE</span>
+            </Link>
+            <Link 
               to="/news" 
               className={`flex items-center space-x-2 px-6 py-3 rounded-full text-lg font-black transition-all duration-300 transform hover:scale-105 ${
                 isActive('/news') 

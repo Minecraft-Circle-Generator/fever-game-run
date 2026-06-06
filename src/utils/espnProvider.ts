@@ -253,3 +253,91 @@ export async function fetchNextFeverGame(): Promise<NextGameInfo | null> {
     return null;
   }
 }
+
+export interface ScheduleGame {
+  id: string;
+  date: string;
+  opponent: string;
+  oppLogo: string;
+  isHome: boolean;
+  venue: string;
+  ticketsUrl?: string;
+  broadcasts: string[];
+}
+
+export async function fetchFullFeverSchedule(): Promise<ScheduleGame[]> {
+  try {
+    const url = 'https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/teams/5/schedule';
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Failed to fetch full schedule');
+    const data = await res.json();
+    
+    if (!data.events) return [];
+    
+    const now = new Date();
+    // Get all events in the future
+    const upcomingEvents = data.events.filter((e: any) => new Date(e.date) > now);
+    
+    return upcomingEvents.map((event: any) => {
+      const comp = event.competitions?.[0];
+      if (!comp) return null;
+      
+      const fever = comp.competitors.find((c: any) => c.team.id === "5");
+      const opp = comp.competitors.find((c: any) => c.team.id !== "5");
+      
+      if (!fever || !opp) return null;
+      
+      const broadcasts = comp.broadcasts?.map((b: any) => b.media?.shortName || b.names?.[0]).filter(Boolean) || [];
+      const ticketsUrl = comp.tickets?.[0]?.summary || comp.tickets?.[0]?.summary; // Sometimes link is in summary or link
+
+      return {
+        id: event.id,
+        date: event.date,
+        opponent: opp.team.displayName || opp.team.abbreviation,
+        oppLogo: opp.team.logos?.[0]?.href || '',
+        isHome: fever.homeAway === 'home',
+        venue: comp.venue?.fullName || 'TBD',
+        ticketsUrl: comp.tickets?.[0]?.summary ? comp.tickets[0].summary : undefined, // ESPN tickets structure varies
+        broadcasts
+      };
+    }).filter(Boolean) as ScheduleGame[];
+  } catch (e) {
+    console.error('[ESPN] fetchFullFeverSchedule error', e);
+    return [];
+  }
+}
+
+export interface WnbaNewsItem {
+  id: string;
+  title: string;
+  description: string;
+  published: string;
+  imageUrl?: string;
+  link: string;
+}
+
+export async function fetchWnbaNews(): Promise<WnbaNewsItem[]> {
+  try {
+    const url = 'https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/news';
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Failed to fetch WNBA news');
+    const data = await res.json();
+    
+    if (!data.articles) return [];
+    
+    return data.articles.map((article: any) => {
+      const image = article.images?.[0];
+      return {
+        id: article.dataSourceIdentifier || String(Math.random()),
+        title: article.headline,
+        description: article.description,
+        published: article.published,
+        imageUrl: image?.url,
+        link: article.links?.web?.href || article.links?.mobile?.href
+      };
+    });
+  } catch (e) {
+    console.error('[ESPN] fetchWnbaNews error', e);
+    return [];
+  }
+}
