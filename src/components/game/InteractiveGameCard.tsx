@@ -92,13 +92,31 @@ const InteractiveGameCard: React.FC<InteractiveGameCardProps> = ({
     if (onAddToCalendar) {
       onAddToCalendar();
     } else {
-      // 默认行为：生成Google Calendar链接
       const startDate = new Date(`${date} ${time}`);
       const endDate = new Date(startDate.getTime() + 3 * 60 * 60 * 1000);
       
-      const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(`${awayTeam} vs ${homeTeam}`)}&dates=${startDate.toISOString().replace(/[-:]/g, '').split('.')[0]}Z/${endDate.toISOString().replace(/[-:]/g, '').split('.')[0]}Z&details=${encodeURIComponent(`WNBA Game: ${awayTeam} vs ${homeTeam} at ${venue}`)}&location=${encodeURIComponent(venue)}`;
-      
-      window.open(calendarUrl, '_blank');
+      const formatDate = (d: Date) => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+      const icsContent = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'BEGIN:VEVENT',
+        `DTSTART:${formatDate(startDate)}`,
+        `DTEND:${formatDate(endDate)}`,
+        `SUMMARY:WNBA: ${awayTeam} vs ${homeTeam}`,
+        `DESCRIPTION:WNBA Game: ${awayTeam} vs ${homeTeam} at ${venue}`,
+        `LOCATION:${venue}`,
+        'END:VEVENT',
+        'END:VCALENDAR'
+      ].join('\n');
+
+      const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Fever_Game_vs_${homeTeam === 'Fever' ? awayTeam : homeTeam}.ics`.replace(/\s+/g, '_'));
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
   };
 

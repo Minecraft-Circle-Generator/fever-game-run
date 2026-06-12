@@ -44,13 +44,31 @@ const GameActions: React.FC<GameActionsProps> = ({ game }) => {
   };
 
   const handleAddToCalendar = () => {
-    // 生成日历事件
     const startDate = new Date(`${game.date} ${game.time}`);
     const endDate = new Date(startDate.getTime() + 3 * 60 * 60 * 1000); // 3小时后
     
-    const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(`${game.awayTeam} vs ${game.homeTeam}`)}&dates=${startDate.toISOString().replace(/[-:]/g, '').split('.')[0]}Z/${endDate.toISOString().replace(/[-:]/g, '').split('.')[0]}Z&details=${encodeURIComponent(`WNBA Game: ${game.awayTeam} vs ${game.homeTeam} at ${game.venue}`)}&location=${encodeURIComponent(game.venue)}`;
-    
-    window.open(calendarUrl, '_blank');
+    const formatDate = (d: Date) => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    const icsContent = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'BEGIN:VEVENT',
+      `DTSTART:${formatDate(startDate)}`,
+      `DTEND:${formatDate(endDate)}`,
+      `SUMMARY:WNBA: ${game.awayTeam} vs ${game.homeTeam}`,
+      `DESCRIPTION:WNBA Game: ${game.awayTeam} vs ${game.homeTeam} at ${game.venue}`,
+      `LOCATION:${game.venue}`,
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ].join('\n');
+
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `Fever_Game_vs_${game.homeTeam === 'Fever' ? game.awayTeam : game.homeTeam}.ics`.replace(/\s+/g, '_'));
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const buttonClass = "flex items-center justify-center text-white px-3 py-2 rounded-lg font-semibold text-xs sm:text-sm transition-colors min-h-[44px] flex-1 min-w-[120px]";

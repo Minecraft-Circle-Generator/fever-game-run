@@ -288,7 +288,7 @@ export async function fetchFullFeverSchedule(): Promise<ScheduleGame[]> {
       if (!fever || !opp) return null;
       
       const broadcasts = comp.broadcasts?.map((b: any) => b.media?.shortName || b.names?.[0]).filter(Boolean) || [];
-      const ticketsUrl = comp.tickets?.[0]?.summary || comp.tickets?.[0]?.summary; // Sometimes link is in summary or link
+      const ticketsUrl = comp.tickets?.[0]?.links?.[0]?.href || undefined;
 
       return {
         id: event.id,
@@ -297,7 +297,7 @@ export async function fetchFullFeverSchedule(): Promise<ScheduleGame[]> {
         oppLogo: opp.team.logos?.[0]?.href || '',
         isHome: fever.homeAway === 'home',
         venue: comp.venue?.fullName || 'TBD',
-        ticketsUrl: comp.tickets?.[0]?.summary ? comp.tickets[0].summary : undefined, // ESPN tickets structure varies
+        ticketsUrl: ticketsUrl,
         broadcasts
       };
     }).filter(Boolean) as ScheduleGame[];

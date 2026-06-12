@@ -21,8 +21,8 @@ export default function SchedulePage() {
   const formatGameDate = (dateString: string) => {
     const d = new Date(dateString);
     return {
-      date: d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }),
-      time: d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }),
+      date: d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'America/New_York' }),
+      time: d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short', timeZone: 'America/New_York' }),
     };
   };
 
@@ -30,9 +30,28 @@ export default function SchedulePage() {
     const startDate = new Date(game.date);
     const endDate = new Date(startDate.getTime() + 3 * 60 * 60 * 1000);
     
-    const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(`Indiana Fever vs ${game.opponent}`)}&dates=${startDate.toISOString().replace(/[-:]/g, '').split('.')[0]}Z/${endDate.toISOString().replace(/[-:]/g, '').split('.')[0]}Z&details=${encodeURIComponent(`WNBA Game: Indiana Fever vs ${game.opponent} at ${game.venue}`)}&location=${encodeURIComponent(game.venue)}`;
-    
-    window.open(calendarUrl, '_blank');
+    const formatDate = (d: Date) => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    const icsContent = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'BEGIN:VEVENT',
+      `DTSTART:${formatDate(startDate)}`,
+      `DTEND:${formatDate(endDate)}`,
+      `SUMMARY:Indiana Fever vs ${game.opponent}`,
+      `DESCRIPTION:WNBA Game: Indiana Fever vs ${game.opponent} at ${game.venue}`,
+      `LOCATION:${game.venue}`,
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ].join('\n');
+
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `Fever_Game_vs_${game.opponent.replace(/\s+/g, '_')}.ics`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
