@@ -59,8 +59,8 @@ export default function NextGameCountdown() {
   }
 
   const dateObj = new Date(game.date);
-  const formattedDate = dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'America/New_York' });
-  const formattedTime = dateObj.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short', timeZone: 'America/New_York' });
+  const formattedDate = dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  const formattedTime = dateObj.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
 
   return (
     <div className="bg-gradient-to-br from-[#041E42] via-[#0E2D5B] to-[#C8102E] rounded-2xl shadow-xl overflow-hidden relative group">

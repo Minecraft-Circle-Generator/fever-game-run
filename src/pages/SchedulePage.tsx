@@ -21,8 +21,8 @@ export default function SchedulePage() {
   const formatGameDate = (dateString: string) => {
     const d = new Date(dateString);
     return {
-      date: d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'America/New_York' }),
-      time: d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short', timeZone: 'America/New_York' }),
+      date: d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }),
+      time: d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }),
     };
   };
 
