@@ -3,19 +3,37 @@ import { Mail, CheckCircle2 } from 'lucide-react';
 
 const SubscribeWidget = () => {
   const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [subscribed, setSubscribed] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email) {
-      // Here you would normally send the email to your backend or newsletter service
-      setSubscribed(true);
-      setEmail('');
+    if (email && !isSubmitting) {
+      setIsSubmitting(true);
       
-      // Reset after 5 seconds
-      setTimeout(() => {
-        setSubscribed(false);
-      }, 5000);
+      const formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSc4f6s9OaxtLtWa95KKYlYu8VnUsinSqpeKOlguLsKr4upLBA/formResponse';
+      const formData = new FormData();
+      formData.append('entry.107266371', email);
+
+      try {
+        await fetch(formUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          body: formData
+        });
+        
+        setSubscribed(true);
+        setEmail('');
+        
+        // Reset after 5 seconds
+        setTimeout(() => {
+          setSubscribed(false);
+        }, 5000);
+      } catch (error) {
+        console.error('Subscription error:', error);
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -56,9 +74,10 @@ const SubscribeWidget = () => {
             </div>
             <button 
               type="submit" 
-              className="bg-yellow-400 text-gray-900 px-8 py-4 rounded-full font-black text-lg hover:bg-yellow-300 hover:shadow-lg hover:scale-105 transition-all whitespace-nowrap shadow-md"
+              disabled={isSubmitting}
+              className={`bg-yellow-400 text-gray-900 px-8 py-4 rounded-full font-black text-lg hover:bg-yellow-300 hover:shadow-lg hover:scale-105 transition-all whitespace-nowrap shadow-md ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
             >
-              SUBSCRIBE 🔥
+              {isSubmitting ? 'SUBSCRIBING...' : 'SUBSCRIBE 🔥'}
             </button>
           </form>
         )}
