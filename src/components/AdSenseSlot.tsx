@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 interface AdSenseSlotProps {
   className?: string;
@@ -7,16 +7,24 @@ interface AdSenseSlotProps {
 
 const AdSenseSlot: React.FC<AdSenseSlotProps> = ({ className = '', slotId = 'auto' }) => {
   const isDev = import.meta.env.DEV;
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!isDev) {
-      try {
-        if ((window as any).adsbygoogle) {
-          (window as any).adsbygoogle.push({});
-        }
-      } catch (e) {
-        console.log('AdSense error:', e);
-      }
+    if (!isDev && containerRef.current) {
+      // 确保不会重复加载
+      if (containerRef.current.innerHTML !== '') return;
+      
+      const containerDiv = document.createElement('div');
+      containerDiv.id = 'container-247c4fee71f83bc7365fec29c49eddbf';
+      containerRef.current.appendChild(containerDiv);
+
+      const script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.async = true;
+      script.dataset.cfasync = 'false';
+      script.src = 'https://pl29710316.effectivecpmnetwork.com/247c4fee71f83bc7365fec29c49eddbf/invoke.js';
+      
+      containerRef.current.appendChild(script);
     }
   }, [isDev]);
 
@@ -30,13 +38,7 @@ const AdSenseSlot: React.FC<AdSenseSlotProps> = ({ className = '', slotId = 'aut
   }
 
   return (
-    <div className={`my-8 text-center min-h-[100px] flex justify-center ${className}`}>
-      <ins className="adsbygoogle"
-           style={{display: 'block', width: '100%'}}
-           data-ad-client="ca-pub-1766207958063879"
-           data-ad-slot={slotId}
-           data-ad-format="auto"
-           data-full-width-responsive="true"></ins>
+    <div className={`my-8 text-center min-h-[100px] flex justify-center overflow-hidden ${className}`} ref={containerRef}>
     </div>
   );
 };
