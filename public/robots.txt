@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://fever-game.run/sitemap.xml
+Sitemap: https://fevergame.space/sitemap.xml
