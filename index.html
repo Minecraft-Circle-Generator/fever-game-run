@@ -150,9 +150,25 @@
       ]
     }
     </script>
-    <!-- Ad Scripts -->
-    <script data-cfasync="false" async type="text/javascript" src="//mi.zoileanandean.com/sm9kGKZtKm69i/143423"></script>
-    <script data-cfasync="false" async type="text/javascript" src="//cskscenery.com/g1qIwLgEHK5l3yiw/144793"></script>
+    <!-- Deferred Ad Scripts -->
+    <script>
+      // 延迟 3.5 秒加载弹窗广告，确保核心指标 LCP/INP 不受影响
+      setTimeout(function() {
+        var s1 = document.createElement('script');
+        s1.dataset.cfasync = "false";
+        s1.async = true;
+        s1.type = "text/javascript";
+        s1.src = "//mi.zoileanandean.com/sm9kGKZtKm69i/143423";
+        document.head.appendChild(s1);
+
+        var s2 = document.createElement('script');
+        s2.dataset.cfasync = "false";
+        s2.async = true;
+        s2.type = "text/javascript";
+        s2.src = "//cskscenery.com/g1qIwLgEHK5l3yiw/144793";
+        document.head.appendChild(s2);
+      }, 3500);
+    </script>
   </head>
   <script>
     // 捕获 PWA 安装事件，供 Bookmark 按钮使用

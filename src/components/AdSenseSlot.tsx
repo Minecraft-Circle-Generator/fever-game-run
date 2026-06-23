@@ -11,20 +11,36 @@ const AdSenseSlot: React.FC<AdSenseSlotProps> = ({ className = '', slotId = 'aut
 
   useEffect(() => {
     if (!isDev && containerRef.current) {
-      // 确保不会重复加载
-      if (containerRef.current.innerHTML !== '') return;
-      
-      const containerDiv = document.createElement('div');
-      containerDiv.id = 'container-247c4fee71f83bc7365fec29c49eddbf';
-      containerRef.current.appendChild(containerDiv);
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting) {
+            // 确保不会重复加载
+            if (containerRef.current && containerRef.current.innerHTML === '') {
+              const containerDiv = document.createElement('div');
+              containerDiv.id = 'container-247c4fee71f83bc7365fec29c49eddbf';
+              containerRef.current.appendChild(containerDiv);
 
-      const script = document.createElement('script');
-      script.type = 'text/javascript';
-      script.async = true;
-      script.dataset.cfasync = 'false';
-      script.src = 'https://pl29710316.effectivecpmnetwork.com/247c4fee71f83bc7365fec29c49eddbf/invoke.js';
-      
-      containerRef.current.appendChild(script);
+              const script = document.createElement('script');
+              script.type = 'text/javascript';
+              script.async = true;
+              script.dataset.cfasync = 'false';
+              script.src = 'https://pl29710316.effectivecpmnetwork.com/247c4fee71f83bc7365fec29c49eddbf/invoke.js';
+              
+              containerRef.current.appendChild(script);
+            }
+            if (containerRef.current) {
+              observer.unobserve(containerRef.current);
+            }
+          }
+        },
+        { rootMargin: '200px' } // 提前 200px 加载
+      );
+
+      observer.observe(containerRef.current);
+
+      return () => {
+        observer.disconnect();
+      };
     }
   }, [isDev]);
 
