@@ -43,20 +43,20 @@ const BookmarkButton: React.FC<Props> = ({ label = 'Bookmark', className = '', m
 
     // 默认英文文案，支持被 props.messages 覆盖为你的 i18n
     const msgs: Required<Messages> = {
-      iosAddToHome: messages?.iosAddToHome ?? 'Tap Share in Safari, then "Add to Home Screen".',
-      pressKeysMac: messages?.pressKeysMac ?? 'Press Cmd + D to bookmark.',
-      pressKeysWin: messages?.pressKeysWin ?? 'Press Ctrl + D to bookmark.',
-      copied: messages?.copied ?? 'Link copied.',
+      iosAddToHome: messages?.iosAddToHome ?? 'Tap Share, then "Add to Home Screen" to save fevergame.space.',
+      pressKeysMac: messages?.pressKeysMac ?? 'Press Cmd + D to bookmark fevergame.space.',
+      pressKeysWin: messages?.pressKeysWin ?? 'Press Ctrl + D to bookmark fevergame.space.',
+      copied: messages?.copied ?? 'Link to fevergame.space copied.',
     };
 
     // 0) 旧版浏览器原生收藏接口（若存在则真正加入书签）
     try {
       if (window.external && typeof (window.external as any).AddFavorite === 'function') {
-        (window.external as any).AddFavorite(window.location.href, document.title || 'Fever Game Today');
+        (window.external as any).AddFavorite('https://fevergame.space', document.title || 'Fever Game Today');
         return;
       }
       if (window.sidebar && typeof (window.sidebar as any).addPanel === 'function') {
-        (window.sidebar as any).addPanel(document.title || 'Fever Game Today', window.location.href, '');
+        (window.sidebar as any).addPanel(document.title || 'Fever Game Today', 'https://fevergame.space', '');
         return;
       }
     } catch {}
@@ -81,7 +81,7 @@ const BookmarkButton: React.FC<Props> = ({ label = 'Bookmark', className = '', m
 
     // 3) 现代桌面浏览器：复制链接 + 快捷键提示（无法直接写入书签栏）
     try {
-      await navigator.clipboard.writeText(window.location.href);
+      await navigator.clipboard.writeText('https://fevergame.space');
       toast(`${msgs.copied} ${isMac ? msgs.pressKeysMac : msgs.pressKeysWin}`);
     } catch {
       toast(isMac ? msgs.pressKeysMac : msgs.pressKeysWin);
