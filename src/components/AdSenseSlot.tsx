@@ -17,14 +17,14 @@ const AdSenseSlot: React.FC<AdSenseSlotProps> = ({ className = '', slotId = 'aut
             // 确保不会重复加载
             if (containerRef.current && containerRef.current.innerHTML === '') {
               const containerDiv = document.createElement('div');
-              containerDiv.id = 'container-247c4fee71f83bc7365fec29c49eddbf';
+              containerDiv.id = 'container-639a4c936d7c38df8d03c63b78071559';
               containerRef.current.appendChild(containerDiv);
 
               const script = document.createElement('script');
               script.type = 'text/javascript';
               script.async = true;
               script.dataset.cfasync = 'false';
-              script.src = 'https://pl29710316.effectivecpmnetwork.com/247c4fee71f83bc7365fec29c49eddbf/invoke.js';
+              script.src = 'https://pl29871294.effectivecpmnetwork.com/639a4c936d7c38df8d03c63b78071559/invoke.js';
               
               containerRef.current.appendChild(script);
             }
