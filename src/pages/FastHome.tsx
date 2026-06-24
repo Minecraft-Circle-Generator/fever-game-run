@@ -1,5 +1,6 @@
 import React, { Suspense, lazy, useMemo, useEffect, useState } from 'react';
 import { Star, Video, Flame, Zap, Trophy, Target, RefreshCw } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useRealTimeData } from '../hooks/useRealTimeData';
 import { useIsMobile, useReducedMotion } from '../hooks/useMediaQuery';
 import LazyImage from '../components/LazyImage';
@@ -227,8 +228,8 @@ const FastHome = () => {
               </Suspense>
               
               {/* 比赛预览卡片 */}
-              <button 
-                onClick={() => document.getElementById('player-stats')?.scrollIntoView({ behavior: 'smooth' })}
+              <Link 
+                to={todayGame ? `/recap/${todayGame.id}` : '/schedule'}
                 className="bg-white rounded-xl shadow-lg p-4 md:p-6 border-2 border-orange-300 text-left w-full cursor-pointer hover:bg-orange-50 hover:scale-[1.02] hover:shadow-xl transition-all block"
               >
                 <div className="flex items-center mb-4">
@@ -239,15 +240,15 @@ const FastHome = () => {
                 </div>
                 <p className="text-gray-700 mb-4 text-sm md:text-base leading-relaxed">
                   {todayGame?.status === 'live' 
-                    ? '🔴 LIVE ACTION! Caitlin Clark is dominating the court right now!' 
-                    : '🔥 Get ready for an epic showdown! The Indiana Fever are about to unleash Caitlin Clark!'
+                    ? '🔴 LIVE ACTION! Track stats, highlights and play-by-play right here!' 
+                    : '🔥 Get ready for an epic showdown! Click to view full game preview, stats & details!'
                   }
                 </p>
                 <div className="flex items-center text-sm md:text-base font-semibold text-red-600 bg-red-50 rounded-lg p-3 hover:bg-red-100 transition-colors">
                   <Target className={`h-4 w-4 md:h-5 md:w-5 mr-2 text-orange-500 ${getAnimationClass('animate-spin')}`} />
-                  <span>🎯 KEY BATTLE: CLARK vs PLUM!</span>
+                  <span>🎯 CLICK FOR FULL COVERAGE & STATS!</span>
                 </div>
-              </button>
+              </Link>
             </div>
           </section>
 
