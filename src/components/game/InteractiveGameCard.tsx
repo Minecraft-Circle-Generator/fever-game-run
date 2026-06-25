@@ -327,19 +327,17 @@ const InteractiveGameCard: React.FC<InteractiveGameCardProps> = ({
                 </>
               )}
               
-              {platform && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleWatchLive();
-                  }}
-                  className="flex items-center justify-center bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold text-sm transition-colors"
-                  aria-label={`Watch on ${platform}`}
-                >
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  {platform}
-                </button>
-              )}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open('https://www.amazon.com/gp/video/offers?tag=fevergame01-20', '_blank');
+                }}
+                className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold text-sm transition-colors"
+                aria-label="Prime Video Sports"
+              >
+                <ExternalLink className="h-4 w-4 mr-2" />
+                Prime Video Sports
+              </button>
             </div>
           </div>
         )}

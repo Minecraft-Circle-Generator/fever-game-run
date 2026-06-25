@@ -111,23 +111,24 @@ export const useRealTimeData = () => {
     }
 
     // 回退到原有本地模拟
-    const currentHour = new Date().getHours();
-    const isGameTime = currentHour >= 19 && currentHour <= 22; // 7PM-10PM
-
+    // 回退到原有本地模拟: Set to a future date to avoid contradiction with actual real-time data
+    const futureDate = new Date();
+    futureDate.setDate(futureDate.getDate() + 2); // 模拟下一场在两天后
+    
     return mockApiCall({
       id: 'today-game',
       homeTeam: 'Indiana Fever',
       awayTeam: 'Las Vegas Aces',
-      homeScore: isGameTime ? Math.floor(Math.random() * 20) + 70 : undefined,
-      awayScore: isGameTime ? Math.floor(Math.random() * 20) + 65 : undefined,
-      date: new Date().toLocaleDateString('en-US', {
+      homeScore: undefined,
+      awayScore: undefined,
+      date: futureDate.toLocaleDateString('en-US', {
         month: 'long',
         day: 'numeric',
         year: 'numeric'
       }),
       time: '7:00 PM EST',
       venue: 'Gainbridge Fieldhouse',
-      status: isGameTime ? 'live' : 'upcoming',
+      status: 'upcoming',
       platform: 'ESPN'
     });
   };
