@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { fetchLatestVideos, LatestVideo } from '../utils/videoProvider';
-import { fetchFeverTodayFromESPN, fetchFeverLatestFinalFromESPN } from '../utils/espnProvider';
+import { fetchFeverTodayFromESPN, fetchFeverLatestFinalFromESPN, fetchNextFeverGame } from '../utils/espnProvider';
 
 export interface GameData {
   id: string;
@@ -84,50 +84,57 @@ export const useRealTimeData = () => {
 
     if (espn) {
       const isFinal = espn.status === 'final';
-      const statusMapped: 'upcoming' | 'live' | 'finished' =
-        espn.status === 'live' ? 'live' : isFinal ? 'finished' : 'upcoming';
-
-      const homeTeamName = espn.isFeverHome ? 'Indiana Fever' : espn.opponent;
-      const awayTeamName = espn.isFeverHome ? espn.opponent : 'Indiana Fever';
-
-      const dateStr = new Date(espn.startIso || Date.now()).toLocaleDateString('en-US', {
-        timeZone: 'America/New_York',
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric'
+      const gameDate = new Date(espn.startIso || Date.now());
+      const dateStr = gameDate.toLocaleDateString('en-US', {
+        month: 'long', day: 'numeric', year: 'numeric'
       });
+      const timeStr = gameDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
 
-      return {
-        id: espn.startIso || 'today-game',
-        homeTeam: homeTeamName,
-        awayTeam: awayTeamName,
+      return mockApiCall({
+        id: espn.id || 'today-game',
+        homeTeam: espn.isFeverHome ? 'Indiana Fever' : espn.opponent,
+        awayTeam: espn.isFeverHome ? espn.opponent : 'Indiana Fever',
         homeScore: espn.homeScore,
         awayScore: espn.awayScore,
         date: dateStr,
-        time: `${espn.startTime || '7:00 PM'} ${espn.timezone || 'EST'}`,
+        time: timeStr,
         venue: espn.venue || 'Gainbridge Fieldhouse',
-        status: statusMapped,
+        status: espn.status as 'upcoming' | 'live' | 'finished',
         platform: 'ESPN'
-      };
+      });
     }
 
-    // 回退到原有本地模拟
-    // 回退到原有本地模拟: Set to a future date to avoid contradiction with actual real-time data
+    // 如果今天没比赛，尝试获取真正即将到来的下一场比赛
+    const nextGame = await fetchNextFeverGame().catch(() => null);
+    if (nextGame) {
+      const gameDate = new Date(nextGame.date);
+      const dateStr = gameDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      const timeStr = gameDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
+      return mockApiCall({
+        id: 'upcoming-game',
+        homeTeam: nextGame.isHome ? 'Indiana Fever' : nextGame.opponent,
+        awayTeam: nextGame.isHome ? nextGame.opponent : 'Indiana Fever',
+        homeScore: undefined,
+        awayScore: undefined,
+        date: dateStr,
+        time: timeStr,
+        venue: 'Gainbridge Fieldhouse', // Simplified, actual venue requires more API parsing
+        status: 'upcoming',
+        platform: 'ESPN'
+      });
+    }
+
+    // 回退到原有本地模拟: 应对完全没有数据的情况
     const futureDate = new Date();
     futureDate.setDate(futureDate.getDate() + 2); // 模拟下一场在两天后
-    
     return mockApiCall({
       id: 'today-game',
       homeTeam: 'Indiana Fever',
       awayTeam: 'Las Vegas Aces',
       homeScore: undefined,
       awayScore: undefined,
-      date: futureDate.toLocaleDateString('en-US', {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric'
-      }),
-      time: '7:00 PM EST',
+      date: futureDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      time: futureDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }),
       venue: 'Gainbridge Fieldhouse',
       status: 'upcoming',
       platform: 'ESPN'
@@ -139,24 +146,27 @@ export const useRealTimeData = () => {
     try {
       const latest = await fetchFeverLatestFinalFromESPN();
       if (latest) {
-        const dateStr = new Date(latest.startIso || Date.now()).toLocaleDateString('en-US', {
-          timeZone: 'America/New_York',
+        const gameDate = new Date(latest.startIso || Date.now());
+        const dateStr = gameDate.toLocaleDateString('en-US', {
           month: 'long', day: 'numeric', year: 'numeric'
         });
+        const timeStr = gameDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
+
         const homeTeamName = latest.isFeverHome ? 'Indiana Fever' : latest.opponent;
         const awayTeamName = latest.isFeverHome ? latest.opponent : 'Indiana Fever';
-        return {
+
+        return mockApiCall({
           id: latest.startIso || 'yesterday-game',
           homeTeam: homeTeamName,
           awayTeam: awayTeamName,
           homeScore: latest.homeScore,
           awayScore: latest.awayScore,
           date: dateStr,
-          time: `${latest.startTime || '7:00 PM'} ${latest.timezone || 'EST'}`,
+          time: timeStr,
           venue: latest.venue || 'Gainbridge Fieldhouse',
           status: 'finished',
           platform: 'ESPN'
-        };
+        });
       }
     } catch {}
     // 回退到原有模拟
@@ -169,7 +179,7 @@ export const useRealTimeData = () => {
       homeScore: 89,
       awayScore: 76,
       date: yesterday.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-      time: '7:00 PM EST',
+      time: yesterday.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }),
       venue: 'Gainbridge Fieldhouse',
       status: 'finished'
     });
