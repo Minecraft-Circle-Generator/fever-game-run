@@ -110,6 +110,13 @@ const GameActions: React.FC<GameActionsProps> = ({ game }) => {
             >
               📺 Watch on FuboTV
             </button>
+            <button
+              onClick={() => window.open('https://www.amazon.com/gp/video/offers?tag=fevergame01-20', '_blank')}
+              className={`${buttonClass} bg-blue-600 hover:bg-blue-700 text-white`}
+            >
+              <ExternalLink className="h-4 w-4 mr-2 inline" />
+              Prime Video Sports
+            </button>
           </>
         )}
         
