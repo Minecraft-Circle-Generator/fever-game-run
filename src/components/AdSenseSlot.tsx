@@ -14,15 +14,11 @@ const AdSenseSlot: React.FC<AdSenseSlotProps> = ({ className = '', slotId = 'aut
       const observer = new IntersectionObserver(
         (entries) => {
           if (entries[0].isIntersecting) {
-            // We are deliberately keeping this container empty because the 
-            // EffectiveCPM network scripts (pl29871294, etc.) are deceptive 
-            // click-hijackers. We will wait for Google AdSense or a better 
-            // ad network to populate this space.
             if (containerRef.current && containerRef.current.innerHTML === '') {
-              const containerDiv = document.createElement('div');
-              containerDiv.className = "p-4 text-center text-gray-400 text-sm border border-dashed border-gray-200 rounded";
-              containerDiv.innerText = "Premium Ad Space Available";
-              containerRef.current.appendChild(containerDiv);
+              const script = document.createElement('script');
+              script.src = 'https://pl29886421.effectivecpmnetwork.com/10/a5/52/10a552baba58acb99192864c58e71170.js';
+              script.async = true;
+              containerRef.current.appendChild(script);
             }
             if (containerRef.current) {
               observer.unobserve(containerRef.current);

@@ -47,6 +47,22 @@ const News = () => {
     return () => { mounted = false; };
   }, []);
 
+  // Add the requested etrierduple ad script
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = '//etrierduple.com/g7r2sYkEBReRIo/144793';
+    script.async = true;
+    script.type = 'text/javascript';
+    script.setAttribute('data-cfasync', 'false');
+    document.head.appendChild(script);
+
+    return () => {
+      if (document.head.contains(script)) {
+        document.head.removeChild(script);
+      }
+    };
+  }, []);
+
   const formatDate = (dateString: string) => {
     try {
       return new Date(dateString).toLocaleDateString('en-US', {
