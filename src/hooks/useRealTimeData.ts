@@ -311,11 +311,8 @@ export const useRealTimeData = () => {
   };
 
   // 获取直播状态
-  const fetchLiveStatus = async (): Promise<LiveStatus> => {
-    const currentHour = new Date().getHours();
-    const isLiveTime = currentHour >= 19 && currentHour <= 22;
-    
-    if (isLiveTime) {
+  const getLiveStatus = (game: GameData | null): LiveStatus => {
+    if (game && game.status === 'live') {
       const messages = [
         '🔴 LIVE NOW: FEVER DOMINATING!',
         '🔥 CLARK IS ON FIRE RIGHT NOW!',
@@ -324,29 +321,35 @@ export const useRealTimeData = () => {
         '💥 FEVER UNSTOPPABLE TONIGHT!'
       ];
       
-      return mockApiCall({
+      return {
         isLive: true,
         message: messages[Math.floor(Math.random() * messages.length)],
-        gameId: 'today-game'
-      });
+        gameId: game.id
+      };
     }
     
-    return mockApiCall({
+    if (game && game.status === 'upcoming') {
+      return {
+        isLive: false,
+        message: `🏀 NEXT GAME: ${game.date.toUpperCase()}`
+      };
+    }
+    
+    return {
       isLive: false,
-      message: '🏀 NEXT GAME: TODAY AT 7:00 PM EST!'
-    });
+      message: '🏀 NO GAME SCHEDULED TODAY'
+    };
   };
 
   // 初始数据加载
   const loadInitialData = async () => {
     setLoading(true);
     try {
-      const [todayGameData, yesterdayGameData, playerStatsData, videosData, liveStatusData] = await Promise.all([
+      const [todayGameData, yesterdayGameData, playerStatsData, videosData] = await Promise.all([
         fetchTodayGame(),
         fetchYesterdayGame(),
         fetchPlayerStats(),
-        withTimeout(fetchVideosYT(), 3500, []),
-        fetchLiveStatus()
+        withTimeout(fetchVideosYT(), 3500, [])
       ]);
 
       setTodayGame(todayGameData);
@@ -354,7 +357,7 @@ export const useRealTimeData = () => {
       setPlayerStats(playerStatsData);
       console.info('[VIDEOS] loadInitialData: count=', videosData.length, 'sample=', videosData.slice(0,3).map(v => ({channel: v.channel, thumb: v.thumbnail, iso: v.publishedAtISO, viewsN: v.viewsNumeric})));
       setVideos(sanitizeVideos(videosData));
-      setLiveStatus(liveStatusData);
+      setLiveStatus(getLiveStatus(todayGameData));
       setLastUpdate(new Date());
     } catch (error) {
       console.error('Error loading data:', error);
@@ -366,18 +369,17 @@ export const useRealTimeData = () => {
   // 实时更新数据
   const updateRealTimeData = useCallback(async () => {
     try {
-      const [todayGameData, playerStatsData, videosData, liveStatusData] = await Promise.all([
+      const [todayGameData, playerStatsData, videosData] = await Promise.all([
         fetchTodayGame(),
         fetchPlayerStats(),
-        withTimeout(fetchVideosYT(), 3500, []),
-        fetchLiveStatus()
+        withTimeout(fetchVideosYT(), 3500, [])
       ]);
 
       setTodayGame(todayGameData);
       setPlayerStats(playerStatsData);
       console.info('[VIDEOS] updateRealTimeData: count=', videosData.length, 'sample=', videosData.slice(0,3).map(v => ({channel: v.channel, thumb: v.thumbnail, iso: v.publishedAtISO, viewsN: v.viewsNumeric})));
       setVideos(sanitizeVideos(videosData));
-      setLiveStatus(liveStatusData);
+      setLiveStatus(getLiveStatus(todayGameData));
       setLastUpdate(new Date());
     } catch (error) {
       console.error('Error updating real-time data:', error);
