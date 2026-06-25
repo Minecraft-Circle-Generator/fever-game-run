@@ -91,6 +91,7 @@ export const useRealTimeData = () => {
       const awayTeamName = espn.isFeverHome ? espn.opponent : 'Indiana Fever';
 
       const dateStr = new Date(espn.startIso || Date.now()).toLocaleDateString('en-US', {
+        timeZone: 'America/New_York',
         month: 'long',
         day: 'numeric',
         year: 'numeric'
@@ -139,6 +140,7 @@ export const useRealTimeData = () => {
       const latest = await fetchFeverLatestFinalFromESPN();
       if (latest) {
         const dateStr = new Date(latest.startIso || Date.now()).toLocaleDateString('en-US', {
+          timeZone: 'America/New_York',
           month: 'long', day: 'numeric', year: 'numeric'
         });
         const homeTeamName = latest.isFeverHome ? 'Indiana Fever' : latest.opponent;
