@@ -102,13 +102,7 @@ const GameActions: React.FC<GameActionsProps> = ({ game }) => {
               onClick={() => window.open('https://seatgeek.com/indiana-fever-tickets', '_blank')}
               className={`${buttonClass} bg-yellow-500 hover:bg-yellow-600 text-gray-900 shadow-lg shadow-yellow-500/30 animate-pulse`}
             >
-              🔥 Get Tickets ($20 Off)
-            </button>
-            <button
-              onClick={() => window.open('https://www.fubo.tv/welcome', '_blank')}
-              className={`${buttonClass} bg-gray-800 hover:bg-gray-900 text-white`}
-            >
-              📺 Watch on FuboTV
+              🎟️ Buy Tickets
             </button>
             <button
               onClick={() => window.open('https://www.amazon.com/gp/video/offers?tag=fevergame01-20', '_blank')}

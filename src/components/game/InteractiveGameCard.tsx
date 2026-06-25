@@ -251,17 +251,6 @@ const InteractiveGameCard: React.FC<InteractiveGameCardProps> = ({
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      window.open('https://www.fubo.tv/welcome?irad=356362&irmp=YOUR_AFFILIATE_ID', '_blank');
-                    }}
-                    className="flex items-center justify-center bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors shadow-lg animate-pulse"
-                    aria-label="Watch free on FuboTV"
-                  >
-                    <Play className="h-4 w-4 mr-2" />
-                    Watch Free (FuboTV)
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
                       handleWatchLive();
                     }}
                     className="flex items-center justify-center bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-lg font-semibold text-sm transition-colors"
@@ -280,22 +269,11 @@ const InteractiveGameCard: React.FC<InteractiveGameCardProps> = ({
                       e.stopPropagation();
                       window.open('https://seatgeek.com/indiana-fever-tickets', '_blank');
                     }}
-                    className="flex items-center justify-center bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors shadow-lg shadow-orange-500/30"
-                    aria-label="Get Tickets"
+                    className="flex items-center justify-center bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors shadow-lg shadow-orange-500/30 animate-pulse"
+                    aria-label="Buy Tickets"
                   >
                     <Ticket className="h-4 w-4 mr-1" />
-                    🔥 Get Tickets ($20 Off)
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      window.open('https://www.fubo.tv/welcome?irad=356362&irmp=YOUR_AFFILIATE_ID', '_blank');
-                    }}
-                    className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors shadow-lg shadow-blue-500/30"
-                    aria-label="Watch on FuboTV"
-                  >
-                    <Play className="h-4 w-4 mr-1" />
-                    📺 Watch on FuboTV
+                    🎟️ Buy Tickets
                   </button>
                 </>
               )}
