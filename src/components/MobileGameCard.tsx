@@ -57,11 +57,13 @@ const MobileGameCard: React.FC<MobileGameCardProps> = ({
         <div className="flex items-center justify-between mb-4 gap-3">
           {/* Away Team */}
           <div className="text-center flex-1 min-w-0">
-            <div className="text-sm font-bold text-gray-800 mb-2 leading-tight truncate px-1">
-              {awayTeam.includes('Las Vegas') ? 'Las Vegas Aces' : 
-               awayTeam.includes('Indiana') ? 'Indiana Fever' : awayTeam}
+            <div className="text-xs sm:text-sm font-bold text-gray-800 mb-2 leading-tight px-1 min-h-[2.5rem] flex items-center justify-center">
+              <span className="line-clamp-2 break-words">
+                {awayTeam.includes('Las Vegas') ? 'Las Vegas Aces' : 
+                 awayTeam.includes('Indiana') ? 'Indiana Fever' : awayTeam}
+              </span>
             </div>
-            <div className="text-lg sm:text-xl font-black text-gray-900 bg-gray-100 rounded px-2 py-1">
+            <div className="text-lg sm:text-xl font-black text-gray-900 bg-gray-100 rounded px-2 py-1 inline-block min-w-[3rem]">
               {typeof awayScore === 'number' ? awayScore : '--'}
             </div>
           </div>
@@ -76,11 +78,13 @@ const MobileGameCard: React.FC<MobileGameCardProps> = ({
 
           {/* Home Team */}
           <div className="text-center flex-1 min-w-0">
-            <div className="text-[13px] font-bold text-gray-800 mb-1 leading-snug">
-              {homeTeam.includes('Las Vegas') ? 'Las Vegas Aces' : 
-               homeTeam.includes('Indiana') ? 'Indiana Fever' : homeTeam}
+            <div className="text-xs sm:text-sm font-bold text-gray-800 mb-2 leading-tight px-1 min-h-[2.5rem] flex items-center justify-center">
+              <span className="line-clamp-2 break-words">
+                {homeTeam.includes('Las Vegas') ? 'Las Vegas Aces' : 
+                 homeTeam.includes('Indiana') ? 'Indiana Fever' : homeTeam}
+              </span>
             </div>
-            <div className="text-lg sm:text-xl font-black text-gray-900 bg-gray-100 rounded px-2 py-1">
+            <div className="text-lg sm:text-xl font-black text-gray-900 bg-gray-100 rounded px-2 py-1 inline-block min-w-[3rem]">
               {typeof homeScore === 'number' ? homeScore : '--'}
             </div>
           </div>

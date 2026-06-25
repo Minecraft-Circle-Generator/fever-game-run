@@ -98,12 +98,12 @@ export default function NextGameCountdown() {
         </div>
         
         {/* Right: Countdown */}
-        <div className="flex items-center gap-3 md:gap-4 shrink-0 mt-4 md:mt-0">
+        <div className="flex items-center gap-1 sm:gap-2 md:gap-4 shrink-0 mt-4 md:mt-0">
           <CountdownBox value={timeLeft.d} label="DAYS" />
           <CountdownBox value={timeLeft.h} label="HRS" />
-          <div className="text-white/30 text-2xl font-black -mt-5">:</div>
+          <div className="text-white/30 text-xl md:text-2xl font-black -mt-4 md:-mt-5">:</div>
           <CountdownBox value={timeLeft.m} label="MIN" />
-          <div className="text-white/30 text-2xl font-black -mt-5">:</div>
+          <div className="text-white/30 text-xl md:text-2xl font-black -mt-4 md:-mt-5">:</div>
           <CountdownBox value={timeLeft.s} label="SEC" />
         </div>
         
@@ -115,12 +115,12 @@ export default function NextGameCountdown() {
 function CountdownBox({ value, label }: { value: number, label: string }) {
   return (
     <div className="flex flex-col items-center">
-      <div className="bg-black/30 backdrop-blur-md rounded-xl w-14 h-14 md:w-16 md:h-16 flex items-center justify-center border border-white/10 shadow-inner group-hover:bg-black/40 transition-colors">
-        <span className="text-white font-black text-2xl md:text-3xl font-mono tabular-nums tracking-tighter">
+      <div className="bg-black/30 backdrop-blur-md rounded-xl w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 flex items-center justify-center border border-white/10 shadow-inner group-hover:bg-black/40 transition-colors">
+        <span className="text-white font-black text-xl sm:text-2xl md:text-3xl font-mono tabular-nums tracking-tighter">
           {value.toString().padStart(2, '0')}
         </span>
       </div>
-      <span className="text-white/60 text-[10px] md:text-xs font-bold mt-1.5 tracking-widest">{label}</span>
+      <span className="text-white/60 text-[9px] sm:text-[10px] md:text-xs font-bold mt-1.5 tracking-widest">{label}</span>
     </div>
   );
 }
