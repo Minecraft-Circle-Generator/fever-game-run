@@ -29,6 +29,19 @@ function toStatus(espnStatus?: any): 'upcoming' | 'live' | 'final' {
   return 'upcoming';
 }
 
+function getESTDateString(d: Date): string {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).formatToParts(d);
+  const year = parts.find(p => p.type === 'year')?.value;
+  const month = parts.find(p => p.type === 'month')?.value;
+  const day = parts.find(p => p.type === 'day')?.value;
+  return `${year}${month}${day}`;
+}
+
 async function fetchScoreboardByDate(yyyymmdd: string) {
   const url = `https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/scoreboard?dates=${yyyymmdd}`;
   const res = await fetch(url);
@@ -38,7 +51,7 @@ async function fetchScoreboardByDate(yyyymmdd: string) {
 
 export async function fetchFeverTodayFromESPN(date?: string): Promise<FeverGame | null> {
   try {
-    const yyyymmdd = date || new Date().toISOString().slice(0,10).replace(/-/g,'');
+    const yyyymmdd = date || getESTDateString(new Date());
     const data = await fetchScoreboardByDate(yyyymmdd);
     const events: any[] = data?.events || [];
     for (const ev of events) {
@@ -85,7 +98,7 @@ export async function fetchFeverLatestFinalFromESPN(): Promise<FeverGame | null>
     for (let i = 1; i <= 7; i++) {
       const d = new Date(today);
       d.setDate(today.getDate() - i);
-      const yyyymmdd = d.toISOString().slice(0,10).replace(/-/g,'');
+      const yyyymmdd = getESTDateString(d);
       const data = await fetchScoreboardByDate(yyyymmdd);
       const events: any[] = data?.events || [];
       for (const ev of events) {
