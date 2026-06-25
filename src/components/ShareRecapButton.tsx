@@ -22,7 +22,7 @@ export default function ShareRecapButton({ stats, gameInfo, customText }: ShareR
   const [copied, setCopied] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
-  const siteUrl = 'https://fever-game.vercel.app';
+  const siteUrl = 'https://fevergame.space';
   
   // Generate dynamic share text
   let shareText = customText;

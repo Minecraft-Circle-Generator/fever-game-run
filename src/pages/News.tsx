@@ -64,7 +64,7 @@ const News = () => {
       <Helmet>
         <title>Latest WNBA News | Fever Game Today</title>
         <meta name="description" content="Read the latest news, tactical analysis, and deep dives into Caitlin Clark and the Indiana Fever's performance in the WNBA." />
-        <link rel="canonical" href="https://fever-game.vercel.app/news" />
+        <link rel="canonical" href="https://fevergame.space/news" />
       </Helmet>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

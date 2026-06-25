@@ -13,8 +13,8 @@ const AIOverviewPage: React.FC = () => {
         <meta property="og:title" content="Fever Game Today — Indiana Fever Next Game & AI Analysis" />
         <meta property="og:description" content="Instant next game info for Indiana Fever with live updates and AI analysis. Caitlin Clark stats, schedule, and predictions." />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="http://fever-game.run/ai-overview" />
-        <link rel="canonical" href="http://fever-game.run/ai-overview" />
+        <meta property="og:url" content="https://fevergame.space/ai-overview" />
+        <link rel="canonical" href="https://fevergame.space/ai-overview" />
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
@@ -30,14 +30,14 @@ const AIOverviewPage: React.FC = () => {
               "name": "Fever Game",
               "logo": {
                 "@type": "ImageObject",
-                "url": "http://fever-game.run/logo.png"
+                "url": "https://fevergame.space/logo.png"
               }
             },
             "datePublished": "2025-09-27",
             "dateModified": "2025-09-27",
             "mainEntityOfPage": {
               "@type": "WebPage",
-              "@id": "http://fever-game.run/ai-overview"
+              "@id": "https://fevergame.space/ai-overview"
             }
           })}
         </script>

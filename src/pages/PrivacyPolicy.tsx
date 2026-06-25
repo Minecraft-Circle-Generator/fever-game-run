@@ -37,7 +37,7 @@ const PrivacyPolicy = () => {
               scores, and highlights. <strong>We do not collect any personal information from our users.</strong>
             </p>
             <p className="text-gray-700 leading-relaxed">
-              This privacy policy explains our data practices for <strong>fever-game.run</strong>. 
+              This privacy policy explains our data practices for <strong>fevergame.space</strong>. 
               Since we don't collect personal information, your privacy is fully protected.
             </p>
           </section>
@@ -178,7 +178,7 @@ const PrivacyPolicy = () => {
             </p>
             <div className="bg-gray-50 rounded-lg p-4">
               <p className="text-gray-700">
-                <strong>Website:</strong> fever-game.run<br />
+                <strong>Website:</strong> fevergame.space<br />
                 <strong>Note:</strong> Since we don't collect any data, there are typically no privacy concerns to address.
               </p>
             </div>

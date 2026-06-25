@@ -8,7 +8,7 @@ const About = () => {
       <Helmet>
         <title>About Us | Fever Game Today</title>
         <meta name="description" content="Learn more about Fever Game Today, our mission, and our dedication to bringing you the best Indiana Fever and Caitlin Clark stats, news, and highlights." />
-        <link rel="canonical" href="https://fever-game.vercel.app/about" />
+        <link rel="canonical" href="https://fevergame.space/about" />
       </Helmet>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

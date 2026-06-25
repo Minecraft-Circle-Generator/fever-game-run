@@ -18,6 +18,9 @@ const NewsArticle = lazy(() => import('./pages/NewsArticle'));
 const About = lazy(() => import('./pages/About'));
 const Contact = lazy(() => import('./pages/Contact'));
 const SchedulePage = lazy(() => import('./pages/SchedulePage'));
+const HowToWatchFever = lazy(() => import('./pages/guides/HowToWatchFever'));
+const CaitlinClarkImpact = lazy(() => import('./pages/guides/CaitlinClarkImpact'));
+const FeverSeasonPreview = lazy(() => import('./pages/guides/FeverSeasonPreview'));
 
 function App() {
   return (
@@ -40,6 +43,9 @@ function App() {
                 <Route path="/news/:articleId" element={<NewsArticle />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/guides/how-to-watch-fever" element={<HowToWatchFever />} />
+                <Route path="/guides/caitlin-clark-impact" element={<CaitlinClarkImpact />} />
+                <Route path="/guides/fever-season-preview" element={<FeverSeasonPreview />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>

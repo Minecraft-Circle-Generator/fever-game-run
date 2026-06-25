@@ -61,7 +61,7 @@ const NewsArticle = () => {
       <Helmet>
         <title>{article.title} | Fever Game Today</title>
         <meta name="description" content={article.content[0].substring(0, 160) + '...'} />
-        <link rel="canonical" href={`https://fever-game.vercel.app/news/${articleId}`} />
+        <link rel="canonical" href={`https://fevergame.space/news/${articleId}`} />
       </Helmet>
 
       {/* Article Header */}

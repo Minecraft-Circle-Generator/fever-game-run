@@ -83,7 +83,7 @@ const SeoSchema: React.FC<Props> = ({ todayGame, playerStats, lastUpdate }) => {
   const sportsEvent = {
     '@context': 'https://schema.org',
     '@type': 'SportsEvent',
-    name: `Indiana Fever vs ${opponent} â€” Today`,
+    name: `Indiana Fever vs ${opponent} â€?Today`,
     startDate: startIso,
     eventStatus,
     location: {
@@ -101,7 +101,7 @@ const SeoSchema: React.FC<Props> = ({ todayGame, playerStats, lastUpdate }) => {
     offers: {
       '@type': 'Offer',
       availability: 'https://schema.org/InStock',
-      url: 'http://fever-game.run/',
+      url: 'http://fevergame.space/',
       price: '0',
       priceCurrency: 'USD',
     },
@@ -111,7 +111,7 @@ const SeoSchema: React.FC<Props> = ({ todayGame, playerStats, lastUpdate }) => {
       { '@type': 'PropertyValue', name: 'awayScore', value: `${awayScore}` },
       { '@type': 'PropertyValue', name: 'tipTime', value: `${tipTime} (${tz})` },
     ],
-    url: 'http://fever-game.run/',
+    url: 'http://fevergame.space/',
   };
 
   const faqPage = {
@@ -125,7 +125,7 @@ const SeoSchema: React.FC<Props> = ({ todayGame, playerStats, lastUpdate }) => {
     '@type': 'WebPage',
     name: 'Indiana Fever Game Today: Live WNBA Scores & Updates',
     description:
-      `Real-time Indiana Fever updates â€” opponent ${opponent}, live score ${homeScore}-${awayScore}, tip-off ${tipTime} (${tz}).`,
+      `Real-time Indiana Fever updates â€?opponent ${opponent}, live score ${homeScore}-${awayScore}, tip-off ${tipTime} (${tz}).`,
     inLanguage: ['en', 'zh-Hans'],
     about: [
       'fever game today',
@@ -138,9 +138,9 @@ const SeoSchema: React.FC<Props> = ({ todayGame, playerStats, lastUpdate }) => {
     isPartOf: {
       '@type': 'WebSite',
       name: 'Fever Game Today',
-      url: 'http://fever-game.run/',
+      url: 'http://fevergame.space/',
     },
-    url: 'http://fever-game.run/',
+    url: 'http://fevergame.space/',
   };
 
   const playerAnswer =

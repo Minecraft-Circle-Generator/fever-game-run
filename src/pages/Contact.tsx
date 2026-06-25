@@ -17,7 +17,7 @@ const Contact = () => {
       <Helmet>
         <title>Contact Us | Fever Game Today</title>
         <meta name="description" content="Get in touch with the Fever Game Today team for inquiries, feedback, or support." />
-        <link rel="canonical" href="https://fever-game.vercel.app/contact" />
+        <link rel="canonical" href="https://fevergame.space/contact" />
       </Helmet>
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -44,8 +44,8 @@ const Contact = () => {
                     <Mail className="h-6 w-6 mr-4 text-red-200 mt-1" />
                     <div>
                       <p className="font-semibold text-lg">Email Support</p>
-                      <a href="mailto:contact@fever-game.run" className="text-red-100 hover:text-white transition-colors">
-                        contact@fever-game.run
+                      <a href="mailto:contact@fevergame.space" className="text-red-100 hover:text-white transition-colors">
+                        contact@fevergame.space
                       </a>
                     </div>
                   </div>

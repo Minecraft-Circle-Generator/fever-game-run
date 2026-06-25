@@ -1,6 +1,7 @@
 import React, { Suspense, lazy, useMemo, useEffect, useState } from 'react';
 import { Star, Video, Flame, Zap, Trophy, Target, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { useRealTimeData } from '../hooks/useRealTimeData';
 import { useIsMobile, useReducedMotion } from '../hooks/useMediaQuery';
 import LazyImage from '../components/LazyImage';
@@ -11,7 +12,7 @@ import MobileGameCard from '../components/MobileGameCard';
 import InteractiveGameCard from '../components/game/InteractiveGameCard';
 import { t } from '../utils/i18n';
 import { fetchLatestVideos } from '../utils/videoProvider';
-import AdSenseSlot from '../components/AdSenseSlot';
+import NativeAd from '../components/NativeAd';
 import SubscribeWidget from '../components/SubscribeWidget';
 import NextGameCountdown from '../components/NextGameCountdown';
 
@@ -34,7 +35,7 @@ const MobileHero = React.memo(() => (
     <div className="max-w-7xl mx-auto px-4 text-center">
       <div className="flex items-center justify-center mb-4">
         <Flame className="h-6 w-6 text-yellow-300 mr-2" />
-        <h1 className="text-2xl font-black text-white">FEVER GAME TODAY</h1>
+        <h1 className="text-2xl font-black text-white">Indiana Fever Game Today — Live Scores & Updates</h1>
         <Flame className="h-6 w-6 text-yellow-300 ml-2" />
       </div>
       <p className="text-base text-yellow-100 mb-6 font-bold">
@@ -68,7 +69,7 @@ const DesktopHero = React.memo(() => (
         <div className="flex items-center justify-center mb-6">
           <Flame className="h-12 w-12 text-yellow-300 mr-4 animate-pulse" />
           <h1 className="text-5xl md:text-7xl font-black text-white">
-            FEVER GAME TODAY
+            Indiana Fever Game Today
           </h1>
           <Flame className="h-12 w-12 text-yellow-300 ml-4 animate-pulse" />
         </div>
@@ -151,10 +152,23 @@ const FastHome = () => {
   // 快速加载状态
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-yellow-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="rounded-full h-16 w-16 border-b-2 border-red-500 mx-auto mb-4 animate-spin"></div>
-          <h2 className="text-xl font-bold text-gray-800">🔥 Loading... 🔥</h2>
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-yellow-50">
+        <div className="bg-gradient-to-r from-red-900 to-black h-32 md:h-48"></div>
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <div className="bg-white rounded-xl shadow-lg p-6 mb-6 animate-pulse">
+            <div className="h-4 bg-gray-200 rounded w-1/3 mb-4"></div>
+            <div className="flex justify-between items-center">
+              <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+              <div className="h-6 bg-gray-200 rounded w-12"></div>
+              <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+            </div>
+            <div className="h-3 bg-gray-200 rounded w-1/2 mt-4 mx-auto"></div>
+          </div>
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="bg-white rounded-lg shadow p-4 animate-pulse"><div className="h-10 bg-gray-200 rounded"></div></div>
+            <div className="bg-white rounded-lg shadow p-4 animate-pulse"><div className="h-10 bg-gray-200 rounded"></div></div>
+            <div className="bg-white rounded-lg shadow p-4 animate-pulse"><div className="h-10 bg-gray-200 rounded"></div></div>
+          </div>
         </div>
       </div>
     );
@@ -212,7 +226,7 @@ const FastHome = () => {
             <div className="flex items-center mb-6">
               <Trophy className={`h-6 w-6 md:h-8 md:w-8 text-orange-500 mr-3 ${getAnimationClass('animate-bounce')}`} />
               <h2 className="text-xl md:text-3xl font-black text-gray-800">
-                TODAY'S BATTLE! 🔥
+                Today's Game
               </h2>
             </div>
             
@@ -255,8 +269,6 @@ const FastHome = () => {
             </div>
           </section>
 
-          <AdSenseSlot slotId="home-middle" />
-
           {/* Countdown Widget */}
           <div className="w-full my-8">
             <NextGameCountdown />
@@ -268,7 +280,7 @@ const FastHome = () => {
               <div className="flex items-center mb-6">
                 <Star className={`h-6 w-6 md:h-8 md:w-8 text-yellow-500 mr-3 ${getAnimationClass('animate-spin')}`} />
                 <h2 className="text-xl md:text-3xl font-black text-gray-800">
-                  CLARK STATS! ⚡
+                  Caitlin Clark Stats
                 </h2>
               </div>
               <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 border-2 border-yellow-400">
@@ -305,7 +317,7 @@ const FastHome = () => {
               <div className="flex items-center mb-6">
                 <Flame className={`h-6 w-6 md:h-8 md:w-8 text-red-500 mr-3 ${getAnimationClass('animate-pulse')}`} />
                 <h2 className="text-xl md:text-3xl font-black text-gray-800">
-                  YESTERDAY'S GAME! 💥
+                  Recent Game Results
                 </h2>
               </div>
               <Suspense fallback={<QuickLoader />}>
@@ -318,6 +330,8 @@ const FastHome = () => {
             </section>
           )}
 
+          <NativeAd />
+
           <SubscribeWidget />
 
           {/* 最新视频 */}
@@ -325,7 +339,7 @@ const FastHome = () => {
             <div className="flex items-center mb-6">
               <Video className={`h-6 w-6 md:h-8 md:w-8 text-red-500 mr-3 ${getAnimationClass('animate-bounce')}`} />
               <h2 className="text-xl md:text-3xl font-black text-gray-800">
-                HIGHLIGHTS! 🎬
+                Latest Highlights
               </h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
@@ -390,6 +404,35 @@ const FastHome = () => {
               )}
             </div>
           </section>
+
+          {/* Related Content / Internal Links */}
+          <section className="mt-12 mb-8">
+            <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-4">Explore More</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Link to="/guides/how-to-watch-fever" className="bg-white rounded-xl shadow-md p-5 hover:shadow-lg transition-shadow border border-gray-100">
+                <h3 className="font-bold text-gray-900 mb-2">How to Watch Indiana Fever Games</h3>
+                <p className="text-sm text-gray-600">Complete streaming and TV guide for all Fever games, including free options and Prime Video.</p>
+              </Link>
+              <Link to="/guides/caitlin-clark-impact" className="bg-white rounded-xl shadow-md p-5 hover:shadow-lg transition-shadow border border-gray-100">
+                <h3 className="font-bold text-gray-900 mb-2">Caitlin Clark's Impact — A Statistical Analysis</h3>
+                <p className="text-sm text-gray-600">Deep dive into Clark's stats, scoring trends, and impact on the Indiana Fever franchise.</p>
+              </Link>
+              <Link to="/guides/fever-season-preview" className="bg-white rounded-xl shadow-md p-5 hover:shadow-lg transition-shadow border border-gray-100">
+                <h3 className="font-bold text-gray-900 mb-2">2026 WNBA Season Preview & Predictions</h3>
+                <p className="text-sm text-gray-600">Roster analysis, schedule breakdown, and playoff predictions for the Fever's upcoming season.</p>
+              </Link>
+            </div>
+          </section>
+
+          {/* Breadcrumb for SEO */}
+          <nav aria-label="Breadcrumb" className="text-xs text-gray-500 mb-4">
+            <ol className="flex items-center gap-1" itemScope itemType="https://schema.org/BreadcrumbList">
+              <li itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
+                <Link to="/" itemProp="item" className="hover:text-gray-700"><span itemProp="name">Home</span></Link>
+                <meta itemProp="position" content="1" />
+              </li>
+            </ol>
+          </nav>
         </div>
 
         {/* Floating Bookmark Toast */}
