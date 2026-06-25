@@ -30,8 +30,11 @@ const Footer = () => {
           <p className="mb-2">
             &copy; {currentYear} Fever Game Today. All rights reserved.
           </p>
-          <p className="max-w-2xl text-center">
+          <p className="max-w-2xl text-center mb-2">
             This website is not officially affiliated with, associated with, or endorsed by the WNBA, Indiana Fever, or any of their partners. All trademarks and copyrights belong to their respective owners.
+          </p>
+          <p className="max-w-2xl text-center">
+            As an Amazon Associate I earn from qualifying purchases.
           </p>
         </div>
       </div>

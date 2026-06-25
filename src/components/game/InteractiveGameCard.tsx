@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Clock, MapPin, Flame, Zap, Calendar, Play, ExternalLink, TrendingUp, List } from 'lucide-react';
+import { Clock, MapPin, Flame, Zap, Calendar, Play, ExternalLink, TrendingUp, List, Ticket, ShoppingCart } from 'lucide-react';
 import { GameData } from '../../hooks/useRealTimeData';
 
 interface InteractiveGameCardProps {
@@ -247,17 +247,30 @@ const InteractiveGameCard: React.FC<InteractiveGameCardProps> = ({
           <div className="mt-4 space-y-2 animate-fadeIn">
             <div className="grid grid-cols-2 gap-2">
               {status === 'live' && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleWatchLive();
-                  }}
-                  className="flex items-center justify-center bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold text-sm transition-colors"
-                  aria-label="Watch live game"
-                >
-                  <Play className="h-4 w-4 mr-2" />
-                  Watch Live
-                </button>
+                <>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.open('https://www.fubo.tv/welcome?irad=356362&irmp=YOUR_AFFILIATE_ID', '_blank');
+                    }}
+                    className="flex items-center justify-center bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors shadow-lg animate-pulse"
+                    aria-label="Watch free on FuboTV"
+                  >
+                    <Play className="h-4 w-4 mr-2" />
+                    Watch Free (FuboTV)
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleWatchLive();
+                    }}
+                    className="flex items-center justify-center bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-lg font-semibold text-sm transition-colors"
+                    aria-label="Live Stats"
+                  >
+                    <Zap className="h-4 w-4 mr-2" />
+                    Live Stats
+                  </button>
+                </>
               )}
               
               {status === 'upcoming' && (
@@ -265,40 +278,53 @@ const InteractiveGameCard: React.FC<InteractiveGameCardProps> = ({
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleAddToCalendar();
+                      window.open('https://seatgeek.com/indiana-fever-tickets', '_blank');
                     }}
-                    className="flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold text-sm transition-colors"
-                    aria-label="Add game to calendar"
+                    className="flex items-center justify-center bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors shadow-lg shadow-orange-500/30"
+                    aria-label="Get Tickets"
                   >
-                    <Calendar className="h-4 w-4 mr-2" />
-                    Calendar
+                    <Ticket className="h-4 w-4 mr-1" />
+                    🔥 Get Tickets ($20 Off)
                   </button>
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigate('/schedule');
+                      window.open('https://www.fubo.tv/welcome?irad=356362&irmp=YOUR_AFFILIATE_ID', '_blank');
                     }}
-                    className="flex items-center justify-center bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold text-sm transition-colors"
-                    aria-label="View Full Schedule"
+                    className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors shadow-lg shadow-blue-500/30"
+                    aria-label="Watch on FuboTV"
                   >
-                    <List className="h-4 w-4 mr-2" />
-                    Full Schedule
+                    <Play className="h-4 w-4 mr-1" />
+                    📺 Watch on FuboTV
                   </button>
                 </>
               )}
               
               {status === 'finished' && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleViewRecap();
-                  }}
-                  className="flex items-center justify-center bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold text-sm transition-colors"
-                  aria-label="View game recap"
-                >
-                  <Zap className="h-4 w-4 mr-2" />
-                  View Recap
-                </button>
+                <>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleViewRecap();
+                    }}
+                    className="flex items-center justify-center bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold text-sm transition-colors"
+                    aria-label="View game recap"
+                  >
+                    <Zap className="h-4 w-4 mr-2" />
+                    View Recap
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.open('https://amzn.to/4oPJpPw', '_blank');
+                    }}
+                    className="flex items-center justify-center bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors shadow-lg shadow-red-500/30 animate-bounce"
+                    aria-label="Buy Fever Gear"
+                  >
+                    <ShoppingCart className="h-4 w-4 mr-1" />
+                    🛒 Caitlin Clark Figure
+                  </button>
+                </>
               )}
               
               {platform && (

@@ -6,6 +6,9 @@ import { useIsMobile, useReducedMotion } from '../hooks/useMediaQuery';
 import LazyImage from '../components/LazyImage';
 import PerformanceOptimizer from '../components/PerformanceOptimizer';
 import BookmarkButton from '../components/BookmarkButton';
+import GameCard from '../components/GameCard';
+import MobileGameCard from '../components/MobileGameCard';
+import InteractiveGameCard from '../components/game/InteractiveGameCard';
 import { t } from '../utils/i18n';
 import { fetchLatestVideos } from '../utils/videoProvider';
 import AdSenseSlot from '../components/AdSenseSlot';
@@ -220,7 +223,7 @@ const FastHome = () => {
                   isMobile ? (
                     <MobileGameCard {...todayGame} />
                   ) : (
-                    <GameCard {...todayGame} />
+                    <InteractiveGameCard {...todayGame} enableInteractions={true} />
                   )
                 ) : (
                   <QuickLoader />
@@ -309,7 +312,7 @@ const FastHome = () => {
                 {isMobile ? (
                   <MobileGameCard {...yesterdayGame} />
                 ) : (
-                  <GameCard {...yesterdayGame} />
+                  <InteractiveGameCard {...yesterdayGame} enableInteractions={true} />
                 )}
               </Suspense>
             </section>

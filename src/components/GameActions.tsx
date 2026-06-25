@@ -78,52 +78,56 @@ const GameActions: React.FC<GameActionsProps> = ({ game }) => {
       {/* 主要操作按钮 */}
       <div className="flex flex-wrap gap-2">
         {game.status === 'live' && (
-          <button
-            onClick={handleWatchLive}
-            className={`${buttonClass} bg-red-500 hover:bg-red-600`}
-          >
-            <Play className="h-4 w-4 mr-2" />
-            Watch Live
-          </button>
+          <>
+            <button
+              onClick={() => window.open('https://www.fubo.tv/welcome', '_blank')}
+              className={`${buttonClass} bg-red-600 hover:bg-red-700 shadow-lg shadow-red-500/50 animate-pulse`}
+            >
+              <Play className="h-4 w-4 mr-2" />
+              Watch Free (FuboTV)
+            </button>
+            <button
+              onClick={handleViewStats}
+              className={`${buttonClass} bg-gray-800 hover:bg-gray-900`}
+            >
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Live Stats
+            </button>
+          </>
         )}
         
         {game.status === 'upcoming' && (
-          <button
-            onClick={handleAddToCalendar}
-            className={`${buttonClass} bg-blue-500 hover:bg-blue-600`}
-          >
-            <Calendar className="h-4 w-4 mr-2" />
-            Add to Calendar
-          </button>
+          <>
+            <button
+              onClick={() => window.open('https://seatgeek.com/indiana-fever-tickets', '_blank')}
+              className={`${buttonClass} bg-yellow-500 hover:bg-yellow-600 text-gray-900 shadow-lg shadow-yellow-500/30 animate-pulse`}
+            >
+              🔥 Get Tickets ($20 Off)
+            </button>
+            <button
+              onClick={() => window.open('https://www.fubo.tv/welcome', '_blank')}
+              className={`${buttonClass} bg-gray-800 hover:bg-gray-900 text-white`}
+            >
+              📺 Watch on FuboTV
+            </button>
+          </>
         )}
         
-        <button
-          onClick={handleViewStats}
-          className={`${buttonClass} bg-orange-500 hover:bg-orange-600`}
-        >
-          <BarChart3 className="h-4 w-4 mr-2" />
-          View Stats
-        </button>
-      </div>
-
-      {/* 次要操作按钮 */}
-      <div className="flex flex-wrap gap-2">
-        <button
-          onClick={handleViewHighlights}
-          className={`${buttonClass} bg-purple-500 hover:bg-purple-600`}
-        >
-          <Video className="h-4 w-4 mr-2" />
-          Highlights
-        </button>
-        
-        {game.platform && (
-          <button
-            onClick={handleWatchLive}
-            className={`${buttonClass} bg-gray-500 hover:bg-gray-600`}
-          >
-            <ExternalLink className="h-4 w-4 mr-2" />
-            {game.platform}
-          </button>
+        {game.status === 'finished' && (
+          <>
+            <button
+              onClick={() => window.open('https://amzn.to/4oPJpPw', '_blank')}
+              className={`${buttonClass} bg-red-600 hover:bg-red-700 shadow-lg shadow-red-500/30 animate-bounce`}
+            >
+              🛒 Caitlin Clark Figure
+            </button>
+            <button
+              onClick={handleViewHighlights}
+              className={`${buttonClass} bg-gray-800 hover:bg-gray-900 text-white`}
+            >
+              ⚡ View Recap
+            </button>
+          </>
         )}
       </div>
     </div>
