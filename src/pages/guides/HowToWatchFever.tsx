@@ -280,10 +280,23 @@ const HowToWatchFever = () => {
             <p className="text-gray-700 leading-relaxed mb-4">
               Amazon Prime Video carries the TNT Sports package of WNBA games, which includes several high-profile Indiana Fever matchups throughout the season. Prime membership includes additional benefits beyond sports streaming, such as free shipping, Prime Music, and Prime Reading.
             </p>
+            
+            {/* Amazon Affiliate Button */}
+            <div className="my-6 flex justify-center sm:justify-start">
+              <a
+                href="https://www.amazon.com/gp/video/offers?tag=fevergame01-20"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center w-full sm:w-auto px-8 py-4 text-lg font-bold text-gray-900 bg-[#FF9900] hover:bg-[#E38800] rounded-full transition-transform transform hover:scale-105 shadow-lg border-2 border-transparent hover:border-gray-900"
+              >
+                Start Your 30-Day Free Trial on Prime Video
+              </a>
+            </div>
+
             <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-4">
               <h3 className="text-lg font-semibold text-blue-800 mb-2">Getting Started with Prime Video</h3>
               <ol className="list-decimal list-inside text-blue-700 text-sm space-y-2">
-                <li>Visit Amazon and look for the Prime membership signup page.</li>
+                <li><a href="https://www.amazon.com/gp/video/offers?tag=fevergame01-20" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-semibold">Visit Amazon</a> and look for the Prime membership signup page.</li>
                 <li>New subscribers are typically eligible for a 30-day free trial period.</li>
                 <li>After the trial, Prime membership costs $14.99 per month or $139 per year.</li>
                 <li>WNBA games from the TNT Sports package are included at no extra charge for Prime members.</li>
