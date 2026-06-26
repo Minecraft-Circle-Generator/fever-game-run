@@ -63,9 +63,10 @@ const News = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <Helmet>
-        <title>Latest WNBA News | Fever Game Today</title>
-        <meta name="description" content="Read the latest news, tactical analysis, and deep dives into Caitlin Clark and the Indiana Fever's performance in the WNBA." />
+        <title>Indiana Fever News & Updates | Fever Game Today</title>
+        <meta name="description" content="Stay updated with the latest news, game analysis, and player updates for the Indiana Fever. Coverage of Caitlin Clark, Aliyah Boston, and more." />
         <link rel="canonical" href="https://fevergame.space/news" />
+        <script async="async" data-cfasync="false" src="https://pl29871294.effectivecpmnetwork.com/639a4c936d7c38df8d03c63b78071559/invoke.js"></script>
       </Helmet>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -126,6 +127,11 @@ const News = () => {
             ))}
           </div>
         )}
+
+        {/* Native Ad Slot */}
+        <div className="mt-8 text-center">
+          <div id="container-639a4c936d7c38df8d03c63b78071559"></div>
+        </div>
 
         {/* AdSense Slot inside content to show text context to crawler */}
         <div className="mt-12 text-center p-6 bg-white rounded-xl shadow-sm border border-gray-100">

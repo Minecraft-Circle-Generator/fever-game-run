@@ -77,6 +77,7 @@ const CaitlinClarkImpact = () => {
         <meta property="og:type" content="article" />
         <meta property="og:url" content="https://fevergame.space/guides/caitlin-clark-impact" />
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
+        <script data-cfasync="false" async type="text/javascript" src="//pm.kittultheeker.com/seEKzFFlkKCt7wj/143423"></script>
       </Helmet>
 
       {/* Hero Section */}

@@ -89,6 +89,7 @@ export default function SchedulePage() {
             {generateSchema()}
           </script>
         )}
+        <script data-cfasync="false" async type="text/javascript" src="//whelmlegge.com/gP9iIRQ1T5bkhjTcG/144793"></script>
       </Helmet>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
