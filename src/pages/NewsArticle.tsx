@@ -39,6 +39,9 @@ const articlesContent: Record<string, { title: string; date: string; author: str
       "From the short roll, Boston can either take a high-percentage mid-range jumper, drive powerfully to the rim against a rotating defender, or kick the ball out to a wide-open shooter in the corner if the defense collapses completely. It is a 'pick your poison' scenario for the opponent, and more often than not, the Fever end up with a highly efficient shot attempt.",
       "Head coach Christie Sides has brilliantly diversified the angles and locations where this PnR is initiated—sometimes starting it high at the logo, other times executing it on the empty side of the floor. As Clark and Boston continue to build their telepathic on-court connection, this action will remain the engine of the Indiana Fever's high-octane offense."
     ]
+  }
+};
+
 const enhanceHeadline = (title: string) => {
   const t = title.toLowerCase();
   let prefix = "Deep Dive | ";
