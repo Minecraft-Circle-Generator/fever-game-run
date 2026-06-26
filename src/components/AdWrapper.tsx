@@ -1,50 +1,55 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 
 interface AdWrapperProps {
   scriptSrc: string;
-  containerId?: string; // If provided, creates a div with this ID for native ads
+  containerId?: string; 
 }
 
 /**
- * Safely injects third-party ad scripts in a React SPA.
- * Prevents document.write() wiping and React hydration errors
- * by injecting only after mount and via direct DOM manipulation.
+ * Safely injects third-party ad scripts in a React SPA using an iframe.
+ * This completely isolates any document.write() calls so they don't wipe the main React DOM.
  */
 const AdWrapper: React.FC<AdWrapperProps> = ({ scriptSrc, containerId }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [loaded, setLoaded] = useState(false);
-  const isDev = import.meta.env.DEV;
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [isDev] = useState(import.meta.env.DEV);
 
   useEffect(() => {
-    // In dev mode, or if already loaded, do nothing
-    if (isDev || loaded) return;
+    if (isDev) return;
+    const iframe = iframeRef.current;
+    if (!iframe) return;
     
-    // Safety check for SSR / testing
-    if (typeof document === 'undefined') return;
+    // Use a slight timeout to ensure React has fully mounted the iframe
+    const timer = setTimeout(() => {
+      const doc = iframe.contentWindow?.document;
+      if (!doc) return;
 
-    setLoaded(true);
-
-    const script = document.createElement('script');
-    script.async = true;
-    script.setAttribute('data-cfasync', 'false');
-    script.src = scriptSrc;
-
-    // Determine where to mount the script
-    const target = containerRef.current || document.body;
-    
-    try {
-      target.appendChild(script);
-    } catch (e) {
-      console.error('Ad injection failed:', e);
-    }
-
-    return () => {
-      // Clean up the script when the component unmounts
-      if (target && script.parentNode === target) {
-        target.removeChild(script);
+      const html = `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="utf-8">
+            <style>
+              body { margin: 0; padding: 0; overflow: hidden; background: transparent; display: flex; justify-content: center; align-items: center; }
+            </style>
+          </head>
+          <body>
+            ${containerId ? `<div id="${containerId}"></div>` : ''}
+            <script data-cfasync="false" async src="${scriptSrc}"></script>
+          </body>
+        </html>
+      `;
+      
+      try {
+        doc.open();
+        doc.write(html);
+        doc.close();
+      } catch (e) {
+        console.error("Ad iframe injection failed:", e);
       }
-    };
-  }, [scriptSrc, loaded, isDev]);
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [scriptSrc, containerId, isDev]);
 
   if (isDev) {
     return (
@@ -55,8 +60,15 @@ const AdWrapper: React.FC<AdWrapperProps> = ({ scriptSrc, containerId }) => {
   }
 
   return (
-    <div ref={containerRef} className="ad-wrapper-container w-full">
-      {containerId && <div id={containerId}></div>}
+    <div className="w-full flex justify-center my-4">
+      <iframe
+        ref={iframeRef}
+        title="Advertisement"
+        width="100%"
+        height={containerId ? "300" : "0"} // Native ads need height, pop-unders can be 0
+        style={{ border: 'none', overflow: 'hidden', background: 'transparent' }}
+        sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
+      />
     </div>
   );
 };
