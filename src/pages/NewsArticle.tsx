@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link, Navigate } from 'react-router-dom';
+import { useParams, Link, Navigate, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Calendar, User, ArrowLeft, Share2 } from 'lucide-react';
+import { Calendar, User, ArrowLeft, Share2, ExternalLink } from 'lucide-react';
 
 const articlesContent: Record<string, { title: string; date: string; author: string; content: string[] }> = {
   'caitlin-clark-2026-season-preview': {
@@ -44,17 +44,34 @@ const articlesContent: Record<string, { title: string; date: string; author: str
 
 const NewsArticle = () => {
   const { articleId } = useParams<{ articleId: string }>();
-  const [article, setArticle] = useState(articlesContent[articleId || '']);
+  const location = useLocation();
+  const stateArticle = location.state?.article;
+
+  const [article, setArticle] = useState<any>(null);
 
   useEffect(() => {
-    if (articleId && articlesContent[articleId]) {
+    if (stateArticle) {
+      // It's a dynamic ESPN article passed via router state
+      setArticle({
+        title: stateArticle.title,
+        date: new Date(stateArticle.published).toLocaleDateString('en-US', {
+          year: 'numeric', month: 'long', day: 'numeric'
+        }),
+        author: 'ESPN Staff',
+        content: [stateArticle.description],
+        imageUrl: stateArticle.imageUrl,
+        originalLink: stateArticle.link
+      });
+    } else if (articleId && articlesContent[articleId]) {
       setArticle(articlesContent[articleId]);
     }
-  }, [articleId]);
+  }, [articleId, stateArticle]);
 
-  if (!article) {
+  if (!article && !stateArticle && !articlesContent[articleId || '']) {
     return <Navigate to="/news" replace />;
   }
+
+  if (!article) return null;
 
   return (
     <div className="min-h-screen bg-white">
@@ -75,6 +92,12 @@ const NewsArticle = () => {
           <h1 className="text-3xl md:text-5xl font-black text-gray-900 mb-6 leading-tight">
             {article.title}
           </h1>
+
+          {article.imageUrl && (
+            <div className="w-full h-64 sm:h-96 rounded-2xl overflow-hidden mb-8 shadow-md">
+              <img src={article.imageUrl} alt={article.title} className="w-full h-full object-cover" />
+            </div>
+          )}
           
           <div className="flex items-center justify-between border-t border-b border-gray-200 py-4 mt-8">
             <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
@@ -99,12 +122,29 @@ const NewsArticle = () => {
       {/* Article Content */}
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <article className="prose prose-lg prose-red max-w-none text-gray-800">
-          {article.content.map((paragraph, idx) => (
+          {article.content.map((paragraph: string, idx: number) => (
             <p key={idx} className="mb-8 leading-relaxed text-lg text-justify">
               {paragraph}
             </p>
           ))}
         </article>
+
+        {article.originalLink && (
+          <div className="mt-10 bg-gray-50 p-6 rounded-xl border border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="text-gray-700 font-medium">
+              Want to read the full story and see more details?
+            </div>
+            <a 
+              href={article.originalLink} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-full font-bold flex items-center transition-colors whitespace-nowrap"
+            >
+              Read on ESPN
+              <ExternalLink className="ml-2 h-4 w-4" />
+            </a>
+          </div>
+        )}
 
         <div className="mt-12 pt-8 border-t border-gray-200 text-center">
           <p className="text-gray-500 mb-4">Advertisement</p>

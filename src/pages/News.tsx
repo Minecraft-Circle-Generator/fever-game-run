@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { FileText, Calendar, ExternalLink } from 'lucide-react';
+import { FileText, Calendar, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { fetchWnbaNews, WnbaNewsItem } from '../utils/espnProvider';
 
 const fallbackArticles = [
@@ -117,15 +118,14 @@ const News = () => {
                   </p>
                   
                   <div className="mt-auto pt-4 border-t border-gray-100">
-                    <a 
-                      href={article.link}
-                      target={article.link.startsWith('http') ? '_blank' : '_self'}
-                      rel="noopener noreferrer"
+                    <Link 
+                      to={`/news/${encodeURIComponent(article.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'))}`}
+                      state={{ article }}
                       className="inline-flex items-center text-red-600 font-bold hover:text-red-700 transition-colors group"
                     >
                       Read Full Article
-                      <ExternalLink className="h-4 w-4 ml-1 transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                    </a>
+                      <ArrowRight className="h-4 w-4 ml-1 transform group-hover:translate-x-1 transition-transform" />
+                    </Link>
                   </div>
                 </div>
               </div>
