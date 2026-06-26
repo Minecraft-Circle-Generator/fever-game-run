@@ -1,9 +1,26 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import BookmarkButton from '../components/BookmarkButton';
-import { TrendingUp, Search, Brain, Target, Users, Award } from 'lucide-react';
+import { TrendingUp, Search, Brain, Target, Users, Award, Calendar } from 'lucide-react';
+import { useRealTimeData } from '../hooks/useRealTimeData';
 
 const AIOverviewPage: React.FC = () => {
+  const { todayGame, loading } = useRealTimeData();
+  
+  // Format the actual next game time
+  let nextGameText = "NEXT GAME: LOADING...";
+  if (!loading) {
+    if (todayGame) {
+      const dateObj = new Date(todayGame.date);
+      const formattedDate = dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+      const formattedTime = dateObj.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
+      const homeAway = todayGame.isHome ? 'vs' : '@';
+      nextGameText = `NEXT GAME: ${formattedDate} ${homeAway} ${todayGame.opponent} at ${formattedTime}`;
+    } else {
+      nextGameText = "NEXT GAME: TO BE ANNOUNCED";
+    }
+  }
+
   return (
     <>
       <Helmet>
@@ -34,7 +51,7 @@ const AIOverviewPage: React.FC = () => {
               }
             },
             "datePublished": "2025-09-27",
-            "dateModified": "2025-09-27",
+            "dateModified": new Date().toISOString().split('T')[0],
             "mainEntityOfPage": {
               "@type": "WebPage",
               "@id": "https://fevergame.space/ai-overview"
@@ -56,8 +73,8 @@ const AIOverviewPage: React.FC = () => {
         </div>
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg p-4 md:p-6 mb-8 shadow-lg">
           <div className="flex items-center gap-3">
-            <span role="img" aria-label="basketball">🏀</span>
-            <span className="text-lg md:text-2xl font-extrabold tracking-wide">NEXT GAME: TODAY AT 7:00 PM EST!</span>
+            <Calendar className="w-6 h-6 md:w-8 md:h-8" />
+            <span className="text-sm md:text-xl font-extrabold tracking-wide uppercase">{nextGameText}</span>
           </div>
         </div>
 

@@ -78,7 +78,8 @@ const NewsArticle = () => {
       <Helmet>
         <title>{article.title} | Fever Game Today</title>
         <meta name="description" content={article.content[0].substring(0, 160) + '...'} />
-        <link rel="canonical" href={`https://fevergame.space/news/${articleId}`} />
+        <link rel="canonical" href={`https://fevergame.space/news/${articleId || ''}`} />
+        <script data-cfasync="false" async type="text/javascript" src="//capwalahee.com/gn9H8331FzWtxGKn/144793"></script>
       </Helmet>
 
       {/* Article Header */}
