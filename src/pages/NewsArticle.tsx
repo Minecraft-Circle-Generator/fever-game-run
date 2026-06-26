@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, Navigate, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Calendar, User, ArrowLeft, Share2, ExternalLink } from 'lucide-react';
+import { Calendar, User, ArrowLeft, Share2, ExternalLink, Brain } from 'lucide-react';
 
 const articlesContent: Record<string, { title: string; date: string; author: string; content: string[] }> = {
   'caitlin-clark-2026-season-preview': {
@@ -42,6 +42,37 @@ const articlesContent: Record<string, { title: string; date: string; author: str
   }
 };
 
+const generateAIContext = (title: string, description: string) => {
+  const t = (title + ' ' + (description || '')).toLowerCase();
+  let content = [];
+  
+  content.push("🤖 Fever AI Context & Analysis:");
+  
+  if (t.includes('clark')) {
+    content.push("Caitlin Clark continues to be a focal point for the Indiana Fever and the WNBA at large. Her elite court vision and limitless shooting range frequently force opposing defenses into impossible choices, often heavily impacting the game's outcome even when she isn't the leading scorer.");
+  }
+  if (t.includes('boston')) {
+    content.push("Aliyah Boston remains the crucial anchor in the paint. Her ability to dominate the glass and provide high-efficiency scoring down low provides the necessary balance to the Fever's perimeter-oriented attack.");
+  }
+  if (t.includes('mitchell')) {
+    content.push("Kelsey Mitchell's veteran leadership and dynamic shot-creation are indispensable. She consistently punishes defenses that overcommit, serving as a reliable primary scorer when the offense stagnates.");
+  }
+  if (t.includes('playoff') || t.includes('standings') || t.includes('seed')) {
+    content.push("As the playoff race intensifies, every single possession matters. The Fever's young core is gaining invaluable experience navigating high-pressure situations, which is critical for securing a favorable postseason seed.");
+  }
+  if (t.includes('coach') || t.includes('sides') || t.includes('defense')) {
+    content.push("Coaching adjustments and defensive rotations are under a microscope. Finding the right mix of defensive intensity and offensive spacing is the coaching staff's primary objective as they look to build a consistent winning culture.");
+  }
+  
+  if (content.length === 1) {
+    content.push("The Indiana Fever are navigating a highly competitive WNBA landscape. With a blend of emerging superstars and established veterans, the team's trajectory is drawing massive attention from fans and analysts alike. Every game and roster move carries significant implications for their long-term championship aspirations.");
+  }
+
+  content.push("Our AI analytics engine suggests that maintaining offensive efficiency and limiting opponents' second-chance points will be the key determining factors in how this specific storyline develops in the coming weeks.");
+  
+  return content;
+};
+
 const NewsArticle = () => {
   const { articleId } = useParams<{ articleId: string }>();
   const location = useLocation();
@@ -52,13 +83,18 @@ const NewsArticle = () => {
   useEffect(() => {
     if (stateArticle) {
       // It's a dynamic ESPN article passed via router state
+      const aiContext = generateAIContext(stateArticle.title, stateArticle.description);
+      
       setArticle({
         title: stateArticle.title,
         date: new Date(stateArticle.published).toLocaleDateString('en-US', {
           year: 'numeric', month: 'long', day: 'numeric'
         }),
-        author: 'ESPN Staff',
-        content: [stateArticle.description],
+        author: 'ESPN Staff & Fever AI Engine',
+        content: [
+          `📰 ESPN Synopsis: ${stateArticle.description}`,
+          ...aiContext
+        ],
         imageUrl: stateArticle.imageUrl,
         originalLink: stateArticle.link
       });
@@ -123,11 +159,22 @@ const NewsArticle = () => {
       {/* Article Content */}
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <article className="prose prose-lg prose-red max-w-none text-gray-800">
-          {article.content.map((paragraph: string, idx: number) => (
-            <p key={idx} className="mb-8 leading-relaxed text-lg text-justify">
-              {paragraph}
-            </p>
-          ))}
+          {article.content.map((paragraph: string, idx: number) => {
+            const isAIHeader = paragraph.includes('🤖 Fever AI Context');
+            const isESPNSynopsis = paragraph.includes('📰 ESPN Synopsis:');
+            
+            if (isAIHeader) {
+              return <h2 key={idx} className="text-2xl font-black text-blue-700 mt-12 mb-6 border-b-2 border-blue-100 pb-2 flex items-center"><Brain className="w-6 h-6 mr-2" />{paragraph}</h2>;
+            }
+            if (isESPNSynopsis) {
+              return <p key={idx} className="mb-8 leading-relaxed text-xl text-gray-900 font-medium italic border-l-4 border-red-500 pl-4">{paragraph}</p>;
+            }
+            return (
+              <p key={idx} className="mb-6 leading-relaxed text-lg text-justify text-gray-700">
+                {paragraph}
+              </p>
+            );
+          })}
         </article>
 
         {article.originalLink && (
