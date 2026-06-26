@@ -39,14 +39,23 @@ const articlesContent: Record<string, { title: string; date: string; author: str
       "From the short roll, Boston can either take a high-percentage mid-range jumper, drive powerfully to the rim against a rotating defender, or kick the ball out to a wide-open shooter in the corner if the defense collapses completely. It is a 'pick your poison' scenario for the opponent, and more often than not, the Fever end up with a highly efficient shot attempt.",
       "Head coach Christie Sides has brilliantly diversified the angles and locations where this PnR is initiated—sometimes starting it high at the logo, other times executing it on the empty side of the floor. As Clark and Boston continue to build their telepathic on-court connection, this action will remain the engine of the Indiana Fever's high-octane offense."
     ]
-  }
+const enhanceHeadline = (title: string) => {
+  const t = title.toLowerCase();
+  let prefix = "Deep Dive | ";
+  if (t.includes('clark')) prefix = "Clark Spotlight | ";
+  else if (t.includes('boston')) prefix = "Boston Focus | ";
+  else if (t.includes('mitchell')) prefix = "Mitchell Focus | ";
+  else if (t.includes('playoff') || t.includes('standings')) prefix = "Playoff Race | ";
+  else if (t.includes('win') || t.includes('loss') || t.includes('beat') || t.includes('game')) prefix = "Game Analysis | ";
+  
+  return `${prefix}${title}`;
 };
 
-const generateAIContext = (title: string, description: string) => {
+const generateContext = (title: string, description: string) => {
   const t = (title + ' ' + (description || '')).toLowerCase();
   let content = [];
   
-  content.push("🤖 Fever AI Context & Analysis:");
+  content.push("📊 Fever Tactical Breakdown & Context:");
   
   if (t.includes('clark')) {
     content.push("Caitlin Clark continues to be a focal point for the Indiana Fever and the WNBA at large. Her elite court vision and limitless shooting range frequently force opposing defenses into impossible choices, often heavily impacting the game's outcome even when she isn't the leading scorer.");
@@ -68,7 +77,7 @@ const generateAIContext = (title: string, description: string) => {
     content.push("The Indiana Fever are navigating a highly competitive WNBA landscape. With a blend of emerging superstars and established veterans, the team's trajectory is drawing massive attention from fans and analysts alike. Every game and roster move carries significant implications for their long-term championship aspirations.");
   }
 
-  content.push("Our AI analytics engine suggests that maintaining offensive efficiency and limiting opponents' second-chance points will be the key determining factors in how this specific storyline develops in the coming weeks.");
+  content.push("Our analytics team suggests that maintaining offensive efficiency and limiting opponents' second-chance points will be the key determining factors in how this specific storyline develops in the coming weeks.");
   
   return content;
 };
@@ -83,17 +92,18 @@ const NewsArticle = () => {
   useEffect(() => {
     if (stateArticle) {
       // It's a dynamic ESPN article passed via router state
-      const aiContext = generateAIContext(stateArticle.title, stateArticle.description);
+      const extraContext = generateContext(stateArticle.title, stateArticle.description);
+      const enhancedTitle = enhanceHeadline(stateArticle.title);
       
       setArticle({
-        title: stateArticle.title,
+        title: enhancedTitle,
         date: new Date(stateArticle.published).toLocaleDateString('en-US', {
           year: 'numeric', month: 'long', day: 'numeric'
         }),
-        author: 'ESPN Staff & Fever AI Engine',
+        author: 'ESPN & Fever Analytics Team',
         content: [
           `📰 ESPN Synopsis: ${stateArticle.description}`,
-          ...aiContext
+          ...extraContext
         ],
         imageUrl: stateArticle.imageUrl,
         originalLink: stateArticle.link
@@ -160,10 +170,10 @@ const NewsArticle = () => {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <article className="prose prose-lg prose-red max-w-none text-gray-800">
           {article.content.map((paragraph: string, idx: number) => {
-            const isAIHeader = paragraph.includes('🤖 Fever AI Context');
+            const isContextHeader = paragraph.includes('📊 Fever Tactical Breakdown');
             const isESPNSynopsis = paragraph.includes('📰 ESPN Synopsis:');
             
-            if (isAIHeader) {
+            if (isContextHeader) {
               return <h2 key={idx} className="text-2xl font-black text-blue-700 mt-12 mb-6 border-b-2 border-blue-100 pb-2 flex items-center"><Brain className="w-6 h-6 mr-2" />{paragraph}</h2>;
             }
             if (isESPNSynopsis) {
@@ -180,7 +190,7 @@ const NewsArticle = () => {
         {article.originalLink && (
           <div className="mt-10 bg-gray-50 p-6 rounded-xl border border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-gray-700 font-medium">
-              Want to read the full story and see more details?
+              Want to read the original source article for this story?
             </div>
             <a 
               href={article.originalLink} 
@@ -188,7 +198,7 @@ const NewsArticle = () => {
               rel="noopener noreferrer"
               className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-full font-bold flex items-center transition-colors whitespace-nowrap"
             >
-              Read on ESPN
+              Read Original on ESPN
               <ExternalLink className="ml-2 h-4 w-4" />
             </a>
           </div>
