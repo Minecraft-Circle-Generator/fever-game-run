@@ -12,7 +12,6 @@ import MobileGameCard from '../components/MobileGameCard';
 import InteractiveGameCard from '../components/game/InteractiveGameCard';
 import { t } from '../utils/i18n';
 import { fetchLatestVideos } from '../utils/videoProvider';
-import NativeAd from '../components/NativeAd';
 import SubscribeWidget from '../components/SubscribeWidget';
 import NextGameCountdown from '../components/NextGameCountdown';
 
@@ -339,8 +338,6 @@ const FastHome = () => {
               </Suspense>
             </section>
           )}
-
-          <NativeAd />
 
           <SubscribeWidget />
 
