@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { Link } from 'react-router-dom';
 import { Calendar, MapPin, Clock, ExternalLink } from 'lucide-react';
 import { fetchFullFeverSchedule, ScheduleGame } from '../utils/espnProvider';
 
@@ -120,9 +121,14 @@ export default function SchedulePage() {
                         {game.broadcasts.length > 0 && (
                           <div className="flex gap-2">
                             {game.broadcasts.map((b, i) => (
-                              <span key={i} className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded border border-blue-100">
+                              <Link 
+                                key={i} 
+                                to="/guides/how-to-watch-fever"
+                                title={`Learn how to watch ${b}`}
+                                className="text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-800 px-2 py-1 rounded border border-blue-100 transition-colors cursor-pointer"
+                              >
                                 📺 {b}
-                              </span>
+                              </Link>
                             ))}
                           </div>
                         )}
