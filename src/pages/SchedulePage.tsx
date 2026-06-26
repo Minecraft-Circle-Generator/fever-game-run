@@ -130,7 +130,7 @@ export default function SchedulePage() {
                       
                       <div className="flex items-center gap-4 mb-3">
                         <div className="text-xl md:text-2xl font-black text-gray-900">
-                          {game.isHome ? 'vs' : '@'} {game.opponent}
+                          <span className="text-red-600">Fever</span> {game.isHome ? 'vs' : '@'} {game.opponent}
                         </div>
                         {game.oppLogo && (
                           <img src={game.oppLogo} alt={game.opponent} className="w-8 h-8 md:w-10 md:h-10 object-contain" />
