@@ -1,5 +1,5 @@
 import React, { Suspense, lazy, useMemo, useEffect, useState } from 'react';
-import { Star, Video, Flame, Zap, Trophy, Target, RefreshCw } from 'lucide-react';
+import { Star, Video, Flame, Zap, Trophy, Target, RefreshCw, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { useRealTimeData } from '../hooks/useRealTimeData';
