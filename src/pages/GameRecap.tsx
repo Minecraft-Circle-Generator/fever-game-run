@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { Trophy, Star, TrendingUp, Video, Calendar, MapPin } from 'lucide-react';
-import VideoCard from '../components/VideoCard';
+import OptimizedVideoCard from '../components/OptimizedVideoCard';
 import { fetchFeverLatestFinalFromESPN, fetchFeverTodayFromESPN } from '../utils/espnProvider';
 import { Helmet } from 'react-helmet-async';
 import ShareRecapButton from '../components/ShareRecapButton';
@@ -458,32 +458,32 @@ const GameRecap = () => {
             <h2 className="text-2xl font-bold text-gray-800">{t('recap.gameHighlights', 'Game Highlights')}</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <VideoCard
+            <OptimizedVideoCard
               title="Caitlin Clark's 22-Point Performance vs Phoenix Mercury"
               thumbnail="https://images.pexels.com/photos/1752757/pexels-photo-1752757.jpeg?auto=compress&cs=tinysrgb&w=400"
               duration="3:45"
-              views="15.2K"
+              viewCount={15200}
               uploadDate="1 day ago"
               channel="WNBA Official"
-              videoId="dQw4w9WgXcQ"
+              videoId="M15OQZlKXYI"
             />
-            <VideoCard
+            <OptimizedVideoCard
               title="Best Plays from Fever vs Mercury - Full Highlights"
               thumbnail="https://images.pexels.com/photos/1618269/pexels-photo-1618269.jpeg?auto=compress&cs=tinysrgb&w=400"
               duration="5:32"
-              views="22.8K"
+              viewCount={22800}
               uploadDate="1 day ago"
               channel="ESPN"
-              videoId="jNQXAC9IVRw"
+              videoId="OqC06c2n5_E"
             />
-            <VideoCard
+            <OptimizedVideoCard
               title="Caitlin Clark's 5 Three-Pointers in Victory"
               thumbnail="https://images.pexels.com/photos/1407354/pexels-photo-1407354.jpeg?auto=compress&cs=tinysrgb&w=400"
               duration="2:18"
-              views="18.7K"
+              viewCount={18700}
               uploadDate="1 day ago"
               channel="House of Highlights"
-              videoId="M7lc1UVf-VE"
+              videoId="uP7VdGixX1E"
             />
           </div>
         </section>

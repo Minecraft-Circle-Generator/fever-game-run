@@ -126,9 +126,17 @@ const OptimizedVideoCard: React.FC<OptimizedVideoCardProps> = memo(({
     return 'Just now';
   }, [publishedAtISO, uploadDate, isLive]);
 
+  const handleVideoClick = () => {
+    if (isLive) {
+      window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    setIsPlaying(true);
+  };
+
   return (
     <div 
-      className={`bg-white rounded-xl shadow-lg overflow-hidden transition-transform duration-200 ${
+      className={`bg-white rounded-xl shadow-lg overflow-hidden transition-transform duration-200 flex flex-col h-full ${
         !isMobile ? 'hover:scale-105 hover:shadow-xl' : ''
       }`}
     >
@@ -174,17 +182,34 @@ const OptimizedVideoCard: React.FC<OptimizedVideoCardProps> = memo(({
         )}
       </div>
       
-      <div className="p-4" onClick={() => !isPlaying && handleVideoClick()}>
+      <div className="p-4 flex-grow flex flex-col" onClick={() => !isPlaying && handleVideoClick()}>
         <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 text-sm leading-tight">
           {title}
         </h3>
-        <p className="text-gray-600 text-sm mb-2">{channel}</p>
-        <div className="flex items-center justify-between text-xs text-gray-500">
-          <span className="flex items-center">
-            <Eye className="h-3 w-3 mr-1" />
+        
+        <div className="flex items-center text-xs text-gray-500 mb-3">
+          <span className="font-medium mr-2">{channel}</span>
+          <span>•</span>
+          <span className="ml-2">{displayUpload}</span>
+        </div>
+        
+        {/* Statistics or Status */}
+        <div className="mt-auto pt-2 flex items-center justify-between border-t border-gray-100 text-xs">
+          <span className="flex items-center text-gray-500">
+            <Eye className="w-3 h-3 mr-1" />
             {displayViews === '—' ? '—' : `${displayViews} views`}
           </span>
-          <span>{displayUpload}</span>
+          
+          <a 
+            href={`https://www.youtube.com/watch?v=${videoId}`} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="inline-flex items-center text-red-600 hover:text-red-700 font-medium bg-red-50 hover:bg-red-100 px-3 py-1 rounded-full transition-colors"
+          >
+            Watch on YouTube
+            <ExternalLink className="w-3 h-3 ml-1" />
+          </a>
         </div>
       </div>
     </div>
