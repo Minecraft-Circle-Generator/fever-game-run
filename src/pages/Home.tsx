@@ -425,7 +425,7 @@ const Home = () => {
             })}
           </div>
         </section>
-      </div>
+      </main>
 
       {/* Floating Bookmark Toast */}
       {showBookmarkToast && (

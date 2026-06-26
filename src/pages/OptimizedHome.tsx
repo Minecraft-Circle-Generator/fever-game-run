@@ -36,7 +36,8 @@ const OptimizedHome = () => {
   } = useRealTimeData();
 
   const forceMobile = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('mobile') === '1';
-  const isMobile = forceMobile || useIsMobile();
+  const isMobileHook = useIsMobile();
+  const isMobile = forceMobile || isMobileHook;
   const reducedMotion = useReducedMotion();
 
   // 点击跳转并高亮目标区块
