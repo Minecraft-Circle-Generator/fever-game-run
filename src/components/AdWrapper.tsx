@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
+import postscribe from 'postscribe';
 
 interface AdWrapperProps {
   scriptSrc: string;
@@ -6,8 +7,9 @@ interface AdWrapperProps {
 }
 
 /**
- * Safely injects third-party ad scripts in a React SPA.
- * Hooks document.write to prevent the ad script from wiping the main DOM.
+ * Safely injects third-party ad scripts in a React SPA using postscribe.
+ * Postscribe properly parses and executes document.write calls asynchronously
+ * without wiping the React DOM.
  */
 const AdWrapper: React.FC<AdWrapperProps> = ({ scriptSrc, containerId }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -15,43 +17,20 @@ const AdWrapper: React.FC<AdWrapperProps> = ({ scriptSrc, containerId }) => {
 
   useEffect(() => {
     if (isDev) return;
-
-    let isUnmounted = false;
     
-    // Safely hook document.write
-    const originalWrite = document.write;
-    const originalWriteln = document.writeln;
-    
-    document.write = function (str: string) {
-      if (!isUnmounted && containerRef.current) {
-        // Append written HTML into our container instead of wiping the document
-        containerRef.current.insertAdjacentHTML('beforeend', str);
-      }
-    };
-    
-    document.writeln = function (str: string) {
-      if (!isUnmounted && containerRef.current) {
-        containerRef.current.insertAdjacentHTML('beforeend', str + '<br/>');
-      }
-    };
-
-    const script = document.createElement('script');
-    script.async = true;
-    script.setAttribute('data-cfasync', 'false');
-    script.src = scriptSrc;
-
     if (containerRef.current) {
-      containerRef.current.appendChild(script);
+      // Use postscribe to inject the script. This safely handles document.write
+      // and ensures all chained scripts are fetched and executed in order.
+      postscribe(
+        containerRef.current,
+        `<script data-cfasync="false" async src="${scriptSrc}"></script>`,
+        {
+          error: (e: any) => {
+            console.error('Postscribe injection error:', e);
+          }
+        }
+      );
     }
-
-    return () => {
-      isUnmounted = true;
-      document.write = originalWrite;
-      document.writeln = originalWriteln;
-      if (script.parentNode) {
-        script.parentNode.removeChild(script);
-      }
-    };
   }, [scriptSrc, isDev]);
 
   if (isDev) {
