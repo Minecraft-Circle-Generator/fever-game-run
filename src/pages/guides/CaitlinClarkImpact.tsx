@@ -400,7 +400,7 @@ const CaitlinClarkImpact = () => {
         <div className="text-center text-sm text-gray-500 mt-8">
           <p>Statistics are sourced from publicly available WNBA data. 2026 figures are projections based on early-season trends. Fever Game Today is an independent fan site and is not officially affiliated with the Indiana Fever or the WNBA.</p>
         </div>
-      </article>
+      </div>
     </div>
   );
 };
