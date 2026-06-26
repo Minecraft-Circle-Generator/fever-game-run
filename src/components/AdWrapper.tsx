@@ -40,17 +40,6 @@ const AdWrapper: React.FC<AdWrapperProps> = ({ scriptSrc, containerId }) => {
     script.setAttribute('data-cfasync', 'false');
     script.src = scriptSrc;
 
-    // Wait until script loads to restore document.write
-    script.onload = () => {
-      document.write = originalWrite;
-      document.writeln = originalWriteln;
-    };
-    
-    script.onerror = () => {
-      document.write = originalWrite;
-      document.writeln = originalWriteln;
-    };
-
     if (containerRef.current) {
       containerRef.current.appendChild(script);
     }
