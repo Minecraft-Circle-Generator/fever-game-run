@@ -92,7 +92,12 @@ const News = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {articles.map((article) => (
-              <div key={article.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow overflow-hidden flex flex-col h-full border border-gray-100">
+              <Link 
+                key={article.id} 
+                to={`/news/${encodeURIComponent(article.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'))}`}
+                state={{ article }}
+                className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden flex flex-col h-full border border-gray-100 cursor-pointer"
+              >
                 {article.imageUrl && (
                   <div className="h-48 w-full overflow-hidden">
                     <img src={article.imageUrl} alt={article.title} className="w-full h-full object-cover" />
@@ -116,19 +121,8 @@ const News = () => {
                   <p className="text-gray-600 leading-relaxed mb-6 flex-grow line-clamp-4 text-sm">
                     {article.description}
                   </p>
-                  
-                  <div className="mt-auto pt-4 border-t border-gray-100">
-                    <Link 
-                      to={`/news/${encodeURIComponent(article.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'))}`}
-                      state={{ article }}
-                      className="inline-flex items-center text-red-600 font-bold hover:text-red-700 transition-colors group"
-                    >
-                      Read Full Article
-                      <ArrowRight className="h-4 w-4 ml-1 transform group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                  </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}
