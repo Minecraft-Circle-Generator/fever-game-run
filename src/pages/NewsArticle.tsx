@@ -57,7 +57,7 @@ const enhanceHeadline = (title: string) => {
 
 const generateContext = (title: string, description: string) => {
   const t = (title + ' ' + (description || '')).toLowerCase();
-  let content = [];
+  const content = [];
   
   content.push("📊 Fever Tactical Breakdown & Context:");
   

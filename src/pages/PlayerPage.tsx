@@ -121,7 +121,7 @@ const PlayerPage = () => {
       clarkVideos.sort((a, b) => combinedScore(b) - combinedScore(a));
       
       // 如果找到的视频少于3个，就重复显示现有视频以确保至少有3个
-      let finalVideos = clarkVideos.slice(0, 6);
+      const finalVideos = clarkVideos.slice(0, 6);
       if (finalVideos.length > 0 && finalVideos.length < 3) {
         const videosToAdd = 3 - finalVideos.length;
         for (let i = 0; i < videosToAdd; i++) {
