@@ -32,12 +32,6 @@ const OptimizedVideoCard: React.FC<OptimizedVideoCardProps> = memo(({
   const isMobile = useIsMobile();
   const [isPlaying, setIsPlaying] = React.useState(false);
 
-  const handleVideoClick = () => {
-    if (videoId) {
-      setIsPlaying(true);
-    }
-  };
-
   // 为有 videoId 的视频构造 YouTube 官方缩略图候选链
   const thumbCandidates = useMemo(() => {
     if (!videoId) return [];
