@@ -66,6 +66,7 @@ const News = () => {
         <title>Latest WNBA News | Fever Game Today</title>
         <meta name="description" content="Read the latest news, tactical analysis, and deep dives into Caitlin Clark and the Indiana Fever's performance in the WNBA." />
         <link rel="canonical" href="https://fevergame.space/news" />
+        <script data-cfasync="false" async type="text/javascript" src="//capwalahee.com/gn9H8331FzWtxGKn/144793"></script>
       </Helmet>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
