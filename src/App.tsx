@@ -4,6 +4,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import Navigation from './components/Navigation';
 import Footer from './components/Footer';
 import InstallPrompt from './components/InstallPrompt';
+import ErrorBoundary from './components/ErrorBoundary';
 
 const FastHome = lazy(() => import('./pages/FastHome'));
 const PlayerPage = lazy(() => import('./pages/PlayerPage'));
@@ -29,26 +30,28 @@ function App() {
         <div className="min-h-screen bg-gray-50 flex flex-col">
           <Navigation />
           <main className="flex-grow">
-            <Suspense fallback={<div className="p-6 text-center text-gray-600">Loading...</div>}>
-              <Routes>
-                <Route path="/" element={<FastHome />} />
-                <Route path="/player/caitlin-clark" element={<PlayerPage />} />
-                <Route path="/videos" element={<VideosPage />} />
-                <Route path="/schedule" element={<SchedulePage />} />
-                <Route path="/recap/:gameId" element={<GameRecap />} />
-                <Route path="/privacy" element={<PrivacyPolicy />} />
-                <Route path="/terms" element={<TermsOfService />} />
-                <Route path="/ai-overview" element={<AIOverviewPage />} />
-                <Route path="/news" element={<News />} />
-                <Route path="/news/:articleId" element={<NewsArticle />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/guides/how-to-watch-fever" element={<HowToWatchFever />} />
-                <Route path="/guides/caitlin-clark-impact" element={<CaitlinClarkImpact />} />
-                <Route path="/guides/fever-season-preview" element={<FeverSeasonPreview />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Suspense>
+            <ErrorBoundary>
+              <Suspense fallback={<div className="p-6 text-center text-gray-600">Loading...</div>}>
+                <Routes>
+                  <Route path="/" element={<FastHome />} />
+                  <Route path="/player/caitlin-clark" element={<PlayerPage />} />
+                  <Route path="/videos" element={<VideosPage />} />
+                  <Route path="/schedule" element={<SchedulePage />} />
+                  <Route path="/recap/:gameId" element={<GameRecap />} />
+                  <Route path="/privacy" element={<PrivacyPolicy />} />
+                  <Route path="/terms" element={<TermsOfService />} />
+                  <Route path="/ai-overview" element={<AIOverviewPage />} />
+                  <Route path="/news" element={<News />} />
+                  <Route path="/news/:articleId" element={<NewsArticle />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/guides/how-to-watch-fever" element={<HowToWatchFever />} />
+                  <Route path="/guides/caitlin-clark-impact" element={<CaitlinClarkImpact />} />
+                  <Route path="/guides/fever-season-preview" element={<FeverSeasonPreview />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
+            </ErrorBoundary>
           </main>
           <Footer />
           <InstallPrompt />
