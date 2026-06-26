@@ -1,7 +1,8 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { BarChart3, TrendingUp, Users, Star, Target, Award } from 'lucide-react';
+import { BarChart3, TrendingUp, Users, Target, Activity, Zap, Award } from 'lucide-react';
+import AdWrapper from '../../components/AdWrapper';
 
 const CaitlinClarkImpact = () => {
   const structuredData = {
@@ -77,7 +78,6 @@ const CaitlinClarkImpact = () => {
         <meta property="og:type" content="article" />
         <meta property="og:url" content="https://fevergame.space/guides/caitlin-clark-impact" />
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
-        <script data-cfasync="false" async type="text/javascript" src="//pm.kittultheeker.com/seEKzFFlkKCt7wj/143423"></script>
       </Helmet>
 
       {/* Hero Section */}
@@ -94,17 +94,21 @@ const CaitlinClarkImpact = () => {
             <BarChart3 className="h-10 w-10 mr-4" />
             <span className="bg-white/20 text-sm font-semibold px-3 py-1 rounded-full">Statistical Analysis</span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-black mb-4 leading-tight">
-            Caitlin Clark's Impact on Indiana Fever — A Statistical Analysis
+          <h1 className="text-4xl md:text-6xl font-black mb-6 leading-tight">
+            The Caitlin Clark Effect: A Statistical Analysis
           </h1>
-          <p className="text-xl text-red-100 max-w-3xl">
-            From record-setting Iowa career to franchise-altering WNBA debut, a data-driven look at how one player reshaped an organization and an entire league.
+          <p className="text-xl md:text-2xl text-red-100 mb-8 max-w-2xl font-light">
+            How the 2024 #1 overall pick transformed the Indiana Fever and set the WNBA on fire. A deep dive into the numbers behind the magic.
           </p>
         </div>
       </div>
 
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <AdWrapper scriptSrc="//pm.kittultheeker.com/seEKzFFlkKCt7wj/143423" />
+      </div>
+
       {/* Main Content */}
-      <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-12 pb-24">
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 md:p-12">
 
           {/* Introduction */}

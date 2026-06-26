@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { FileText, Calendar, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { fetchWnbaNews, WnbaNewsItem } from '../utils/espnProvider';
+import AdWrapper from '../components/AdWrapper';
 
 const fallbackArticles = [
   {
@@ -66,7 +67,6 @@ const News = () => {
         <title>Indiana Fever News & Updates | Fever Game Today</title>
         <meta name="description" content="Stay updated with the latest news, game analysis, and player updates for the Indiana Fever. Coverage of Caitlin Clark, Aliyah Boston, and more." />
         <link rel="canonical" href="https://fevergame.space/news" />
-        <script async="async" data-cfasync="false" src="https://pl29871294.effectivecpmnetwork.com/639a4c936d7c38df8d03c63b78071559/invoke.js"></script>
       </Helmet>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -130,7 +130,10 @@ const News = () => {
 
         {/* Native Ad Slot */}
         <div className="mt-8 text-center">
-          <div id="container-639a4c936d7c38df8d03c63b78071559"></div>
+          <AdWrapper 
+            scriptSrc="https://pl29871294.effectivecpmnetwork.com/639a4c936d7c38df8d03c63b78071559/invoke.js" 
+            containerId="container-639a4c936d7c38df8d03c63b78071559" 
+          />
         </div>
 
         {/* AdSense Slot inside content to show text context to crawler */}

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link, Navigate, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Calendar, User, ArrowLeft, Share2, ExternalLink, Brain } from 'lucide-react';
+import AdWrapper from '../components/AdWrapper';
 
 const articlesContent: Record<string, { title: string; date: string; author: string; content: string[] }> = {
   'caitlin-clark-2026-season-preview': {
@@ -128,7 +129,6 @@ const NewsArticle = () => {
         <title>{article.title} | Fever Game Today</title>
         <meta name="description" content={article.content[0].substring(0, 160) + '...'} />
         <link rel="canonical" href={`https://fevergame.space/news/${articleId || ''}`} />
-        <script data-cfasync="false" async type="text/javascript" src="//sompneaztecs.com/gAwhTjBYrbYyBNG/144793"></script>
       </Helmet>
 
       {/* Article Header */}
@@ -171,7 +171,8 @@ const NewsArticle = () => {
 
       {/* Article Content */}
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <article className="prose prose-lg prose-red max-w-none text-gray-800">
+        <AdWrapper scriptSrc="//sompneaztecs.com/gAwhTjBYrbYyBNG/144793" />
+        <article className="prose prose-lg prose-red max-w-none text-gray-800 mt-8">
           {article.content.map((paragraph: string, idx: number) => {
             const isContextHeader = paragraph.includes('📊 Fever Tactical Breakdown');
             const isESPNSynopsis = paragraph.includes('📰 ESPN Synopsis:');

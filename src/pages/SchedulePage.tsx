@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { Calendar, MapPin, Clock, ExternalLink } from 'lucide-react';
+import CountdownTimer from '../components/CountdownTimer';
+import AdWrapper from '../components/AdWrapper';
+import { Calendar, MapPin, Clock, ExternalLink, Ticket } from 'lucide-react';
 import { fetchFullFeverSchedule, ScheduleGame } from '../utils/espnProvider';
 
 export default function SchedulePage() {
@@ -89,7 +91,6 @@ export default function SchedulePage() {
             {generateSchema()}
           </script>
         )}
-        <script data-cfasync="false" async type="text/javascript" src="//whelmlegge.com/gP9iIRQ1T5bkhjTcG/144793"></script>
       </Helmet>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -100,7 +101,20 @@ export default function SchedulePage() {
           <p className="text-lg text-gray-600 font-medium">
             Don't miss a single moment of the 2026 season. Plan ahead for upcoming games.
           </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start mt-6">
+            <a 
+              href="https://ticketmaster.evyy.net/c/3551523/264167/4272?u=https%3A%2F%2Fwww.ticketmaster.com%2Findiana-fever-tickets%2Fartist%2F806041"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center px-8 py-4 text-base font-bold rounded-full text-white bg-red-600 hover:bg-red-700 shadow-lg hover:shadow-xl transition-all duration-200"
+            >
+              <Ticket className="h-5 w-5 mr-2" />
+              Buy Tickets
+            </a>
+          </div>
         </div>
+
+        <AdWrapper scriptSrc="//whelmlegge.com/gP9iIRQ1T5bkhjTcG/144793" />
 
         {loading ? (
           <div className="space-y-4">
@@ -119,7 +133,6 @@ export default function SchedulePage() {
           </div>
         ) : (
           <div className="space-y-4 relative">
-            {/* Timeline Line */}
             <div className="absolute left-4 md:left-8 top-0 bottom-0 w-1 bg-gradient-to-b from-red-500 via-orange-400 to-yellow-300 rounded-full hidden md:block"></div>
 
             {games.map((game, index) => {
@@ -127,12 +140,10 @@ export default function SchedulePage() {
               
               return (
                 <div key={game.id} className="relative flex items-stretch md:pl-16 group transition-all duration-300">
-                  {/* Timeline Dot */}
                   <div className="absolute left-8 top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 bg-white border-4 border-red-500 rounded-full z-10 hidden md:block group-hover:scale-150 group-hover:border-yellow-400 transition-transform"></div>
 
                   <div className="flex-1 bg-white rounded-xl shadow-sm hover:shadow-xl border-l-4 border-transparent hover:border-red-500 overflow-hidden transition-all duration-300 flex flex-col md:flex-row">
                     
-                    {/* Date/Time Block */}
                     <div className="bg-gray-50 p-4 md:p-6 flex flex-row md:flex-col items-center justify-between md:justify-center md:w-48 border-b md:border-b-0 md:border-r border-gray-100">
                       <div className="text-center">
                         <div className="text-sm font-bold text-red-600 uppercase tracking-widest">{date.split(' ')[0]}</div>
@@ -144,7 +155,6 @@ export default function SchedulePage() {
                       </div>
                     </div>
 
-                    {/* Game Details Block */}
                     <div className="p-4 md:p-6 flex-1 flex flex-col justify-center">
                       <div className="flex items-center justify-between mb-2">
                         <span className={`px-2 py-1 rounded text-xs font-bold uppercase tracking-wider ${game.isHome ? 'bg-red-100 text-red-700' : 'bg-gray-200 text-gray-700'}`}>
@@ -182,7 +192,6 @@ export default function SchedulePage() {
                       </div>
                     </div>
 
-                    {/* Actions Block */}
                     <div className="p-4 md:p-6 bg-gray-50 flex flex-row md:flex-col items-center justify-center gap-3 border-t md:border-t-0 md:border-l border-gray-100">
                       <button 
                         onClick={() => handleAddToCalendar(game)}
