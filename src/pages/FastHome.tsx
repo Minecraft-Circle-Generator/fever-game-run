@@ -221,49 +221,59 @@ const FastHome = () => {
             </div>
           </div>
 
-          {/* 今日比赛状态 */}
           <section id="todays-game" className="mb-8">
             <div className="flex items-center mb-6">
               <Trophy className={`h-6 w-6 md:h-8 md:w-8 text-orange-500 mr-3 ${getAnimationClass('animate-bounce')}`} />
               <h2 className="text-xl md:text-3xl font-black text-gray-800">
-                Today's Game
+                {todayGame ? "Today's Game" : "Off-Season Hub"}
               </h2>
             </div>
             
             <div className="space-y-6 lg:grid lg:grid-cols-2 lg:gap-8 lg:space-y-0">
-              {/* 比赛卡片 */}
-              <Suspense fallback={<QuickLoader />}>
-                {todayGame ? (
-                  isMobile ? (
+              {/* Left Column: Game Card OR Off-Season Hub */}
+              {todayGame ? (
+                <Suspense fallback={<QuickLoader />}>
+                  {isMobile ? (
                     <MobileGameCard {...todayGame} />
                   ) : (
                     <InteractiveGameCard {...todayGame} enableInteractions={true} />
-                  )
-                ) : (
-                  <QuickLoader />
-                )}
-              </Suspense>
-              
-              {/* 比赛预览卡片 */}
-              <Link 
-                to={todayGame ? `/recap/${todayGame.id}` : '/schedule'}
-                className="bg-white rounded-xl shadow-lg p-4 md:p-6 border-2 border-orange-300 text-left w-full cursor-pointer hover:bg-orange-50 hover:scale-[1.02] hover:shadow-xl transition-all block"
-              >
-                <div className="flex items-center mb-4">
-                  <Zap className={`h-5 w-5 md:h-6 md:w-6 text-orange-500 mr-2 ${getAnimationClass('animate-pulse')}`} />
-                  <h3 className="text-lg md:text-xl font-bold text-gray-900">
-                    {todayGame?.status === 'live' ? 'LIVE GAME! 🔴' : 'GAME PREVIEW 🚀'}
-                  </h3>
+                  )}
+                </Suspense>
+              ) : (
+                <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 border-2 border-red-200 text-center flex flex-col justify-center h-full">
+                  <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Star className="h-8 w-8 text-red-500" />
+                  </div>
+                  <h3 className="text-2xl font-black text-gray-900 mb-2">No Game Today</h3>
+                  <p className="text-gray-600 mb-6">Dive into player profiles, historical recaps, and the latest news.</p>
+                  <Link to="/news" className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-full inline-block mx-auto transition-transform hover:scale-105 shadow-md">
+                    Read Latest News
+                  </Link>
                 </div>
-                <p className="text-gray-700 mb-4 text-sm md:text-base leading-relaxed">
-                  {todayGame?.status === 'live' 
-                    ? '🔴 LIVE ACTION! Track stats, highlights and play-by-play right here!' 
-                    : '🔥 Get ready for an epic showdown! Click to view full game preview, stats & details!'
-                  }
-                </p>
-                <div className="flex items-center text-sm md:text-base font-semibold text-red-600 bg-red-50 rounded-lg p-3 hover:bg-red-100 transition-colors">
-                  <Target className={`h-4 w-4 md:h-5 md:w-5 mr-2 text-orange-500 ${getAnimationClass('animate-spin')}`} />
-                  <span>🎯 CLICK FOR FULL COVERAGE & STATS!</span>
+              )}
+              
+              {/* Right Column: Roster Entry Point */}
+              <Link 
+                to="/guides/caitlin-clark-impact"
+                className="bg-gradient-to-br from-red-900 to-black rounded-xl shadow-xl p-6 md:p-8 border-2 border-red-700 text-left w-full cursor-pointer hover:shadow-2xl transition-all block relative overflow-hidden group"
+              >
+                <div className="absolute top-0 right-0 opacity-20 transform translate-x-1/4 -translate-y-1/4 group-hover:scale-110 transition-transform">
+                  <Trophy className="h-48 w-48 text-yellow-500" />
+                </div>
+                <div className="relative z-10">
+                  <div className="flex items-center mb-4">
+                    <Star className={`h-6 w-6 text-yellow-400 mr-2 ${getAnimationClass('animate-pulse')}`} />
+                    <h3 className="text-xl md:text-2xl font-black text-white">
+                      Player Deep Dive
+                    </h3>
+                  </div>
+                  <p className="text-gray-300 mb-6 text-sm md:text-base leading-relaxed max-w-sm">
+                    Explore Caitlin Clark's monumental impact, career stats, and deep tactical analysis. Meet the face of the new Indiana Fever era!
+                  </p>
+                  <div className="inline-flex items-center text-sm md:text-base font-bold text-black bg-yellow-400 rounded-full px-6 py-3 hover:bg-yellow-300 transition-colors">
+                    <span>Explore Roster</span>
+                    <ExternalLink className="h-4 w-4 ml-2" />
+                  </div>
                 </div>
               </Link>
             </div>

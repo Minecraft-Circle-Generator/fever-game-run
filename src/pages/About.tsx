@@ -1,65 +1,96 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Mail, Info, Shield, Target } from 'lucide-react';
+import { Mail, Info, Shield, Target, Trophy } from 'lucide-react';
 
 const About = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <Helmet>
-        <title>About Us | Fever Game Today</title>
-        <meta name="description" content="Learn more about Fever Game Today, our mission, and our dedication to bringing you the best Indiana Fever and Caitlin Clark stats, news, and highlights." />
+        <title>History & About Us | Fever Game Today</title>
+        <meta name="description" content="Discover the rich history of the Indiana Fever, from the Tamika Catchings 2012 Championship era to the new Caitlin Clark and Aliyah Boston generation. Learn about our Fever fan community." />
         <link rel="canonical" href="https://fevergame.space/about" />
       </Helmet>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-          <div className="bg-gradient-to-r from-red-600 to-red-800 px-8 py-12 text-white">
-            <div className="flex items-center justify-center mb-6">
-              <Info className="h-12 w-12" />
+          
+          {/* Hero Section */}
+          <div className="bg-gradient-to-br from-red-700 via-red-900 to-black px-8 py-16 text-white relative overflow-hidden">
+            <div className="absolute top-0 right-0 opacity-10">
+              <Shield className="h-64 w-64 transform translate-x-16 -translate-y-16" />
             </div>
-            <h1 className="text-4xl font-black text-center mb-4">About Fever Game Today</h1>
-            <p className="text-xl text-center text-red-100 max-w-2xl mx-auto">
-              The ultimate destination for passionate Indiana Fever fans and Caitlin Clark supporters worldwide.
-            </p>
+            <div className="relative z-10">
+              <h1 className="text-4xl md:text-5xl font-black mb-4">The Pride of Indiana Basketball</h1>
+              <p className="text-xl text-red-100 max-w-2xl font-medium leading-relaxed">
+                Welcome to Fever Game Today. We are the ultimate fan-driven community dedicated to tracking the legacy, the present, and the future of the Indiana Fever.
+              </p>
+            </div>
           </div>
 
           <div className="p-8 md:p-12">
+            {/* The Glory Days Section */}
             <section className="mb-12">
-              <div className="flex items-center mb-4">
-                <Target className="h-6 w-6 text-red-600 mr-3" />
-                <h2 className="text-2xl font-bold text-gray-900">Our Mission</h2>
+              <div className="flex items-center mb-6">
+                <Trophy className="h-8 w-8 text-yellow-500 mr-3" />
+                <h2 className="text-3xl font-bold text-gray-900">A Legacy of Excellence: The Catchings Era</h2>
               </div>
-              <p className="text-gray-600 leading-relaxed text-lg mb-4">
-                Founded in 2024, Fever Game Today was created with a singular mission: to provide the most comprehensive, real-time, and engaging platform for Indiana Fever basketball fans. We understand the thrill of the game and the hunger for accurate, up-to-the-minute statistics.
-              </p>
-              <p className="text-gray-600 leading-relaxed text-lg">
-                With the arrival of generational talents like Caitlin Clark, Aliyah Boston, and Kelsey Mitchell, the Fever are capturing the attention of the basketball world. Our platform is dedicated to tracking their journey, providing live score updates, detailed player statistics, and curated video highlights all in one accessible place.
-              </p>
-            </section>
-
-            <section className="mb-12">
-              <div className="flex items-center mb-4">
-                <Shield className="h-6 w-6 text-red-600 mr-3" />
-                <h2 className="text-2xl font-bold text-gray-900">What We Offer</h2>
-              </div>
-              <ul className="space-y-4 text-gray-600 text-lg list-disc list-inside">
-                <li><strong>Live Game Tracking:</strong> Real-time updates during every Indiana Fever game, so you never miss a play.</li>
-                <li><strong>Player Statistics:</strong> In-depth season averages and game-by-game logs focusing on Caitlin Clark and the entire roster.</li>
-                <li><strong>Video Highlights:</strong> Carefully curated post-game highlights, press conferences, and top plays.</li>
-                <li><strong>Latest News & Analysis:</strong> Expert breakdowns of team performance, tactical shifts, and WNBA season outlooks.</li>
-              </ul>
-            </section>
-
-            <section className="mb-12">
-              <div className="bg-red-50 rounded-xl p-8 border border-red-100">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4 text-center">Join Our Community</h2>
-                <p className="text-gray-700 text-center mb-6">
-                  We are a community-driven project built by fans, for fans. Whether you are tracking Caitlin Clark's record-breaking three-pointers or analyzing the team's defensive rating, Fever Game Today is your home court.
+              <div className="prose prose-lg prose-red max-w-none text-gray-700">
+                <p>
+                  The Indiana Fever franchise was born in 2000, bringing top-tier professional women's basketball to the heartland of hoops. However, the true identity of the Fever was forged with the arrival of the legendary <strong>Tamika Catchings</strong>. Known for her ferocious defense, unmatched work ethic, and leadership, Catchings transformed the Fever into a perennial WNBA powerhouse.
                 </p>
-                <div className="text-center">
-                  <a href="/contact" className="inline-flex items-center bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-full transition-colors">
-                    <Mail className="h-5 w-5 mr-2" />
-                    Contact Us
+                <p>
+                  The pinnacle of this era arrived in <strong>2012</strong>. After years of heartbreaking playoff exits, the Fever, battle-tested and resilient, defeated the highly favored Minnesota Lynx to capture the <strong>WNBA Championship</strong>. That 2012 title run remains a defining moment in Indiana sports history, proving that grit and teamwork can conquer all.
+                </p>
+              </div>
+            </section>
+
+            {/* The New Era Section */}
+            <section className="mb-12">
+              <div className="flex items-center mb-6">
+                <Target className="h-8 w-8 text-red-600 mr-3" />
+                <h2 className="text-3xl font-bold text-gray-900">The New Generation: Clark, Boston & Mitchell</h2>
+              </div>
+              <div className="bg-gray-50 rounded-xl p-8 border border-gray-200 prose prose-lg prose-red max-w-none text-gray-700">
+                <p>
+                  Today, the Indiana Fever are experiencing a monumental resurgence. The drafting of generational talents like unanimous Rookie of the Year <strong>Aliyah Boston</strong> and college basketball's all-time leading scorer <strong>Caitlin Clark</strong> has ushered in a thrilling new era at Gainbridge Fieldhouse.
+                </p>
+                <p>
+                  Paired with the veteran elite scoring of <strong>Kelsey Mitchell</strong>, this young core has made the Fever one of the most electrifying and closely-watched teams in global sports. The energy is back, the sellout crowds have returned, and the chase for the franchise's second championship has officially begun.
+                </p>
+              </div>
+            </section>
+
+            {/* Our Mission */}
+            <section className="mb-12">
+              <div className="flex items-center mb-6">
+                <Info className="h-8 w-8 text-blue-600 mr-3" />
+                <h2 className="text-3xl font-bold text-gray-900">About This Community</h2>
+              </div>
+              <div className="prose prose-lg max-w-none text-gray-700">
+                <p>
+                  <strong>Fever Game Today</strong> was built by fans, for fans. In this fast-paced digital era, we noticed a need for a centralized, lightning-fast platform where Fever fans could get real-time game updates, tactical breakdowns, and deep statistical dives without the clutter.
+                </p>
+                <ul>
+                  <li><strong>Live Tracking:</strong> Real-time score updates and broadcast information so you never miss a tip-off.</li>
+                  <li><strong>Tactical Deep Dives:</strong> Expert analysis on coaching strategies and player mechanics.</li>
+                  <li><strong>Community Driven:</strong> A safe, passionate space to celebrate the highs and analyze the lows of every WNBA season.</li>
+                </ul>
+              </div>
+            </section>
+
+            {/* Call to Action */}
+            <section className="mb-8">
+              <div className="bg-red-50 rounded-2xl p-10 border border-red-100 text-center">
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">Join the Fever Faithful</h3>
+                <p className="text-gray-700 text-lg mb-8 max-w-2xl mx-auto">
+                  Whether you've been sitting in the stands since the 2000 inaugural season, or you just bought your first Caitlin Clark jersey, you belong here. 
+                </p>
+                <div className="flex flex-col sm:flex-row justify-center gap-4">
+                  <a href="/schedule" className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-full transition-colors shadow-md">
+                    View Game Schedule
+                  </a>
+                  <a href="/news" className="bg-white border-2 border-red-600 text-red-600 hover:bg-red-50 font-bold py-3 px-8 rounded-full transition-colors">
+                    Read Latest News
                   </a>
                 </div>
               </div>

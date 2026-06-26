@@ -55,17 +55,46 @@ export default function SchedulePage() {
     document.body.removeChild(link);
   };
 
+  const generateSchema = () => {
+    if (games.length === 0) return null;
+    const events = games.map(game => ({
+      "@context": "https://schema.org",
+      "@type": "SportsEvent",
+      "name": `Indiana Fever vs ${game.opponent}`,
+      "startDate": new Date(game.date).toISOString(),
+      "location": {
+        "@type": "Place",
+        "name": game.venue || (game.isHome ? "Gainbridge Fieldhouse" : "Away Arena"),
+        "address": "USA"
+      },
+      "homeTeam": {
+        "@type": "SportsTeam",
+        "name": game.isHome ? "Indiana Fever" : game.opponent
+      },
+      "awayTeam": {
+        "@type": "SportsTeam",
+        "name": game.isHome ? game.opponent : "Indiana Fever"
+      }
+    }));
+    return JSON.stringify(events);
+  };
+
   return (
     <div className="bg-gray-50 min-h-screen py-8">
       <Helmet>
-        <title>Indiana Fever Schedule 2026 - Upcoming Games & Tickets</title>
-        <meta name="description" content="View the complete 2026 Indiana Fever WNBA schedule. Get dates, times, TV channels, and tickets for upcoming Caitlin Clark and Indiana Fever games." />
+        <title>Indiana Fever Game Schedule 2026 - Dates, Times & Tickets</title>
+        <meta name="description" content="View the complete 2026 Indiana Fever WNBA game schedule. Get dates, times, TV channels, and tickets for upcoming Caitlin Clark and Indiana Fever games." />
+        {games.length > 0 && (
+          <script type="application/ld+json">
+            {generateSchema()}
+          </script>
+        )}
       </Helmet>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8 text-center md:text-left">
           <h1 className="text-3xl md:text-5xl font-black text-gray-900 mb-4 uppercase tracking-tight">
-            Indiana Fever <span className="text-red-600">Schedule</span>
+            Indiana Fever Game <span className="text-red-600">Schedule</span>
           </h1>
           <p className="text-lg text-gray-600 font-medium">
             Don't miss a single moment of the 2026 season. Plan ahead for upcoming games.
@@ -81,8 +110,11 @@ export default function SchedulePage() {
         ) : games.length === 0 ? (
           <div className="bg-white rounded-xl shadow-md p-12 text-center border-2 border-dashed border-gray-200">
             <Calendar className="h-16 w-16 mx-auto text-gray-300 mb-4" />
-            <h3 className="text-xl font-bold text-gray-900">No Upcoming Games</h3>
-            <p className="text-gray-500 mt-2">The season has ended or the schedule is currently unavailable.</p>
+            <h3 className="text-2xl font-black text-gray-900 mb-2">2026 Season Concluded</h3>
+            <p className="text-gray-600 mt-2 mb-8 text-lg">The WNBA season has officially ended. Thank you for following the Indiana Fever with us. Check back soon for the upcoming 2027 Schedule!</p>
+            <Link to="/news" className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-transform transform hover:scale-105">
+              Read Off-Season News & Player Recaps
+            </Link>
           </div>
         ) : (
           <div className="space-y-4 relative">
@@ -159,17 +191,15 @@ export default function SchedulePage() {
                         <span className="text-sm">Calendar</span>
                       </button>
                       
-                      {game.ticketsUrl && (
-                        <a 
-                          href={game.ticketsUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex-1 md:flex-none md:w-full bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-700 hover:to-orange-600 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center transition-all shadow-md hover:shadow-lg"
-                        >
-                          <span className="text-sm">Tickets</span>
-                          <ExternalLink size={14} className="ml-2 opacity-80" />
-                        </a>
-                      )}
+                      <a 
+                        href={game.ticketsUrl || `https://www.stubhub.com/indiana-fever-tickets/performer/12665/`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 md:flex-none md:w-full bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-700 hover:to-orange-600 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center transition-all shadow-md hover:shadow-lg"
+                      >
+                        <span className="text-sm">Find Tickets</span>
+                        <ExternalLink size={14} className="ml-2 opacity-80" />
+                      </a>
                     </div>
                   </div>
                 </div>
