@@ -1,5 +1,5 @@
 import React, { memo, useMemo } from 'react';
-import { Play, Eye, Clock } from 'lucide-react';
+import { Play, Eye, Clock, ExternalLink } from 'lucide-react';
 import LazyImage from './LazyImage';
 import { useIsMobile } from '../hooks/useMediaQuery';
 
