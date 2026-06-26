@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Video, Flame, Star, Brain } from 'lucide-react';
+import { Home, Video, Flame, Star, Brain, Calendar, FileText } from 'lucide-react';
 import { useIsMobile, useReducedMotion } from '../hooks/useMediaQuery';
 
 const Navigation = () => {
@@ -132,24 +132,36 @@ const Navigation = () => {
             </Link>
           </div>
           
-          <div className="md:hidden flex items-center space-x-2">
+          <div className="md:hidden flex items-center space-x-1 sm:space-x-2">
             <Link 
               to="/player/caitlin-clark" 
               className="p-2 rounded-full hover:bg-white hover:bg-opacity-20 transition-all duration-300"
             >
-              <Star className="h-6 w-6 text-yellow-300" />
+              <Star className="h-5 w-5 sm:h-6 sm:w-6 text-yellow-300" />
             </Link>
             <Link 
               to="/videos" 
               className="p-2 rounded-full hover:bg-white hover:bg-opacity-20 transition-all duration-300"
             >
-              <Video className="h-6 w-6 text-white" />
+              <Video className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+            </Link>
+            <Link 
+              to="/schedule" 
+              className="p-2 rounded-full hover:bg-white hover:bg-opacity-20 transition-all duration-300"
+            >
+              <Calendar className="h-5 w-5 sm:h-6 sm:w-6 text-orange-300" />
+            </Link>
+            <Link 
+              to="/news" 
+              className="p-2 rounded-full hover:bg-white hover:bg-opacity-20 transition-all duration-300"
+            >
+              <FileText className="h-5 w-5 sm:h-6 sm:w-6 text-red-200" />
             </Link>
             <Link 
               to="/ai-overview" 
               className="p-2 rounded-full hover:bg-white hover:bg-opacity-20 transition-all duration-300"
             >
-              <Brain className="h-6 w-6 text-blue-300" />
+              <Brain className="h-5 w-5 sm:h-6 sm:w-6 text-blue-300" />
             </Link>
           </div>
         </div>
