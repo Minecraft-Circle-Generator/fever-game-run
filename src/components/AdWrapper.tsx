@@ -2,73 +2,80 @@ import React, { useRef, useEffect, useState } from 'react';
 
 interface AdWrapperProps {
   scriptSrc: string;
-  containerId?: string; 
+  containerId?: string;
 }
 
 /**
- * Safely injects third-party ad scripts in a React SPA using an iframe.
- * This completely isolates any document.write() calls so they don't wipe the main React DOM.
+ * Safely injects third-party ad scripts in a React SPA.
+ * Hooks document.write to prevent the ad script from wiping the main DOM.
  */
 const AdWrapper: React.FC<AdWrapperProps> = ({ scriptSrc, containerId }) => {
-  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [isDev] = useState(import.meta.env.DEV);
 
   useEffect(() => {
     if (isDev) return;
-    const iframe = iframeRef.current;
-    if (!iframe) return;
+
+    let isUnmounted = false;
     
-    // Use a slight timeout to ensure React has fully mounted the iframe
-    const timer = setTimeout(() => {
-      const doc = iframe.contentWindow?.document;
-      if (!doc) return;
-
-      const html = `
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <meta charset="utf-8">
-            <style>
-              body { margin: 0; padding: 0; overflow: hidden; background: transparent; display: flex; justify-content: center; align-items: center; }
-            </style>
-          </head>
-          <body>
-            ${containerId ? `<div id="${containerId}"></div>` : ''}
-            <script data-cfasync="false" async src="${scriptSrc}"></script>
-          </body>
-        </html>
-      `;
-      
-      try {
-        doc.open();
-        doc.write(html);
-        doc.close();
-      } catch (e) {
-        console.error("Ad iframe injection failed:", e);
+    // Safely hook document.write
+    const originalWrite = document.write;
+    const originalWriteln = document.writeln;
+    
+    document.write = function (str: string) {
+      if (!isUnmounted && containerRef.current) {
+        // Append written HTML into our container instead of wiping the document
+        containerRef.current.insertAdjacentHTML('beforeend', str);
       }
-    }, 100);
+    };
+    
+    document.writeln = function (str: string) {
+      if (!isUnmounted && containerRef.current) {
+        containerRef.current.insertAdjacentHTML('beforeend', str + '<br/>');
+      }
+    };
 
-    return () => clearTimeout(timer);
-  }, [scriptSrc, containerId, isDev]);
+    const script = document.createElement('script');
+    script.async = true;
+    script.setAttribute('data-cfasync', 'false');
+    script.src = scriptSrc;
+
+    // Wait until script loads to restore document.write
+    script.onload = () => {
+      document.write = originalWrite;
+      document.writeln = originalWriteln;
+    };
+    
+    script.onerror = () => {
+      document.write = originalWrite;
+      document.writeln = originalWriteln;
+    };
+
+    if (containerRef.current) {
+      containerRef.current.appendChild(script);
+    }
+
+    return () => {
+      isUnmounted = true;
+      document.write = originalWrite;
+      document.writeln = originalWriteln;
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+    };
+  }, [scriptSrc, isDev]);
 
   if (isDev) {
     return (
       <div className="my-4 bg-gray-50 border border-dashed border-gray-300 rounded-lg flex items-center justify-center p-3 text-gray-400 text-xs">
-        Ad Placeholder ({containerId ? 'Native' : 'Pop-under'})
+        Ad Placeholder
       </div>
     );
   }
 
   return (
-    <div className="w-full flex justify-center my-4">
-      <iframe
-        ref={iframeRef}
-        title="Advertisement"
-        width="100%"
-        height={containerId ? "300" : "0"} // Native ads need height, pop-unders can be 0
-        style={{ border: 'none', overflow: 'hidden', background: 'transparent' }}
-        sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
-      />
+    <div className="w-full flex justify-center my-4 ad-wrapper-container" ref={containerRef}>
+      {containerId && <div id={containerId}></div>}
     </div>
   );
 };
