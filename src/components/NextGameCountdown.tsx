@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Calendar, MapPin, Clock } from 'lucide-react';
 import { fetchNextFeverGame, NextGameInfo } from '../utils/espnProvider';
+import { Link } from 'react-router-dom';
 
 export default function NextGameCountdown() {
   const [game, setGame] = useState<NextGameInfo | null>(null);
@@ -63,7 +64,7 @@ export default function NextGameCountdown() {
   const formattedTime = dateObj.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
 
   return (
-    <div className="bg-gradient-to-br from-[#041E42] via-[#0E2D5B] to-[#C8102E] rounded-2xl shadow-xl overflow-hidden relative group">
+    <Link to="/schedule" className="block bg-gradient-to-br from-[#041E42] via-[#0E2D5B] to-[#C8102E] rounded-2xl shadow-xl overflow-hidden relative group cursor-pointer hover:shadow-2xl transition-all hover:-translate-y-1">
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
       
       <div className="relative p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
@@ -108,7 +109,7 @@ export default function NextGameCountdown() {
         </div>
         
       </div>
-    </div>
+    </Link>
   );
 }
 

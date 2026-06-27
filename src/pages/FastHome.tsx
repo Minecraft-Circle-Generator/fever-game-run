@@ -207,7 +207,10 @@ const FastHome = () => {
 
           {/* 实时状态横幅 */}
           <div className="mb-6">
-            <div className={`${liveStatus.isLive ? 'bg-gradient-to-r from-red-500 to-orange-500' : 'bg-gradient-to-r from-blue-500 to-purple-500'} text-white p-3 md:p-6 rounded-xl shadow-lg`}>
+            <button 
+              onClick={() => document.getElementById('todays-game')?.scrollIntoView({ behavior: 'smooth' })}
+              className={`w-full text-left cursor-pointer transition-transform transform hover:scale-[1.02] ${liveStatus.isLive ? 'bg-gradient-to-r from-red-500 to-orange-500' : 'bg-gradient-to-r from-blue-500 to-purple-500'} text-white p-3 md:p-6 rounded-xl shadow-lg`}
+            >
               <div className="flex items-center justify-center">
                 <div className="flex items-center space-x-2 md:space-x-4">
                   {liveStatus.isLive && <div className={`w-3 h-3 md:w-4 md:h-4 bg-yellow-300 rounded-full ${getAnimationClass('animate-ping')}`}></div>}
@@ -215,7 +218,7 @@ const FastHome = () => {
                   {liveStatus.isLive && <div className={`w-3 h-3 md:w-4 md:h-4 bg-yellow-300 rounded-full ${getAnimationClass('animate-ping')}`}></div>}
                 </div>
               </div>
-            </div>
+            </button>
           </div>
 
           <section id="todays-game" className="mb-8">
