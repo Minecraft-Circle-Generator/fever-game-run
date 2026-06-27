@@ -276,6 +276,7 @@ export interface ScheduleGame {
   venue: string;
   ticketsUrl?: string;
   broadcasts: string[];
+  status?: string;
 }
 
 export async function fetchFullFeverSchedule(): Promise<ScheduleGame[]> {
@@ -288,8 +289,9 @@ export async function fetchFullFeverSchedule(): Promise<ScheduleGame[]> {
     if (!data.events) return [];
     
     const now = new Date();
-    // Get all events in the future
-    const upcomingEvents = data.events.filter((e: any) => new Date(e.date) > now);
+    // Get events from the last 4 hours to catch currently live games
+    const fourHoursAgo = new Date(now.getTime() - 4 * 60 * 60 * 1000);
+    const upcomingEvents = data.events.filter((e: any) => new Date(e.date) > fourHoursAgo);
     
     return upcomingEvents.map((event: any) => {
       const comp = event.competitions?.[0];
@@ -302,6 +304,11 @@ export async function fetchFullFeverSchedule(): Promise<ScheduleGame[]> {
       
       const broadcasts = comp.broadcasts?.map((b: any) => b.media?.shortName || b.names?.[0]).filter(Boolean) || [];
       const ticketsUrl = comp.tickets?.[0]?.links?.[0]?.href || undefined;
+      
+      const statusType = event.status?.type?.state || comp.status?.type?.state || '';
+      let status = 'upcoming';
+      if (statusType.toLowerCase().includes('in')) status = 'live';
+      if (statusType.toLowerCase().includes('post') || statusType.toLowerCase().includes('final')) status = 'final';
 
       return {
         id: event.id,
@@ -311,9 +318,10 @@ export async function fetchFullFeverSchedule(): Promise<ScheduleGame[]> {
         isHome: fever.homeAway === 'home',
         venue: comp.venue?.fullName || 'TBD',
         ticketsUrl: ticketsUrl,
-        broadcasts
+        broadcasts,
+        status
       };
-    }).filter(Boolean) as ScheduleGame[];
+    }).filter((g: any) => g && g.status !== 'final') as ScheduleGame[];
   } catch (e) {
     console.error('[ESPN] fetchFullFeverSchedule error', e);
     return [];
