@@ -175,7 +175,16 @@ const HowToWatchFever = () => {
                   </tr>
                   <tr>
                     <td className="px-4 py-3 font-semibold text-gray-900">Prime Video</td>
-                    <td className="px-4 py-3 text-gray-700">$14.99/mo (Prime)</td>
+                    <td className="px-4 py-3">
+                      <a 
+                        href="https://www.amazon.com/gp/video/offers?tag=fevergame01-20" 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="text-green-600 font-bold hover:text-green-800 hover:underline"
+                      >
+                        $14.99/mo (Prime)
+                      </a>
+                    </td>
                     <td className="px-4 py-3 text-gray-700">TNT Sports package</td>
                     <td className="px-4 py-3 text-gray-700">None</td>
                   </tr>
