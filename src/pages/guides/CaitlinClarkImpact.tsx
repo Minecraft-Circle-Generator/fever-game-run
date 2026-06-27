@@ -2,6 +2,7 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { BarChart3, TrendingUp, Users, Target, Activity, Zap, Award, Star } from 'lucide-react';
+import AdWrapper from '../../components/AdWrapper';
 
 const CaitlinClarkImpact = () => {
   const structuredData = {
@@ -100,6 +101,10 @@ const CaitlinClarkImpact = () => {
             How the 2024 #1 overall pick transformed the Indiana Fever and set the WNBA on fire. A deep dive into the numbers behind the magic.
           </p>
         </div>
+      </div>
+
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <AdWrapper scriptSrc="//pm.kittultheeker.com/seEKzFFlkKCt7wj/143423" />
       </div>
 
       {/* Main Content */}
