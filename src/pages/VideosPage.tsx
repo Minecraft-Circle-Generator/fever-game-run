@@ -4,6 +4,7 @@ import VideoCard from '../components/VideoCard';
 import BookmarkButton from '../components/BookmarkButton';
 import { fetchLatestVideos, LatestVideo } from '../utils/videoProvider';
 import { t } from '../utils/i18n';
+import AdWrapper from '../components/AdWrapper';
 
 const VideosPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -200,6 +201,8 @@ const VideosPage = () => {
 
       {/* Video Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <AdWrapper scriptSrc="https://pl29886421.effectivecpmnetwork.com/10/a5/52/10a552baba58acb99192864c58e71170.js" />
+
         {/* Info Banner */}
         <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
           <div className="text-blue-800 text-sm">
