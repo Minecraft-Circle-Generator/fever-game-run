@@ -146,21 +146,27 @@ const FastHome = () => {
     return () => observer.disconnect();
   }, []);
 
-  // 快速加载状态
+  // 快速加载状态 — skeleton mirrors final layout to prevent CLS
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-yellow-50">
-        <div className="bg-gradient-to-r from-red-900 to-black h-32 md:h-48"></div>
+        {/* Hero skeleton — same height as MobileHero / DesktopHero */}
+        <div className="bg-gradient-to-r from-red-900 to-black" style={{ minHeight: isMobile ? '180px' : '280px' }}></div>
         <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="bg-white rounded-xl shadow-lg p-6 mb-6 animate-pulse">
+          {/* Live banner skeleton */}
+          <div className="bg-blue-500/30 rounded-xl h-12 md:h-[72px] mb-6 animate-pulse"></div>
+          {/* Game card skeleton */}
+          <div className="bg-white rounded-xl shadow-lg p-6 mb-6 animate-pulse" style={{ minHeight: '160px' }}>
             <div className="h-4 bg-gray-200 rounded w-1/3 mb-4"></div>
             <div className="flex justify-between items-center">
               <div className="h-8 bg-gray-200 rounded w-1/4"></div>
               <div className="h-6 bg-gray-200 rounded w-12"></div>
               <div className="h-8 bg-gray-200 rounded w-1/4"></div>
             </div>
-            <div className="h-3 bg-gray-200 rounded w-1/2 mt-4 mx-auto"></div>
           </div>
+          {/* Countdown skeleton */}
+          <div className="bg-indigo-900/30 rounded-2xl h-32 md:h-40 mb-6 animate-pulse"></div>
+          {/* Stats skeleton */}
           <div className="grid grid-cols-3 gap-4 mb-6">
             <div className="bg-white rounded-lg shadow p-4 animate-pulse"><div className="h-10 bg-gray-200 rounded"></div></div>
             <div className="bg-white rounded-lg shadow p-4 animate-pulse"><div className="h-10 bg-gray-200 rounded"></div></div>
@@ -279,8 +285,8 @@ const FastHome = () => {
             </div>
           </section>
 
-          {/* Countdown Widget */}
-          <div className="w-full my-8">
+          {/* Countdown Widget — min-height prevents CLS while loading */}
+          <div className="w-full my-8" style={{ minHeight: '140px' }}>
             <NextGameCountdown />
           </div>
 

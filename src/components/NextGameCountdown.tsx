@@ -65,7 +65,7 @@ export default function NextGameCountdown() {
 
   return (
     <Link to="/schedule" className="block bg-gradient-to-br from-[#041E42] via-[#0E2D5B] to-[#C8102E] rounded-2xl shadow-xl overflow-hidden relative group cursor-pointer hover:shadow-2xl transition-all hover:-translate-y-1">
-      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+      <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
       
       <div className="relative p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
         
