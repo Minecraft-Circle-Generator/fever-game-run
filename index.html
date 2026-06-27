@@ -83,12 +83,9 @@
     <meta name="syndication-source" content="https://fevergame.space/" />
     <meta name="original-source" content="https://fevergame.space/" />
 
-    <!-- Preconnect for Performance -->
-    <link rel="preconnect" href="https://images.pexels.com" />
-    <link rel="dns-prefetch" href="https://images.pexels.com" />
-    <link rel="preconnect" href="https://www.googleapis.com" />
-    <link rel="dns-prefetch" href="https://www.googleapis.com" />
-    <link rel="preconnect" href="https://i.ytimg.com" />
+    <!-- Preconnect for Performance (limited to 2 critical origins) -->
+    <link rel="preconnect" href="https://site.api.espn.com" />
+    <link rel="dns-prefetch" href="https://site.api.espn.com" />
     <link rel="dns-prefetch" href="https://i.ytimg.com" />
     
 <script type="text/javascript">
@@ -160,15 +157,14 @@
       ]
     }
     </script>
-    <!-- Removed deceptive click-hijack script here -->
+    <script>
+      // 捕获 PWA 安装事件，供 Bookmark 按钮使用
+      window.addEventListener('beforeinstallprompt', function(e) {
+        e.preventDefault();
+        window.__deferredPWAInstallPrompt = e;
+      });
+    </script>
   </head>
-  <script>
-    // 捕获 PWA 安装事件，供 Bookmark 按钮使用
-    window.addEventListener('beforeinstallprompt', function(e) {
-      e.preventDefault();
-      window.__deferredPWAInstallPrompt = e;
-    });
-  </script>
   <body>
     <div id="root"></div>
     <noscript>
@@ -181,7 +177,7 @@
       </div>
     </noscript>
     <script type="module" src="/src/main.tsx"></script>
-    <!-- Skimlinks Affiliate Script -->
-    <script type="text/javascript" src="https://s.skimresources.com/js/305242X1793438.skimlinks.js"></script>
+    <!-- Skimlinks Affiliate Script (async to prevent render-blocking) -->
+    <script type="text/javascript" src="https://s.skimresources.com/js/305242X1793438.skimlinks.js" async></script>
   </body>
 </html>
