@@ -21,6 +21,18 @@ class ErrorBoundary extends Component<Props, State> {
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
+    
+    // Auto-reload on chunk load errors (happens after new deployments)
+    const errorStr = error.message || '';
+    if (
+      error.name === 'ChunkLoadError' ||
+      errorStr.includes('dynamically imported module') ||
+      errorStr.includes('valid JavaScript MIME type') ||
+      errorStr.includes("Unexpected token '<'")
+    ) {
+      // Force reload to get the new index.html and fresh chunk hashes
+      window.location.reload();
+    }
   }
 
   public render() {
@@ -32,10 +44,10 @@ class ErrorBoundary extends Component<Props, State> {
             {this.state.error?.message || 'An unexpected error occurred'}
           </div>
           <button 
-            onClick={() => this.setState({ hasError: false, error: undefined })}
+            onClick={() => window.location.reload()}
             className="mt-4 bg-blue-500 text-white px-4 py-2 rounded text-sm"
           >
-            Try Again
+            Reload Page
           </button>
         </div>
       );
