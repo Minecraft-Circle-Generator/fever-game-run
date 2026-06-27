@@ -131,8 +131,7 @@ const News = () => {
         {/* Native Ad Slot */}
         <div className="mt-8 text-center">
           <AdWrapper 
-            scriptSrc="https://pl29871294.effectivecpmnetwork.com/639a4c936d7c38df8d03c63b78071559/invoke.js" 
-            containerId="container-639a4c936d7c38df8d03c63b78071559" 
+            scriptSrc="https://pl29886421.effectivecpmnetwork.com/10/a5/52/10a552baba58acb99192864c58e71170.js" 
           />
         </div>
 
