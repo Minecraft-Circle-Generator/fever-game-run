@@ -158,8 +158,8 @@ export default function SchedulePage() {
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex gap-2">
                           {game.status === 'live' && (
-                            <span className="px-2 py-1 rounded text-xs font-bold uppercase tracking-wider bg-green-500 text-white animate-pulse flex items-center shadow-sm">
-                              <span className="w-2 h-2 bg-white rounded-full mr-1.5"></span> LIVE NOW
+                            <span className="px-2 py-1 rounded text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-red-600 to-orange-500 text-white animate-pulse flex items-center shadow-sm border border-red-400">
+                              <span className="w-2 h-2 bg-yellow-300 rounded-full mr-1.5 shadow-sm"></span> LIVE NOW
                             </span>
                           )}
                           <span className={`px-2 py-1 rounded text-xs font-bold uppercase tracking-wider ${game.isHome ? 'bg-red-100 text-red-700' : 'bg-gray-200 text-gray-700'}`}>
