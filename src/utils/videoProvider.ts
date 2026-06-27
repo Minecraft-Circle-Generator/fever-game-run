@@ -287,7 +287,7 @@ async function fetchRSSVideos(channelId: string, channelName: string): Promise<L
       const publishedAt = entry.getElementsByTagName('published')[0]?.textContent || new Date().toISOString();
       const author = entry.getElementsByTagName('author')[0];
       const channelTitle = author?.getElementsByTagName('name')[0]?.textContent || channelName;
-      const maxres = id ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : 'https://i.ytimg.com/vi/invalid/hqdefault.jpg';
+      const maxres = id ? `https://i.ytimg.com/vi_webp/${id}/hqdefault.webp` : 'https://i.ytimg.com/vi_webp/invalid/hqdefault.webp';
       return {
         id,
         title,
@@ -421,7 +421,7 @@ async function fetchUploadsVideos(channelConfig: typeof TARGET_CHANNELS[0]): Pro
         sn.thumbnails?.high?.url ||
         sn.thumbnails?.medium?.url ||
         sn.thumbnails?.default?.url ||
-        `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+        `https://i.ytimg.com/vi_webp/${id}/hqdefault.webp`;
 
       return {
         id,

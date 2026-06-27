@@ -61,11 +61,11 @@ const withTimeout = async <T>(p: Promise<T>, ms: number, fallback: T): Promise<T
 
 // 兜底清洗：保证缩略图与上传时间有效（保留已有 views，不改）
 const sanitizeVideos = (list: VideoData[]): VideoData[] => {
-  const fallbackThumb = 'https://i.ytimg.com/vi/invalid/hqdefault.jpg';
+  const fallbackThumb = 'https://i.ytimg.com/vi_webp/invalid/hqdefault.webp';
   return (list || []).map(v => ({
     ...v,
     // 只兜底缩略图，不覆盖已计算好的时间
-    thumbnail: v.thumbnail || (v.videoId ? `https://i.ytimg.com/vi/${v.videoId}/hqdefault.jpg` : fallbackThumb)
+    thumbnail: v.thumbnail || (v.videoId ? `https://i.ytimg.com/vi_webp/${v.videoId}/hqdefault.webp` : fallbackThumb)
   }));
 };
 
@@ -266,7 +266,7 @@ export const useRealTimeData = () => {
         return {
           id: v.id,
           title: v.title,
-          thumbnail: v.thumbnailUrl || (v.id ? `https://i.ytimg.com/vi/${v.id}/hqdefault.jpg` : ''),
+          thumbnail: v.thumbnailUrl || (v.id ? `https://i.ytimg.com/vi_webp/${v.id}/hqdefault.webp` : ''),
           duration: v.live ? 'LIVE' : `${Math.floor(Math.random() * 5) + 2}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')}`,
           views: viewsStr, // 可为空，由组件用数值兜底
           uploadDate,

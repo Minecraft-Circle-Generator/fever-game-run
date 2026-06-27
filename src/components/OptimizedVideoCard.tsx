@@ -36,10 +36,10 @@ const OptimizedVideoCard: React.FC<OptimizedVideoCardProps> = memo(({
   const thumbCandidates = useMemo(() => {
     if (!videoId) return [];
     return [
-      `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`,
-      `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
-      `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`,
-      `https://i.ytimg.com/vi/${videoId}/default.jpg`
+      `https://i.ytimg.com/vi_webp/${videoId}/maxresdefault.webp`,
+      `https://i.ytimg.com/vi_webp/${videoId}/hqdefault.webp`,
+      `https://i.ytimg.com/vi_webp/${videoId}/mqdefault.webp`,
+      `https://i.ytimg.com/vi_webp/${videoId}/default.webp`
     ];
   }, [videoId]);
 
