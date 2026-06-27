@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import AdWrapper from '../components/AdWrapper';
 import { Calendar, MapPin, Clock, ExternalLink, Ticket } from 'lucide-react';
 import { fetchFullFeverSchedule, ScheduleGame } from '../utils/espnProvider';
 
@@ -112,8 +111,6 @@ export default function SchedulePage() {
             </a>
           </div>
         </div>
-
-        <AdWrapper scriptSrc="//whelmlegge.com/gP9iIRQ1T5bkhjTcG/144793" />
 
         {loading ? (
           <div className="space-y-4">
