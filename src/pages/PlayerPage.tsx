@@ -8,21 +8,7 @@ import { fetchLatestVideos, LatestVideo } from '../utils/videoProvider';
 import { fetchClarkGameLog, ClarkGameLog } from '../utils/espnProvider';
 
 const PlayerPage = () => {
-  // 添加 Google AdSense 脚本
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1766207958063879';
-    script.async = true;
-    script.crossOrigin = 'anonymous';
-    document.head.appendChild(script);
 
-    return () => {
-      // 清理脚本
-      if (document.head.contains(script)) {
-        document.head.removeChild(script);
-      }
-    };
-  }, []);
   const [videos, setVideos] = useState<LatestVideo[]>([]);
   const [loading, setLoading] = useState(true);
   const [gameLogs, setGameLogs] = useState<ClarkGameLog[]>([]);
@@ -143,16 +129,6 @@ const PlayerPage = () => {
     fetchClarkVideos();
   }, []);
 
-  // 初始化 AdSense 广告
-  useEffect(() => {
-    try {
-      if ((window as any).adsbygoogle) {
-        (window as any).adsbygoogle.push({});
-      }
-    } catch (e) {
-      console.log('AdSense error:', e);
-    }
-  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -256,17 +232,6 @@ const PlayerPage = () => {
           </div>
         </section>
 
-        {/* Google AdSense 广告位 */}
-        <section className="mb-12">
-          <div className="bg-white rounded-lg shadow-md p-6 text-center">
-            <ins className="adsbygoogle"
-                 style={{display: 'block'}}
-                 data-ad-client="ca-pub-1766207958063879"
-                 data-ad-slot="auto"
-                 data-ad-format="auto"
-                 data-full-width-responsive="true"></ins>
-          </div>
-        </section>
 
         {/* Highlight Videos */}
         <section>
