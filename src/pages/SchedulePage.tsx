@@ -158,7 +158,7 @@ export default function SchedulePage() {
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex gap-2">
                           {game.status === 'live' && (
-                            <span className="px-2 py-1 rounded text-xs font-bold uppercase tracking-wider bg-red-600 text-white animate-pulse flex items-center shadow-sm">
+                            <span className="px-2 py-1 rounded text-xs font-bold uppercase tracking-wider bg-green-500 text-white animate-pulse flex items-center shadow-sm">
                               <span className="w-2 h-2 bg-white rounded-full mr-1.5"></span> LIVE NOW
                             </span>
                           )}
