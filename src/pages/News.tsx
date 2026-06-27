@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { FileText, Calendar, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { fetchWnbaNews, WnbaNewsItem } from '../utils/espnProvider';
-
+import AdWrapper from '../components/AdWrapper';
 
 const fallbackArticles = [
   {
@@ -128,7 +128,13 @@ const News = () => {
           </div>
         )}
 
-
+        {/* Native Ad Slot */}
+        <div className="mt-8 text-center">
+          <AdWrapper 
+            scriptSrc="https://pl29871294.effectivecpmnetwork.com/639a4c936d7c38df8d03c63b78071559/invoke.js" 
+            containerId="container-639a4c936d7c38df8d03c63b78071559" 
+          />
+        </div>
 
         {/* AdSense Slot inside content to show text context to crawler */}
         <div className="mt-12 text-center p-6 bg-white rounded-xl shadow-sm border border-gray-100">
