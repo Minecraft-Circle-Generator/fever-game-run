@@ -23,10 +23,13 @@ const HowToWatchFever = lazy(() => import('./pages/guides/HowToWatchFever'));
 const CaitlinClarkImpact = lazy(() => import('./pages/guides/CaitlinClarkImpact'));
 const FeverSeasonPreview = lazy(() => import('./pages/guides/FeverSeasonPreview'));
 
+import ScrollToTop from './components/ScrollToTop';
+
 function App() {
   return (
     <HelmetProvider>
       <Router>
+        <ScrollToTop />
         <div className="min-h-screen bg-gray-50 flex flex-col">
           <Navigation />
           <main className="flex-grow">
