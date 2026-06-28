@@ -17,11 +17,9 @@ const NativeAd: React.FC = () => {
         if (entries[0].isIntersecting && !loaded) {
           setLoaded(true);
           if (containerRef.current) {
-            const script = document.createElement('script');
-            script.async = true;
-            script.setAttribute('data-cfasync', 'false');
-            script.src = 'https://pl29871294.effectivecpmnetwork.com/639a4c936d7c38df8d03c63b78071559/invoke.js';
-            containerRef.current.appendChild(script);
+          if (containerRef.current) {
+            // Removed effectivecpmnetwork ad
+          }
           }
           observer.disconnect();
         }

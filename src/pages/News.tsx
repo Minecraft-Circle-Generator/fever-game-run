@@ -128,12 +128,7 @@ const News = () => {
           </div>
         )}
 
-        {/* Native Ad Slot */}
-        <div className="mt-8 text-center">
-          <AdWrapper 
-            scriptSrc="https://pl29886421.effectivecpmnetwork.com/10/a5/52/10a552baba58acb99192864c58e71170.js" 
-          />
-        </div>
+        {/* Removed effectivecpmnetwork ad */}
 
         {/* AdSense Slot inside content to show text context to crawler */}
         <div className="mt-12 text-center p-6 bg-white rounded-xl shadow-sm border border-gray-100">
